@@ -21,7 +21,11 @@ public partial class Productos
 
     public Guid IdIva { get; set; }
 
+    public Guid IdEmpresa { get; set; }
+
     public virtual ICollection<DetallePrecioProductos> DetallePrecioProductos { get; set; } = new List<DetallePrecioProductos>();
+
+    public virtual Empresas IdEmpresaNavigation { get; set; } = null!;
 
     public virtual Ivas IdIvaNavigation { get; set; } = null!;
 }

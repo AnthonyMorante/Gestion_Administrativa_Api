@@ -23,6 +23,8 @@ public partial class _context : DbContext
 
     public virtual DbSet<Empleados> Empleados { get; set; }
 
+    public virtual DbSet<Empresas> Empresas { get; set; }
+
     public virtual DbSet<Ivas> Ivas { get; set; }
 
     public virtual DbSet<Productos> Productos { get; set; }
@@ -35,10 +37,11 @@ public partial class _context : DbContext
 
     public virtual DbSet<TipoNegocios> TipoNegocios { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseNpgsql("Host=localhost;Database=gestion_administrativa;Username=postgres;Password=123");
+    public virtual DbSet<UsuarioEmpresas> UsuarioEmpresas { get; set; }
 
+    public virtual DbSet<Usuarios> Usuarios { get; set; }
+
+   
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Ciudades>(entity =>
@@ -88,6 +91,7 @@ public partial class _context : DbContext
                 .HasColumnType("timestamp without time zone")
                 .HasColumnName("fechaRegistro");
             entity.Property(e => e.IdCiudad).HasColumnName("idCiudad");
+            entity.Property(e => e.IdEmpresa).HasColumnName("idEmpresa");
             entity.Property(e => e.IdTipoIdentificacion).HasColumnName("idTipoIdentificacion");
             entity.Property(e => e.Identificacion)
                 .HasMaxLength(30)
@@ -109,6 +113,11 @@ public partial class _context : DbContext
                 .HasForeignKey(d => d.IdCiudad)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("clientes_idCiudad_fkey");
+
+            entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.Clientes)
+                .HasForeignKey(d => d.IdEmpresa)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("cientes_empresas");
 
             entity.HasOne(d => d.IdTipoIdentificacionNavigation).WithMany(p => p.Clientes)
                 .HasForeignKey(d => d.IdTipoIdentificacion)
@@ -162,6 +171,7 @@ public partial class _context : DbContext
                 .HasColumnType("timestamp without time zone")
                 .HasColumnName("fechaRegistro");
             entity.Property(e => e.IdCiudad).HasColumnName("idCiudad");
+            entity.Property(e => e.IdEmpresa).HasColumnName("idEmpresa");
             entity.Property(e => e.IdTipoIdentificacion).HasColumnName("idTipoIdentificacion");
             entity.Property(e => e.Identificacion)
                 .HasMaxLength(30)
@@ -181,10 +191,50 @@ public partial class _context : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("empleados_idCiudad_fkey");
 
+            entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.Empleados)
+                .HasForeignKey(d => d.IdEmpresa)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("empleados_empresas");
+
             entity.HasOne(d => d.IdTipoIdentificacionNavigation).WithMany(p => p.Empleados)
                 .HasForeignKey(d => d.IdTipoIdentificacion)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("empleados_idTipoIdentificacion_fkey");
+        });
+
+        modelBuilder.Entity<Empresas>(entity =>
+        {
+            entity.HasKey(e => e.IdEmpresa).HasName("empresas_pkey");
+
+            entity.ToTable("empresas");
+
+            entity.Property(e => e.IdEmpresa)
+                .HasDefaultValueSql("gen_random_uuid()")
+                .HasColumnName("idEmpresa");
+            entity.Property(e => e.AgenteRetencion).HasColumnName("agenteRetencion");
+            entity.Property(e => e.IdTipoNegocio).HasColumnName("idTipoNegocio");
+            entity.Property(e => e.Identificacion)
+                .HasMaxLength(30)
+                .HasColumnName("identificacion");
+            entity.Property(e => e.LlevaContabilidad).HasColumnName("llevaContabilidad");
+            entity.Property(e => e.RazonSocial)
+                .HasMaxLength(500)
+                .HasColumnName("razonSocial");
+            entity.Property(e => e.RegimenMicroempresas).HasColumnName("regimenMicroempresas");
+            entity.Property(e => e.RegimenRimpe).HasColumnName("regimenRimpe");
+            entity.Property(e => e.Telefono)
+                .HasMaxLength(30)
+                .HasColumnName("telefono");
+
+            entity.HasOne(d => d.IdEmpresaNavigation).WithOne(p => p.InverseIdEmpresaNavigation)
+                .HasForeignKey<Empresas>(d => d.IdEmpresa)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("empresas_empresas");
+
+            entity.HasOne(d => d.IdTipoNegocioNavigation).WithMany(p => p.Empresas)
+                .HasForeignKey(d => d.IdTipoNegocio)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("empresas_TipoNegocios");
         });
 
         modelBuilder.Entity<Ivas>(entity =>
@@ -236,6 +286,7 @@ public partial class _context : DbContext
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("timestamp without time zone")
                 .HasColumnName("fechaRegistro");
+            entity.Property(e => e.IdEmpresa).HasColumnName("idEmpresa");
             entity.Property(e => e.IdIva).HasColumnName("idIva");
             entity.Property(e => e.Nombre)
                 .HasMaxLength(500)
@@ -243,6 +294,11 @@ public partial class _context : DbContext
             entity.Property(e => e.Precio)
                 .HasPrecision(8, 2)
                 .HasColumnName("precio");
+
+            entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.Productos)
+                .HasForeignKey(d => d.IdEmpresa)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("productos_empresas");
 
             entity.HasOne(d => d.IdIvaNavigation).WithMany(p => p.Productos)
                 .HasForeignKey(d => d.IdIva)
@@ -266,6 +322,7 @@ public partial class _context : DbContext
                 .HasMaxLength(500)
                 .HasColumnName("email");
             entity.Property(e => e.IdCiudad).HasColumnName("idCiudad");
+            entity.Property(e => e.IdEmpresa).HasColumnName("idEmpresa");
             entity.Property(e => e.IdTipoIdentificacion).HasColumnName("idTipoIdentificacion");
             entity.Property(e => e.Identificacion)
                 .HasMaxLength(30)
@@ -290,6 +347,11 @@ public partial class _context : DbContext
                 .HasForeignKey(d => d.IdCiudad)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("proveedores_idCiudad_fkey");
+
+            entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.Proveedores)
+                .HasForeignKey(d => d.IdEmpresa)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("proveedores_empresas");
 
             entity.HasOne(d => d.IdTipoIdentificacionNavigation).WithMany(p => p.Proveedores)
                 .HasForeignKey(d => d.IdTipoIdentificacion)
@@ -357,6 +419,60 @@ public partial class _context : DbContext
             entity.Property(e => e.Descripcion)
                 .HasMaxLength(500)
                 .HasColumnName("descripcion");
+            entity.Property(e => e.FechaRegistro)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("fechaRegistro");
+            entity.Property(e => e.Nombre)
+                .HasMaxLength(500)
+                .HasColumnName("nombre");
+        });
+
+        modelBuilder.Entity<UsuarioEmpresas>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToTable("usuarioEmpresas");
+
+            entity.Property(e => e.Activo)
+                .HasDefaultValueSql("true")
+                .HasColumnName("activo");
+            entity.Property(e => e.FechaRegistro)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("fechaRegistro");
+            entity.Property(e => e.IdEmpresa).HasColumnName("idEmpresa");
+            entity.Property(e => e.IdUsuario).HasColumnName("idUsuario");
+            entity.Property(e => e.IdUsuarioEmpresas)
+                .HasDefaultValueSql("gen_random_uuid()")
+                .HasColumnName("idUsuarioEmpresas");
+
+            entity.HasOne(d => d.IdEmpresaNavigation).WithMany()
+                .HasForeignKey(d => d.IdEmpresa)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("usuarioEmpresas_idEmpresa_fkey");
+
+            entity.HasOne(d => d.IdUsuarioNavigation).WithMany()
+                .HasForeignKey(d => d.IdUsuario)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("usuarioEmpresas_idUsuario_fkey");
+        });
+
+        modelBuilder.Entity<Usuarios>(entity =>
+        {
+            entity.HasKey(e => e.IdUsuario).HasName("usuarios_pkey");
+
+            entity.ToTable("usuarios");
+
+            entity.Property(e => e.IdUsuario)
+                .HasDefaultValueSql("gen_random_uuid()")
+                .HasColumnName("idUsuario");
+            entity.Property(e => e.Activo)
+                .HasDefaultValueSql("true")
+                .HasColumnName("activo");
+            entity.Property(e => e.Clave)
+                .HasMaxLength(500)
+                .HasColumnName("clave");
             entity.Property(e => e.FechaRegistro)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("timestamp without time zone")

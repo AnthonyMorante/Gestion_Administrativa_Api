@@ -7,7 +7,7 @@ namespace Gestion_Administrativa_Api.Interfaces
     {
         Task<string> insertar(Proveedores _proveedores);
         Task<IEnumerable<Proveedores>> listar(bool? activo);
-        Task<string> editar(Proveedores _proveedores)
+        Task<string> editar(Proveedores _proveedores);
     }
 
 

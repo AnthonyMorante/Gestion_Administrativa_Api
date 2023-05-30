@@ -3,17 +3,15 @@ using System.Collections.Generic;
 
 namespace Gestion_Administrativa_Api.Models;
 
-public partial class TipoNegocios
+public partial class Usuarios
 {
-    public Guid IdTipoNegocio { get; set; }
+    public Guid IdUsuario { get; set; }
 
     public string? Nombre { get; set; }
 
-    public string? Descripcion { get; set; }
+    public string? Clave { get; set; }
 
     public DateTime? FechaRegistro { get; set; }
 
     public bool? Activo { get; set; }
-
-    public virtual ICollection<Empresas> Empresas { get; set; } = new List<Empresas>();
 }

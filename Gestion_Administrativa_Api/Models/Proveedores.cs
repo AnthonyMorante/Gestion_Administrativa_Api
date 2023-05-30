@@ -27,7 +27,11 @@ public partial class Proveedores
 
     public Guid IdTipoIdentificacion { get; set; }
 
+    public Guid IdEmpresa { get; set; }
+
     public virtual Ciudades IdCiudadNavigation { get; set; } = null!;
+
+    public virtual Empresas IdEmpresaNavigation { get; set; } = null!;
 
     public virtual TipoIdentificaciones IdTipoIdentificacionNavigation { get; set; } = null!;
 }
