@@ -15,5 +15,7 @@ public partial class TipoNegocios
 
     public bool? Activo { get; set; }
 
+    public string? Codigo { get; set; }
+
     public virtual ICollection<Empresas> Empresas { get; set; } = new List<Empresas>();
 }

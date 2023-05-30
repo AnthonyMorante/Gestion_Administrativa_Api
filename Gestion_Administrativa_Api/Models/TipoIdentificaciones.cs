@@ -15,6 +15,8 @@ public partial class TipoIdentificaciones
 
     public bool? Activo { get; set; }
 
+    public int? Codigo { get; set; }
+
     public virtual ICollection<Clientes> Clientes { get; set; } = new List<Clientes>();
 
     public virtual ICollection<Empleados> Empleados { get; set; } = new List<Empleados>();

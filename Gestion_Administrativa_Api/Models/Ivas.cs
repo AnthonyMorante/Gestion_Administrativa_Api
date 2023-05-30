@@ -17,5 +17,7 @@ public partial class Ivas
 
     public DateTime? FechaRegistro { get; set; }
 
+    public int? Codigo { get; set; }
+
     public virtual ICollection<Productos> Productos { get; set; } = new List<Productos>();
 }

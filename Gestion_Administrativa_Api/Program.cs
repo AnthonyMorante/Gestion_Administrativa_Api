@@ -1,5 +1,6 @@
 using Gestion_Administrativa_Api.Auth;
 using Gestion_Administrativa_Api.Configuration;
+using Gestion_Administrativa_Api.Interfaces;
 using Gestion_Administrativa_Api.Models;
 using Gestion_Administrativa_Api.Repository;
 using IdentityServer4.Models;
@@ -76,6 +77,9 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddTransient<IProfileService, ProfileService>();
 builder.Services.AddTransient<IUserRepository, UserRepository>();
+
+builder.Services.AddTransient<IClientes, ClientesI>();
+builder.Services.AddTransient<ITipoIdentificaciones, TipoIdentificacionesI>();
 
 
 

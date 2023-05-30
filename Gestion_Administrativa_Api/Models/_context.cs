@@ -241,6 +241,7 @@ public partial class _context : DbContext
             entity.Property(e => e.Activo)
                 .HasDefaultValueSql("true")
                 .HasColumnName("activo");
+            entity.Property(e => e.Codigo).HasColumnName("codigo");
             entity.Property(e => e.Descripcion)
                 .HasMaxLength(500)
                 .HasColumnName("descripcion");
@@ -379,6 +380,7 @@ public partial class _context : DbContext
             entity.Property(e => e.Activo)
                 .HasDefaultValueSql("false")
                 .HasColumnName("activo");
+            entity.Property(e => e.Codigo).HasColumnName("codigo");
             entity.Property(e => e.Descripcion)
                 .HasMaxLength(500)
                 .HasColumnName("descripcion");
@@ -403,6 +405,9 @@ public partial class _context : DbContext
             entity.Property(e => e.Activo)
                 .HasDefaultValueSql("false")
                 .HasColumnName("activo");
+            entity.Property(e => e.Codigo)
+                .HasMaxLength(500)
+                .HasColumnName("codigo");
             entity.Property(e => e.Descripcion)
                 .HasMaxLength(500)
                 .HasColumnName("descripcion");
