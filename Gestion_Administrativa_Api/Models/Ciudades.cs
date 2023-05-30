@@ -13,13 +13,13 @@ public partial class Ciudades
 
     public bool? Activo { get; set; }
 
-    public Guid IdProvincia { get; set; }
+    public Guid? IdProvincia { get; set; }
 
     public virtual ICollection<Clientes> Clientes { get; set; } = new List<Clientes>();
 
     public virtual ICollection<Empleados> Empleados { get; set; } = new List<Empleados>();
 
-    public virtual Provincias IdProvinciaNavigation { get; set; } = null!;
+    public virtual Provincias? IdProvinciaNavigation { get; set; }
 
     public virtual ICollection<Proveedores> Proveedores { get; set; } = new List<Proveedores>();
 }

@@ -111,15 +111,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
-
 app.UseAuthentication();
-
 app.UseAuthorization();
-
 app.UseIdentityServer();
-
-
 app.MapControllers();
-
+app.UseCors("cors");
 app.Run();

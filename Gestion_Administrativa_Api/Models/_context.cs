@@ -42,6 +42,7 @@ public partial class _context : DbContext
     public virtual DbSet<Usuarios> Usuarios { get; set; }
 
    
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Ciudades>(entity =>
@@ -67,7 +68,6 @@ public partial class _context : DbContext
 
             entity.HasOne(d => d.IdProvinciaNavigation).WithMany(p => p.Ciudades)
                 .HasForeignKey(d => d.IdProvincia)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("ciudades_idProvincia_fkey");
         });
 
@@ -111,17 +111,14 @@ public partial class _context : DbContext
 
             entity.HasOne(d => d.IdCiudadNavigation).WithMany(p => p.Clientes)
                 .HasForeignKey(d => d.IdCiudad)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("clientes_idCiudad_fkey");
 
             entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.Clientes)
                 .HasForeignKey(d => d.IdEmpresa)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("cientes_empresas");
 
             entity.HasOne(d => d.IdTipoIdentificacionNavigation).WithMany(p => p.Clientes)
                 .HasForeignKey(d => d.IdTipoIdentificacion)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("clientes_idTipoIdentificacion_fkey");
         });
 
@@ -147,7 +144,6 @@ public partial class _context : DbContext
 
             entity.HasOne(d => d.IdProductoNavigation).WithMany(p => p.DetallePrecioProductos)
                 .HasForeignKey(d => d.IdProducto)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("detallePrecioProductos_idProducto_fkey");
         });
 
@@ -188,17 +184,14 @@ public partial class _context : DbContext
 
             entity.HasOne(d => d.IdCiudadNavigation).WithMany(p => p.Empleados)
                 .HasForeignKey(d => d.IdCiudad)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("empleados_idCiudad_fkey");
 
             entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.Empleados)
                 .HasForeignKey(d => d.IdEmpresa)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("empleados_empresas");
 
             entity.HasOne(d => d.IdTipoIdentificacionNavigation).WithMany(p => p.Empleados)
                 .HasForeignKey(d => d.IdTipoIdentificacion)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("empleados_idTipoIdentificacion_fkey");
         });
 
@@ -233,7 +226,6 @@ public partial class _context : DbContext
 
             entity.HasOne(d => d.IdTipoNegocioNavigation).WithMany(p => p.Empresas)
                 .HasForeignKey(d => d.IdTipoNegocio)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("empresas_TipoNegocios");
         });
 
@@ -297,12 +289,10 @@ public partial class _context : DbContext
 
             entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.Productos)
                 .HasForeignKey(d => d.IdEmpresa)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("productos_empresas");
 
             entity.HasOne(d => d.IdIvaNavigation).WithMany(p => p.Productos)
                 .HasForeignKey(d => d.IdIva)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("productos_idIva_fkey");
         });
 
@@ -345,17 +335,14 @@ public partial class _context : DbContext
 
             entity.HasOne(d => d.IdCiudadNavigation).WithMany(p => p.Proveedores)
                 .HasForeignKey(d => d.IdCiudad)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("proveedores_idCiudad_fkey");
 
             entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.Proveedores)
                 .HasForeignKey(d => d.IdEmpresa)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("proveedores_empresas");
 
             entity.HasOne(d => d.IdTipoIdentificacionNavigation).WithMany(p => p.Proveedores)
                 .HasForeignKey(d => d.IdTipoIdentificacion)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("proveedores_idTipoIdentificacion_fkey");
         });
 

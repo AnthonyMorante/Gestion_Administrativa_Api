@@ -21,7 +21,7 @@ public partial class Empresas
 
     public bool? AgenteRetencion { get; set; }
 
-    public Guid IdTipoNegocio { get; set; }
+    public Guid? IdTipoNegocio { get; set; }
 
     public virtual ICollection<Clientes> Clientes { get; set; } = new List<Clientes>();
 
@@ -29,7 +29,7 @@ public partial class Empresas
 
     public virtual Empresas IdEmpresaNavigation { get; set; } = null!;
 
-    public virtual TipoNegocios IdTipoNegocioNavigation { get; set; } = null!;
+    public virtual TipoNegocios? IdTipoNegocioNavigation { get; set; }
 
     public virtual Empresas? InverseIdEmpresaNavigation { get; set; }
 

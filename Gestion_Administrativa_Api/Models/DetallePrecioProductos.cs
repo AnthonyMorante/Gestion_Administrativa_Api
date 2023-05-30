@@ -13,7 +13,7 @@ public partial class DetallePrecioProductos
 
     public decimal? Total { get; set; }
 
-    public Guid IdProducto { get; set; }
+    public Guid? IdProducto { get; set; }
 
-    public virtual Productos IdProductoNavigation { get; set; } = null!;
+    public virtual Productos? IdProductoNavigation { get; set; }
 }

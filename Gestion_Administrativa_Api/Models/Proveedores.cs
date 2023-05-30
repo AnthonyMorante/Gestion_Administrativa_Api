@@ -23,15 +23,15 @@ public partial class Proveedores
 
     public string? Observacion { get; set; }
 
-    public Guid IdCiudad { get; set; }
+    public Guid? IdCiudad { get; set; }
 
-    public Guid IdTipoIdentificacion { get; set; }
+    public Guid? IdTipoIdentificacion { get; set; }
 
-    public Guid IdEmpresa { get; set; }
+    public Guid? IdEmpresa { get; set; }
 
-    public virtual Ciudades IdCiudadNavigation { get; set; } = null!;
+    public virtual Ciudades? IdCiudadNavigation { get; set; }
 
-    public virtual Empresas IdEmpresaNavigation { get; set; } = null!;
+    public virtual Empresas? IdEmpresaNavigation { get; set; }
 
-    public virtual TipoIdentificaciones IdTipoIdentificacionNavigation { get; set; } = null!;
+    public virtual TipoIdentificaciones? IdTipoIdentificacionNavigation { get; set; }
 }

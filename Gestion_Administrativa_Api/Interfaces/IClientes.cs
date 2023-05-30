@@ -5,6 +5,8 @@ namespace Gestion_Administrativa_Api.Interfaces
 {
     public interface IClientes
     {
+
+        Task<string> insertar(Clientes _Clientes);
     }
 
 
