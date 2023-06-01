@@ -20,10 +20,10 @@ namespace Gestion_Administrativa_Api.Controllers
         }
 
 
-        [HttpPost]
+        [HttpGet]
         [Route("[action]")]
-        public async Task<IActionResult> listar(Clientes _clientes)
-        {
+        public async Task<IActionResult> listar()
+            {
 
             try
             {
