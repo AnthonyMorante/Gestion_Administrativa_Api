@@ -29,6 +29,10 @@ public partial class Proveedores
 
     public Guid? IdEmpresa { get; set; }
 
+    public bool? Activo { get; set; }
+
+    public DateTime? FechaRegistro { get; set; }
+
     public virtual Ciudades? IdCiudadNavigation { get; set; }
 
     public virtual Empresas? IdEmpresaNavigation { get; set; }

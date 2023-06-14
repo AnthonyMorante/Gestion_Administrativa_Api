@@ -23,6 +23,8 @@ public partial class Empresas
 
     public Guid? IdTipoNegocio { get; set; }
 
+    public bool? Activo { get; set; }
+
     public virtual ICollection<Clientes> Clientes { get; set; } = new List<Clientes>();
 
     public virtual ICollection<Empleados> Empleados { get; set; } = new List<Empleados>();

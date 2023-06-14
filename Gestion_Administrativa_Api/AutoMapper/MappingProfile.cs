@@ -16,14 +16,25 @@ namespace Gestion_Administrativa_Api.AutoMapper
 
                CreateMap<ClientesDto, Clientes>();
                CreateMap<Clientes, Clientes>()
-
-              .ForMember(dest => dest.Activo, opt => opt.Ignore())
-               
-             .ForMember(dest => dest.FechaRegistro, opt => opt.Ignore()
+              .ForMember(dest => dest.Activo, opt => opt.Ignore()) 
+              .ForMember(dest => dest.FechaRegistro, opt => opt.Ignore()
 
                 
                 );
-     
+
+
+            #endregion
+
+
+            #region Clientes
+
+            CreateMap<ProveedoresDto, Proveedores>();
+            CreateMap<Proveedores, Proveedores>()
+           .ForMember(dest => dest.Activo, opt => opt.Ignore())
+           .ForMember(dest => dest.FechaRegistro, opt => opt.Ignore()
+
+             );
+
 
             #endregion
 

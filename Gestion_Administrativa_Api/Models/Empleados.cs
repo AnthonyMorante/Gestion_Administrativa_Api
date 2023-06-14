@@ -27,6 +27,8 @@ public partial class Empleados
 
     public Guid? IdEmpresa { get; set; }
 
+    public bool? Activo { get; set; }
+
     public virtual Ciudades? IdCiudadNavigation { get; set; }
 
     public virtual Empresas? IdEmpresaNavigation { get; set; }

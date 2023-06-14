@@ -1,13 +1,17 @@
-﻿using Gestion_Administrativa_Api.Models;
+﻿using AutoMapper;
+using Gestion_Administrativa_Api.Dtos;
+using Gestion_Administrativa_Api.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Gestion_Administrativa_Api.Interfaces
 {
     public interface IProveedores
     {
-        Task<string> insertar(Proveedores _proveedores);
-        Task<IEnumerable<Proveedores>> listar(bool? activo);
-        Task<string> editar(Proveedores _proveedores);
+        Task<string> insertar(ProveedoresDto _clientes);
+        Task<IEnumerable<Proveedores>> listar();
+        Task<Proveedores> cargar(Guid idCliente);
+        Task<string> editar(Proveedores _clientes);
+        Task<string> eliminar(Guid idCliente);
     }
 
 
@@ -15,23 +19,45 @@ namespace Gestion_Administrativa_Api.Interfaces
     {
 
 
-        private readonly _context _context;
 
-        public ProveedoresI(_context context)
+
+        private readonly _context _context;
+        private readonly IMapper _mapper;
+
+
+        public ProveedoresI(_context context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
 
 
 
-        public async Task<IEnumerable<Proveedores>> listar(bool? activo)
+        public async Task<IEnumerable<Proveedores>> listar()
         {
             try
             {
 
 
-                return  await _context.Proveedores.ToListAsync();
+                return await _context.Proveedores.Include(x => x.IdCiudadNavigation).Where(x => x.Activo == true).ToListAsync();
+
+
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
+
+        public async Task<Proveedores> cargar(Guid idCliente)
+        {
+            try
+            {
+
+
+                return await _context.Proveedores.Include(x => x.IdCiudadNavigation).Where(x => x.IdProveedor == idCliente).FirstOrDefaultAsync();
 
 
             }
@@ -43,12 +69,24 @@ namespace Gestion_Administrativa_Api.Interfaces
         }
 
 
-        public async Task<string> insertar(Proveedores _proveedores)
+
+
+        public async Task<string> insertar(ProveedoresDto _clientes)
         {
             try
             {
 
-                _context.Add(_proveedores);
+                var cliente = _mapper.Map<Proveedores>(_clientes);
+
+                var repetido = await comprobarRepetido(cliente);
+
+                if (repetido == true)
+                {
+
+                    return "repetido";
+
+                }
+                _context.Add(cliente);
                 await _context.SaveChangesAsync();
                 return "ok";
 
@@ -63,13 +101,67 @@ namespace Gestion_Administrativa_Api.Interfaces
 
 
 
-        public async Task<string> editar(Proveedores _proveedores)
+        public async Task<string> editar(Proveedores _clientes)
         {
             try
             {
 
-                var consulta = await _context.Proveedores.FindAsync(_proveedores.IdProveedor);
+                var repetido = await _context.Proveedores.AnyAsync(x => x.IdProveedor != _clientes.IdProveedor && x.Identificacion == _clientes.Identificacion && x.Activo == true);
+
+                if (repetido)
+                {
+                    return "repetido";
+                }
+
+
+                var consulta = await _context.Proveedores.FindAsync(_clientes.IdProveedor);
+                var map = _mapper.Map(_clientes, consulta);
+                _mapper.Map(_clientes, consulta);
                 _context.Update(consulta);
+                await _context.SaveChangesAsync();
+                return "ok";
+
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
+
+        public async Task<bool> comprobarRepetido(Proveedores _clientes)
+        {
+            try
+            {
+
+                var consultaRepetido = await _context.Proveedores.Where(x => x.Identificacion == _clientes.Identificacion && x.Activo == true).ToListAsync();
+
+                if (consultaRepetido.Count > 0)
+                {
+                    return true;
+                }
+
+                return false;
+
+
+
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
+
+
+
+        public async Task<string> eliminar(Guid idCliente)
+        {
+            try
+            {
+
+                var consulta = await _context.Proveedores.FindAsync(idCliente);
+                consulta.Activo = false;
                 await _context.SaveChangesAsync();
                 return "ok";
 

@@ -43,7 +43,7 @@ public partial class _context : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseNpgsql("Host=localhost;Database=gestion_administrativa;Username=postgres;Password=123");
+        => optionsBuilder.UseNpgsql("Host=localhost;Port=5432; Database=gestion_administrativa; Username=postgres; Password=123");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -161,6 +161,9 @@ public partial class _context : DbContext
             entity.Property(e => e.IdEmpleado)
                 .HasDefaultValueSql("gen_random_uuid()")
                 .HasColumnName("idEmpleado");
+            entity.Property(e => e.Activo)
+                .HasDefaultValueSql("true")
+                .HasColumnName("activo");
             entity.Property(e => e.Direccion)
                 .HasMaxLength(500)
                 .HasColumnName("direccion");
@@ -209,6 +212,9 @@ public partial class _context : DbContext
             entity.Property(e => e.IdEmpresa)
                 .HasDefaultValueSql("gen_random_uuid()")
                 .HasColumnName("idEmpresa");
+            entity.Property(e => e.Activo)
+                .HasDefaultValueSql("true")
+                .HasColumnName("activo");
             entity.Property(e => e.AgenteRetencion).HasColumnName("agenteRetencion");
             entity.Property(e => e.IdTipoNegocio).HasColumnName("idTipoNegocio");
             entity.Property(e => e.Identificacion)
@@ -311,12 +317,19 @@ public partial class _context : DbContext
             entity.Property(e => e.IdProveedor)
                 .HasDefaultValueSql("gen_random_uuid()")
                 .HasColumnName("idProveedor");
+            entity.Property(e => e.Activo)
+                .HasDefaultValueSql("true")
+                .HasColumnName("activo");
             entity.Property(e => e.Direccion)
                 .HasMaxLength(500)
                 .HasColumnName("direccion");
             entity.Property(e => e.Email)
                 .HasMaxLength(500)
                 .HasColumnName("email");
+            entity.Property(e => e.FechaRegistro)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("fechaRegistro");
             entity.Property(e => e.IdCiudad).HasColumnName("idCiudad");
             entity.Property(e => e.IdEmpresa).HasColumnName("idEmpresa");
             entity.Property(e => e.IdTipoIdentificacion).HasColumnName("idTipoIdentificacion");
