@@ -38,6 +38,18 @@ namespace Gestion_Administrativa_Api.AutoMapper
 
             #endregion
 
+            #region Empleados
+
+            CreateMap<EmpleadosDto, Empleados>();
+            CreateMap<Empleados, Empleados>()
+           .ForMember(dest => dest.Activo, opt => opt.Ignore())
+           .ForMember(dest => dest.FechaRegistro, opt => opt.Ignore()
+
+             );
+
+
+            #endregion
+
         }
 
 
