@@ -1,4 +1,6 @@
+using AutoMapper;
 using Gestion_Administrativa_Api.Auth;
+using Gestion_Administrativa_Api.AutoMapper;
 using Gestion_Administrativa_Api.Configuration;
 using Gestion_Administrativa_Api.Interfaces;
 using Gestion_Administrativa_Api.Models;
@@ -6,10 +8,12 @@ using Gestion_Administrativa_Api.Repository;
 using IdentityServer4.Models;
 using IdentityServer4.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography;
+using System.Text.Json.Serialization;
 using static Gestion_Administrativa_Api.Repository.IUserRepository;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -59,7 +63,24 @@ builder.Services.AddIdentityServer()
                 .AddSigningCredential(CreateSigningCredential());
 
 
+var mapperConfig = new MapperConfiguration(m =>
+{
+    m.AddProfile(new MappingProfile());
+});
 
+IMapper mapper = mapperConfig.CreateMapper();
+builder.Services.AddSingleton(mapper);
+
+
+builder.Services.AddControllers().AddJsonOptions(x =>
+                x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+
+
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add(new ConsumesAttribute("application/json"));
+    options.Filters.Add(new ProducesAttribute("application/json"));
+});
 
 builder.Services.AddCors(options =>
 {
@@ -77,9 +98,14 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddTransient<IProfileService, ProfileService>();
 builder.Services.AddTransient<IUserRepository, UserRepository>();
-
 builder.Services.AddTransient<IClientes, ClientesI>();
 builder.Services.AddTransient<ITipoIdentificaciones, TipoIdentificacionesI>();
+builder.Services.AddTransient<IProvincias, ProvinciasI>();
+builder.Services.AddTransient<ICiudades, CiudadesI>();
+
+
+
+
 
 
 

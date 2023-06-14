@@ -1,4 +1,5 @@
-﻿using Gestion_Administrativa_Api.Interfaces;
+﻿using Gestion_Administrativa_Api.Dtos;
+using Gestion_Administrativa_Api.Interfaces;
 using Gestion_Administrativa_Api.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -22,14 +23,127 @@ namespace Gestion_Administrativa_Api.Controllers
 
         [HttpPost]
         [Route("[action]")]
-        public async Task<IActionResult> insertar(Clientes _clientes)
+     
+
+        public async Task<IActionResult> insertar(ClientesDto _clientes)
         {
 
             try
             {
 
                 var consulta = await _IClientes.insertar(_clientes);
-                 return StatusCode(200, consulta);
+
+                if(consulta == "ok")
+                {
+                    return StatusCode(200, consulta);
+                }
+
+                if (consulta == "repetido")
+                {
+                    return StatusCode(200, consulta);
+                }
+
+                return BadRequest();
+
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = "error", exc = ex });
+            }
+
+        }
+
+
+
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> listar()
+        {
+
+            try
+            {
+
+                var consulta = await _IClientes.listar();
+                return StatusCode(200, consulta);
+
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = "error", exc = ex });
+            }
+
+        }
+
+
+        [HttpGet]
+        [Route("[action]/{idCliente}")]
+        public async Task<IActionResult> cargar(Guid idCliente)
+        {
+
+            try
+            {
+
+                var consulta = await _IClientes.cargar(idCliente);
+                return StatusCode(200, consulta);
+
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = "error", exc = ex });
+            }
+
+        }
+
+
+        [HttpPut]
+        [Route("[action]")]
+        public async Task<IActionResult> actualizar(Clientes _cliente)
+        {
+
+            try
+            {
+
+                var consulta = await _IClientes.editar(_cliente);
+                if(consulta == "ok")
+                {
+
+                    return StatusCode(200, consulta);
+
+                }
+
+                return BadRequest();
+
+
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = "error", exc = ex });
+            }
+
+        }
+
+
+        [HttpDelete]
+        [Route("[action]/{idCliente}")]
+        public async Task<IActionResult> eliminar(Guid idCliente)
+        {
+
+            try
+            {
+
+                var consulta = await _IClientes.eliminar(idCliente);
+
+                if (consulta == "ok")
+                {
+                    return StatusCode(200, consulta);
+
+                }
+                return BadRequest();
+    
 
 
             }

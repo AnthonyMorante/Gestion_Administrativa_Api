@@ -1,4 +1,6 @@
-﻿using Gestion_Administrativa_Api.Models;
+﻿using AutoMapper;
+using Gestion_Administrativa_Api.Dtos;
+using Gestion_Administrativa_Api.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Gestion_Administrativa_Api.Interfaces
@@ -6,7 +8,11 @@ namespace Gestion_Administrativa_Api.Interfaces
     public interface IClientes
     {
 
-        Task<string> insertar(Clientes _Clientes);
+        Task<string> insertar(ClientesDto _clientes);
+        Task<IEnumerable<Clientes>> listar();
+        Task<Clientes> cargar(Guid idCliente);
+        Task<string> editar(Clientes _clientes);
+        Task<string> eliminar(Guid idCliente);
     }
 
 
@@ -15,22 +21,42 @@ namespace Gestion_Administrativa_Api.Interfaces
 
 
         private readonly _context _context;
+             private readonly IMapper _mapper;
+  
 
-        public ClientesI(_context context)
+        public ClientesI(_context context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;   
         }
 
 
 
 
-        public async Task<IEnumerable<Clientes>> listar(bool? activo)
+        public async Task<IEnumerable<Clientes>> listar()
         {
             try
             {
 
 
-                return await _context.Clientes.ToListAsync();
+                return await _context.Clientes.Include(x=>x.IdCiudadNavigation).Where(x=>x.Activo==true).ToListAsync();
+
+
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
+
+        public async Task<Clientes> cargar(Guid idCliente)
+        {
+            try
+            {
+
+
+                return await _context.Clientes.Include(x => x.IdCiudadNavigation).Where(x => x.IdCliente== idCliente).FirstOrDefaultAsync();
 
 
             }
@@ -42,12 +68,23 @@ namespace Gestion_Administrativa_Api.Interfaces
         }
 
 
-        public async Task<string> insertar(Clientes _Clientes)
+
+
+        public async Task<string> insertar(ClientesDto _clientes)
         {
             try
             {
 
-                _context.Add(_Clientes);
+                var cliente = _mapper.Map<Clientes>(_clientes);
+                var consultaRepetido = await _context.Clientes.Where(x=>x.Identificacion == _clientes.Identificacion && x.Activo == true).ToListAsync();
+
+                if(consultaRepetido.Count > 0)
+                {
+
+                    return "repetido";
+
+                }
+                _context.Add(cliente);
                 await _context.SaveChangesAsync();
                 return "ok";
 
@@ -62,12 +99,14 @@ namespace Gestion_Administrativa_Api.Interfaces
 
 
 
-        public async Task<string> editar(Clientes _Clientes)
+        public async Task<string> editar(Clientes _clientes)
         {
             try
             {
 
-                var consulta = await _context.Clientes.FindAsync(_Clientes.IdCliente);
+                var consulta = await _context.Clientes.FindAsync(_clientes.IdCliente);
+                var map =  _mapper.Map(_clientes,consulta);
+                _mapper.Map(_clientes, consulta);
                 _context.Update(consulta);
                 await _context.SaveChangesAsync();
                 return "ok";
@@ -79,6 +118,27 @@ namespace Gestion_Administrativa_Api.Interfaces
                 throw;
             }
         }
+
+
+        public async Task<string> eliminar(Guid idCliente)
+        {
+            try
+            {
+
+                var consulta = await _context.Clientes.FindAsync(idCliente);
+                consulta.Activo = false;
+                await _context.SaveChangesAsync();
+                return "ok";
+
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
+
+
 
 
 
