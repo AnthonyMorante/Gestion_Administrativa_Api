@@ -113,6 +113,12 @@ namespace Gestion_Administrativa_Api.Controllers
                     return StatusCode(200, consulta);
 
                 }
+                if (consulta == "repetido")
+                {
+
+                    return StatusCode(200, consulta);
+
+                }
 
                 return BadRequest();
 

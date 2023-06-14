@@ -76,9 +76,10 @@ namespace Gestion_Administrativa_Api.Interfaces
             {
 
                 var cliente = _mapper.Map<Clientes>(_clientes);
-                var consultaRepetido = await _context.Clientes.Where(x=>x.Identificacion == _clientes.Identificacion && x.Activo == true).ToListAsync();
 
-                if(consultaRepetido.Count > 0)
+                var repetido = await comprobarRepetido(cliente);
+
+                if(repetido==true)
                 {
 
                     return "repetido";
@@ -104,6 +105,14 @@ namespace Gestion_Administrativa_Api.Interfaces
             try
             {
 
+                var repetido = await _context.Clientes.AnyAsync(x => x.IdCliente != _clientes.IdCliente && x.Identificacion == _clientes.Identificacion && x.Activo==true);
+                
+                if (repetido)
+                {
+                    return "repetido";
+                }
+
+
                 var consulta = await _context.Clientes.FindAsync(_clientes.IdCliente);
                 var map =  _mapper.Map(_clientes,consulta);
                 _mapper.Map(_clientes, consulta);
@@ -118,6 +127,31 @@ namespace Gestion_Administrativa_Api.Interfaces
                 throw;
             }
         }
+
+        public async Task<bool> comprobarRepetido(Clientes _clientes)
+        {
+            try
+            {
+
+                var consultaRepetido = await _context.Clientes.Where(x => x.Identificacion == _clientes.Identificacion && x.Activo == true).ToListAsync();
+              
+                if(consultaRepetido.Count > 0)
+                {
+                    return true;
+                }
+
+                return false;
+
+         
+
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
+
 
 
         public async Task<string> eliminar(Guid idCliente)
