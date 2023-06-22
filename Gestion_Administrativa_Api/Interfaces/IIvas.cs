@@ -32,7 +32,7 @@ namespace Gestion_Administrativa_Api.Interfaces
             {
 
 
-                return await _context.Ivas.ToListAsync();
+                return await _context.Ivas.Where(x=>x.Activo==true).ToListAsync();
 
 
             }

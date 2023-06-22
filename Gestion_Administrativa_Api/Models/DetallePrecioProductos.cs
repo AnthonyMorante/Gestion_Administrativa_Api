@@ -15,5 +15,7 @@ public partial class DetallePrecioProductos
 
     public Guid? IdProducto { get; set; }
 
+    public DateTime? FechaRegistro { get; set; }
+
     public virtual Productos? IdProductoNavigation { get; set; }
 }

@@ -136,6 +136,10 @@ public partial class _context : DbContext
             entity.Property(e => e.IdDetallePrecioProducto)
                 .HasDefaultValueSql("gen_random_uuid()")
                 .HasColumnName("idDetallePrecioProducto");
+            entity.Property(e => e.FechaRegistro)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("fechaRegistro");
             entity.Property(e => e.IdProducto).HasColumnName("idProducto");
             entity.Property(e => e.Porcentaje)
                 .HasPrecision(8, 2)
@@ -216,6 +220,10 @@ public partial class _context : DbContext
                 .HasDefaultValueSql("true")
                 .HasColumnName("activo");
             entity.Property(e => e.AgenteRetencion).HasColumnName("agenteRetencion");
+            entity.Property(e => e.FechaRegistro)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("fechaRegistro");
             entity.Property(e => e.IdTipoNegocio).HasColumnName("idTipoNegocio");
             entity.Property(e => e.Identificacion)
                 .HasMaxLength(30)
@@ -280,6 +288,9 @@ public partial class _context : DbContext
             entity.Property(e => e.Activo)
                 .HasDefaultValueSql("true")
                 .HasColumnName("activo");
+            entity.Property(e => e.ActivoProducto)
+                .HasDefaultValueSql("true")
+                .HasColumnName("activoProducto");
             entity.Property(e => e.Codigo)
                 .HasMaxLength(500)
                 .HasColumnName("codigo");

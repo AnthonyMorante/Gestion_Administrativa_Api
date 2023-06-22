@@ -23,6 +23,8 @@ public partial class Productos
 
     public Guid? IdEmpresa { get; set; }
 
+    public bool? ActivoProducto { get; set; }
+
     public virtual ICollection<DetallePrecioProductos> DetallePrecioProductos { get; set; } = new List<DetallePrecioProductos>();
 
     public virtual Empresas? IdEmpresaNavigation { get; set; }

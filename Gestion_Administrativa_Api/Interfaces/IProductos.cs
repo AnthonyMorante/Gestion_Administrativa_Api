@@ -40,7 +40,7 @@ namespace Gestion_Administrativa_Api.Interfaces
             {
 
 
-                return await _context.Productos.Include(x => x.IdIvaNavigation).ToListAsync();
+                return await _context.Productos.Include(x => x.IdIvaNavigation).Where(x=>x.Activo==true).ToListAsync();
 
 
             }
@@ -80,7 +80,7 @@ namespace Gestion_Administrativa_Api.Interfaces
             {
 
                 var consulta = await _context.Productos.FindAsync(idProducto);
-                consulta.Activo = !activo;
+                consulta.ActivoProducto = !activo;
                 _context.Update(consulta);
                 await _context.SaveChangesAsync();
                 return !activo;
@@ -199,6 +199,7 @@ namespace Gestion_Administrativa_Api.Interfaces
 
                 var consulta = await _context.Productos.FindAsync(idProducto);
                 consulta.Activo = false;
+                consulta.ActivoProducto = false;
                 await _context.SaveChangesAsync();
                 return "ok";
 
