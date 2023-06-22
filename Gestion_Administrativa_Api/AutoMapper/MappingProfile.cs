@@ -10,7 +10,6 @@ namespace Gestion_Administrativa_Api.AutoMapper
         public MappingProfile()
         {
 
-        
 
             #region Clientes
 
@@ -25,8 +24,7 @@ namespace Gestion_Administrativa_Api.AutoMapper
 
             #endregion
 
-
-            #region Clientes
+            #region Proveedores
 
             CreateMap<ProveedoresDto, Proveedores>();
             CreateMap<Proveedores, Proveedores>()
@@ -48,6 +46,26 @@ namespace Gestion_Administrativa_Api.AutoMapper
              );
 
 
+            #endregion
+
+            #region Productos
+
+            CreateMap<ProductosDto, Productos>();
+            CreateMap<Productos, Productos>()
+           .ForMember(dest => dest.Activo, opt => opt.Ignore())
+           .ForMember(dest => dest.FechaRegistro, opt => opt.Ignore()
+
+             );
+
+
+            #endregion
+
+            #region DetallePrecioProducto
+
+            CreateMap<DetallePrecioProductosDto, DetallePrecioProductos>()
+                    .ForMember(dest => dest.Total, opt => opt.MapFrom(src => src.Utilidad));
+       
+  
             #endregion
 
         }

@@ -104,6 +104,8 @@ builder.Services.AddTransient<IProvincias, ProvinciasI>();
 builder.Services.AddTransient<ICiudades, CiudadesI>();
 builder.Services.AddTransient<IProveedores, ProveedoresI>();
 builder.Services.AddTransient<IEmpleados, EmpleadosI>();
+builder.Services.AddTransient<IProductos, ProductosI>();
+builder.Services.AddTransient<IIvas, IvasI>();
 
 
 
