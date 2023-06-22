@@ -21,6 +21,7 @@ namespace Gestion_Administrativa_Api.Dtos
         public Guid? IdIva { get; set; }
 
         public Guid? IdEmpresa { get; set; }
+        public decimal? TotalIva { get; set; }
 
         public virtual ICollection<DetallePrecioProductosDto> DetallePrecioProductos { get; set; } = new List<DetallePrecioProductosDto>();
     }

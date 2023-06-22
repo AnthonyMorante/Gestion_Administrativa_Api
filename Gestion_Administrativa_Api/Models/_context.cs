@@ -309,6 +309,9 @@ public partial class _context : DbContext
             entity.Property(e => e.Precio)
                 .HasPrecision(8, 2)
                 .HasColumnName("precio");
+            entity.Property(e => e.TotalIva)
+                .HasPrecision(8, 2)
+                .HasColumnName("totalIva");
 
             entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.Productos)
                 .HasForeignKey(d => d.IdEmpresa)
