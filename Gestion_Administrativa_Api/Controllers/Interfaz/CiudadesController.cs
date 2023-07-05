@@ -2,31 +2,32 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Gestion_Administrativa_Api.Controllers
+namespace Gestion_Administrativa_Api.Controllers.Interfaz
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ProvinciasController : ControllerBase
+    public class CiudadesController : ControllerBase
     {
 
-        private readonly IProvincias _IProvincias;
 
-        public ProvinciasController(IProvincias IProvincias)
+        private readonly ICiudades _ICiudades;
+
+        public CiudadesController(ICiudades ICiudades)
         {
 
-            _IProvincias = IProvincias;
+            _ICiudades = ICiudades;
 
         }
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<IActionResult> listar()
+        public async Task<IActionResult> listar(Guid idProvincia)
         {
 
             try
             {
 
-                var consulta = await _IProvincias.listar();
+                var consulta = await _ICiudades.listar(idProvincia);
                 return StatusCode(200, consulta);
 
 
@@ -37,7 +38,6 @@ namespace Gestion_Administrativa_Api.Controllers
             }
 
         }
-
-
     }
-    }
+
+}

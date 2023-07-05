@@ -3,18 +3,19 @@ using Gestion_Administrativa_Api.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Gestion_Administrativa_Api.Controllers
+namespace Gestion_Administrativa_Api.Controllers.Interfaz
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class IvasController : ControllerBase
+    public class TipoIdentificacionesController : ControllerBase
     {
-        private readonly IIvas _IIvas;
 
-        public IvasController(IIvas IIvas)
+        private readonly ITipoIdentificaciones _ITipoIdentificaciones;
+
+        public TipoIdentificacionesController(ITipoIdentificaciones ITipoIdentificaciones)
         {
 
-            _IIvas = IIvas;
+            _ITipoIdentificaciones = ITipoIdentificaciones;
 
         }
 
@@ -23,10 +24,11 @@ namespace Gestion_Administrativa_Api.Controllers
         [Route("[action]")]
         public async Task<IActionResult> listar()
         {
+
             try
             {
 
-                var consulta = await _IIvas.listar();
+                var consulta = await _ITipoIdentificaciones.listar();
                 return StatusCode(200, consulta);
 
 
@@ -38,6 +40,6 @@ namespace Gestion_Administrativa_Api.Controllers
 
         }
 
-
     }
 }
+

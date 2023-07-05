@@ -1,23 +1,23 @@
 ﻿using Gestion_Administrativa_Api.Dtos;
 using Gestion_Administrativa_Api.Interfaces;
 using Gestion_Administrativa_Api.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Gestion_Administrativa_Api.Controllers
+namespace Gestion_Administrativa_Api.Controllers.Interfaz
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ProveedoresController : ControllerBase
+    public class ClientesController : ControllerBase
     {
 
+        private readonly IClientes _IClientes;
 
-        private readonly IProveedores _IProveedores;
-
-        public ProveedoresController(IProveedores IProveedores)
+        public ClientesController(IClientes IClientes)
         {
 
-            _IProveedores = IProveedores;
+            _IClientes = IClientes;
 
         }
 
@@ -25,13 +25,13 @@ namespace Gestion_Administrativa_Api.Controllers
         [Route("[action]")]
 
 
-        public async Task<IActionResult> insertar(ProveedoresDto _clientes)
+        public async Task<IActionResult> insertar(ClientesDto _clientes)
         {
 
             try
             {
 
-                var consulta = await _IProveedores.insertar(_clientes);
+                var consulta = await _IClientes.insertar(_clientes);
 
                 if (consulta == "ok")
                 {
@@ -64,7 +64,7 @@ namespace Gestion_Administrativa_Api.Controllers
             try
             {
 
-                var consulta = await _IProveedores.listar();
+                var consulta = await _IClientes.listar();
                 return StatusCode(200, consulta);
 
 
@@ -78,14 +78,14 @@ namespace Gestion_Administrativa_Api.Controllers
 
 
         [HttpGet]
-        [Route("[action]/{idProveedor}")]
-        public async Task<IActionResult> cargar(Guid idProveedor)
+        [Route("[action]/{idCliente}")]
+        public async Task<IActionResult> cargar(Guid idCliente)
         {
 
             try
             {
 
-                var consulta = await _IProveedores.cargar(idProveedor);
+                var consulta = await _IClientes.cargar(idCliente);
                 return StatusCode(200, consulta);
 
 
@@ -100,13 +100,13 @@ namespace Gestion_Administrativa_Api.Controllers
 
         [HttpPut]
         [Route("[action]")]
-        public async Task<IActionResult> actualizar(Proveedores _cliente)
+        public async Task<IActionResult> actualizar(Clientes _cliente)
         {
 
             try
             {
 
-                var consulta = await _IProveedores.editar(_cliente);
+                var consulta = await _IClientes.editar(_cliente);
                 if (consulta == "ok")
                 {
 
@@ -134,14 +134,14 @@ namespace Gestion_Administrativa_Api.Controllers
 
 
         [HttpDelete]
-        [Route("[action]/{idProveedor}")]
-        public async Task<IActionResult> eliminar(Guid idProveedor)
+        [Route("[action]/{idCliente}")]
+        public async Task<IActionResult> eliminar(Guid idCliente)
         {
 
             try
             {
 
-                var consulta = await _IProveedores.eliminar(idProveedor);
+                var consulta = await _IClientes.eliminar(idCliente);
 
                 if (consulta == "ok")
                 {
@@ -159,6 +159,8 @@ namespace Gestion_Administrativa_Api.Controllers
             }
 
         }
+
+
 
     }
 }

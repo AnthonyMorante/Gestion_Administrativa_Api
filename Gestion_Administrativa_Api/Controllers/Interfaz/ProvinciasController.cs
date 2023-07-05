@@ -1,34 +1,32 @@
 ﻿using Gestion_Administrativa_Api.Interfaces;
-using Gestion_Administrativa_Api.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Gestion_Administrativa_Api.Controllers
+namespace Gestion_Administrativa_Api.Controllers.Interfaz
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class TipoIdentificacionesController : ControllerBase
+    public class ProvinciasController : ControllerBase
     {
 
-        private readonly ITipoIdentificaciones _ITipoIdentificaciones;
+        private readonly IProvincias _IProvincias;
 
-        public TipoIdentificacionesController(ITipoIdentificaciones ITipoIdentificaciones)
+        public ProvinciasController(IProvincias IProvincias)
         {
 
-            _ITipoIdentificaciones = ITipoIdentificaciones;
+            _IProvincias = IProvincias;
 
         }
-
 
         [HttpGet]
         [Route("[action]")]
         public async Task<IActionResult> listar()
-            {
+        {
 
             try
             {
 
-                var consulta = await _ITipoIdentificaciones.listar();
+                var consulta = await _IProvincias.listar();
                 return StatusCode(200, consulta);
 
 
@@ -40,6 +38,6 @@ namespace Gestion_Administrativa_Api.Controllers
 
         }
 
+
     }
 }
-

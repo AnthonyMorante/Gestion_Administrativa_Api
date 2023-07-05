@@ -4,7 +4,7 @@ using Gestion_Administrativa_Api.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Gestion_Administrativa_Api.Controllers
+namespace Gestion_Administrativa_Api.Controllers.Interfaz
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -169,10 +169,10 @@ namespace Gestion_Administrativa_Api.Controllers
             try
             {
 
-                var consulta = await _IProductos.desactivar(idProducto,activo);
+                var consulta = await _IProductos.desactivar(idProducto, activo);
 
-             
-                    return StatusCode(200, consulta);
+
+                return StatusCode(200, consulta);
 
 
 

@@ -1,33 +1,32 @@
 ﻿using Gestion_Administrativa_Api.Interfaces;
+using Gestion_Administrativa_Api.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Gestion_Administrativa_Api.Controllers
+namespace Gestion_Administrativa_Api.Controllers.Interfaz
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CiudadesController : ControllerBase
+    public class IvasController : ControllerBase
     {
+        private readonly IIvas _IIvas;
 
-
-        private readonly ICiudades _ICiudades;
-
-        public CiudadesController(ICiudades ICiudades)
+        public IvasController(IIvas IIvas)
         {
 
-            _ICiudades = ICiudades;
+            _IIvas = IIvas;
 
         }
 
+
         [HttpGet]
         [Route("[action]")]
-        public async Task<IActionResult> listar(Guid idProvincia)
+        public async Task<IActionResult> listar()
         {
-
             try
             {
 
-                var consulta = await _ICiudades.listar(idProvincia);
+                var consulta = await _IIvas.listar();
                 return StatusCode(200, consulta);
 
 
@@ -38,6 +37,7 @@ namespace Gestion_Administrativa_Api.Controllers
             }
 
         }
-    }
 
+
+    }
 }
