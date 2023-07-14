@@ -19,7 +19,7 @@ namespace Gestion_Administrativa_Api.AutoMapper
               .ForMember(dest => dest.FechaRegistro, opt => opt.Ignore()
 
                 
-                );
+                ).ReverseMap();
 
 
             #endregion
@@ -31,7 +31,7 @@ namespace Gestion_Administrativa_Api.AutoMapper
            .ForMember(dest => dest.Activo, opt => opt.Ignore())
            .ForMember(dest => dest.FechaRegistro, opt => opt.Ignore()
 
-             );
+             ).ReverseMap();
 
 
             #endregion
@@ -43,7 +43,7 @@ namespace Gestion_Administrativa_Api.AutoMapper
            .ForMember(dest => dest.Activo, opt => opt.Ignore())
            .ForMember(dest => dest.FechaRegistro, opt => opt.Ignore()
 
-             );
+             ).ReverseMap();
 
 
             #endregion
@@ -55,7 +55,7 @@ namespace Gestion_Administrativa_Api.AutoMapper
            .ForMember(dest => dest.Activo, opt => opt.Ignore())
            .ForMember(dest => dest.FechaRegistro, opt => opt.Ignore()
 
-             );
+             ).ReverseMap();
 
 
             #endregion
@@ -63,7 +63,7 @@ namespace Gestion_Administrativa_Api.AutoMapper
             #region DetallePrecioProducto
 
             CreateMap<DetallePrecioProductosDto, DetallePrecioProductos>()
-                    .ForMember(dest => dest.Total, opt => opt.MapFrom(src => src.Utilidad));
+                    .ForMember(dest => dest.Total, opt => opt.MapFrom(src => src.Utilidad)).ReverseMap();
        
   
             #endregion
