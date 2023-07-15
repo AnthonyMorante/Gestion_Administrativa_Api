@@ -84,7 +84,7 @@ builder.Services.AddControllers(options =>
 
 builder.Services.AddCors(options =>
 {
-    // this defines a CORS policy called "default"
+
     options.AddPolicy("cors", builder =>
     {
         builder
