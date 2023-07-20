@@ -1,10 +1,12 @@
 ﻿using Gestion_Administrativa_Api.Interfaces;
 using Gestion_Administrativa_Api.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gestion_Administrativa_Api.Controllers.Interfaz
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class IvasController : ControllerBase

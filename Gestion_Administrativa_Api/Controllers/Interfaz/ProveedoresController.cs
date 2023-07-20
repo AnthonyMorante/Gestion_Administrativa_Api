@@ -1,11 +1,13 @@
 ﻿using Gestion_Administrativa_Api.Dtos;
 using Gestion_Administrativa_Api.Interfaces;
 using Gestion_Administrativa_Api.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gestion_Administrativa_Api.Controllers.Interfaz
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class ProveedoresController : ControllerBase
@@ -57,14 +59,14 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
 
 
         [HttpGet]
-        [Route("[action]")]
-        public async Task<IActionResult> listar()
+        [Route("[action]/{idEmpresa}")]
+        public async Task<IActionResult> listar(Guid idEmpresa)
         {
 
             try
             {
 
-                var consulta = await _IProveedores.listar();
+                var consulta = await _IProveedores.listar(idEmpresa);
                 return StatusCode(200, consulta);
 
 

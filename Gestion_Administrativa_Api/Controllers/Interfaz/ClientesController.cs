@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Gestion_Administrativa_Api.Controllers.Interfaz
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class ClientesController : ControllerBase
@@ -57,14 +58,14 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
 
 
         [HttpGet]
-        [Route("[action]")]
-        public async Task<IActionResult> listar()
+        [Route("[action]/{idEmpresa}")]
+        public async Task<IActionResult> listar(Guid idEmpresa)
         {
 
             try
             {
 
-                var consulta = await _IClientes.listar();
+                var consulta = await _IClientes.listar(idEmpresa);
                 return StatusCode(200, consulta);
 
 

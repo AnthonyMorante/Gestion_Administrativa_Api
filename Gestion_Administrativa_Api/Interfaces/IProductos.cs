@@ -7,7 +7,7 @@ namespace Gestion_Administrativa_Api.Interfaces
 {
     public interface IProductos
     {
-        Task<IEnumerable<Productos>> listar();
+        Task<IEnumerable<Productos>> listar(Guid idEmpresa);
         Task<dynamic> cargar(Guid idProducto);
         Task<string> insertar(ProductosDto _productos);
         Task<string> editar(ProductosDto _productos);
@@ -34,13 +34,13 @@ namespace Gestion_Administrativa_Api.Interfaces
 
 
 
-        public async Task<IEnumerable<Productos>> listar()
+        public async Task<IEnumerable<Productos>> listar(Guid idEmpresa)
         {
             try
             {
 
 
-                return await _context.Productos.Include(x => x.IdIvaNavigation).Where(x=>x.Activo==true).ToListAsync();
+                return await _context.Productos.Include(x => x.IdIvaNavigation).Where(x=>x.Activo==true && x.IdEmpresa== idEmpresa).ToListAsync();
 
 
             }

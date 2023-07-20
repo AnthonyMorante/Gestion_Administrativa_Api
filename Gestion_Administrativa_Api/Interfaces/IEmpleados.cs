@@ -8,7 +8,7 @@ namespace Gestion_Administrativa_Api.Interfaces
     public interface IEmpleados
     {
         Task<string> insertar(EmpleadosDto _clientes);
-        Task<IEnumerable<Empleados>> listar();
+        Task<IEnumerable<Empleados>> listar(Guid idEmpresa);
         Task<Empleados> cargar(Guid idCliente);
         Task<string> editar(Empleados _clientes);
         Task<string> eliminar(Guid idCliente);
@@ -31,13 +31,13 @@ namespace Gestion_Administrativa_Api.Interfaces
 
 
 
-        public async Task<IEnumerable<Empleados>> listar()
+        public async Task<IEnumerable<Empleados>> listar(Guid idEmpresa)
         {
             try
             {
 
 
-                return await _context.Empleados.Include(x => x.IdCiudadNavigation).Where(x => x.Activo == true).ToListAsync();
+                return await _context.Empleados.Include(x => x.IdCiudadNavigation).Where(x => x.Activo == true && x.IdEmpresa == idEmpresa).ToListAsync();
 
 
             }

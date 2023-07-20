@@ -1,9 +1,11 @@
 ﻿using Gestion_Administrativa_Api.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gestion_Administrativa_Api.Controllers.Interfaz
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class CiudadesController : ControllerBase

@@ -8,7 +8,7 @@ namespace Gestion_Administrativa_Api.Interfaces
     public interface IProveedores
     {
         Task<string> insertar(ProveedoresDto _clientes);
-        Task<IEnumerable<Proveedores>> listar();
+        Task<IEnumerable<Proveedores>> listar(Guid idEmpresa);
         Task<Proveedores> cargar(Guid idCliente);
         Task<string> editar(Proveedores _clientes);
         Task<string> eliminar(Guid idCliente);
@@ -34,7 +34,7 @@ namespace Gestion_Administrativa_Api.Interfaces
 
 
 
-        public async Task<IEnumerable<Proveedores>> listar()
+        public async Task<IEnumerable<Proveedores>> listar(Guid idEmpresa)
         {
             try
             {

@@ -9,7 +9,7 @@ namespace Gestion_Administrativa_Api.Interfaces
     {
 
         Task<string> insertar(ClientesDto _clientes);
-        Task<IEnumerable<Clientes>> listar();
+        Task<IEnumerable<Clientes>> listar(Guid idEmpresa);
         Task<Clientes> cargar(Guid idCliente);
         Task<string> editar(Clientes _clientes);
         Task<string> eliminar(Guid idCliente);
@@ -33,13 +33,13 @@ namespace Gestion_Administrativa_Api.Interfaces
 
 
 
-        public async Task<IEnumerable<Clientes>> listar()
+        public async Task<IEnumerable<Clientes>> listar(Guid idEmpresa)
         {
             try
             {
 
 
-                return await _context.Clientes.Include(x=>x.IdCiudadNavigation).Where(x=>x.Activo==true).ToListAsync();
+                return await _context.Clientes.Include(x=>x.IdCiudadNavigation).Where(x=>x.Activo==true && x.IdEmpresa==idEmpresa).ToListAsync();
 
 
             }

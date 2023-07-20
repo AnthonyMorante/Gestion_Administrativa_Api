@@ -96,23 +96,6 @@ builder.Services.AddCors(options =>
 });
 
 
-builder.Services.AddTransient<IProfileService, ProfileService>();
-builder.Services.AddTransient<IUserRepository, UserRepository>();
-builder.Services.AddTransient<IClientes, ClientesI>();
-builder.Services.AddTransient<ITipoIdentificaciones, TipoIdentificacionesI>();
-builder.Services.AddTransient<IProvincias, ProvinciasI>();
-builder.Services.AddTransient<ICiudades, CiudadesI>();
-builder.Services.AddTransient<IProveedores, ProveedoresI>();
-builder.Services.AddTransient<IEmpleados, EmpleadosI>();
-builder.Services.AddTransient<IProductos, ProductosI>();
-builder.Services.AddTransient<IIvas, IvasI>();
-
-
-
-
-
-
-
 builder.Services.AddAuthentication(options =>
 {
 
@@ -127,7 +110,16 @@ builder.Services.AddAuthentication(options =>
 });
 
 
-
+builder.Services.AddTransient<IProfileService, ProfileService>();
+builder.Services.AddTransient<IUserRepository, UserRepository>();
+builder.Services.AddTransient<IClientes, ClientesI>();
+builder.Services.AddTransient<ITipoIdentificaciones, TipoIdentificacionesI>();
+builder.Services.AddTransient<IProvincias, ProvinciasI>();
+builder.Services.AddTransient<ICiudades, CiudadesI>();
+builder.Services.AddTransient<IProveedores, ProveedoresI>();
+builder.Services.AddTransient<IEmpleados, EmpleadosI>();
+builder.Services.AddTransient<IProductos, ProductosI>();
+builder.Services.AddTransient<IIvas, IvasI>();
 
 
 builder.Services.AddControllers();

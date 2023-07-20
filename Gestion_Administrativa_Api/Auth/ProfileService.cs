@@ -25,7 +25,8 @@ namespace Gestion_Administrativa_Api.Auth
             var _Claims = new[] {
 
 
-                            new Claim(JwtClaimTypes.Name, $"{consulta.IdUsuarioNavigation.Nombre}"),
+                            new Claim("usuario", $"{consulta.IdUsuarioNavigation.Nombre}"),
+                            new Claim("idEmpresa", $"{consulta.IdEmpresaNavigation.IdEmpresa}"),
 
             };
 
