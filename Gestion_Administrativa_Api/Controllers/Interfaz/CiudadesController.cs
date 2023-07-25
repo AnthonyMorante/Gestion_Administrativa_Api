@@ -1,4 +1,4 @@
-﻿using Gestion_Administrativa_Api.Interfaces;
+﻿using Gestion_Administrativa_Api.Interfaces.Interfaz;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

@@ -1,4 +1,4 @@
-﻿namespace Gestion_Administrativa_Api.Dtos
+﻿namespace Gestion_Administrativa_Api.Dtos.Interfaz
 {
     public class ProveedoresDto
     {

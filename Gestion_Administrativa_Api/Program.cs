@@ -2,7 +2,8 @@ using AutoMapper;
 using Gestion_Administrativa_Api.Auth;
 using Gestion_Administrativa_Api.AutoMapper;
 using Gestion_Administrativa_Api.Configuration;
-using Gestion_Administrativa_Api.Interfaces;
+using Gestion_Administrativa_Api.Interfaces.Interfaz;
+using Gestion_Administrativa_Api.Interfaces.Sri;
 using Gestion_Administrativa_Api.Models;
 using Gestion_Administrativa_Api.Repository;
 using IdentityServer4.Models;
@@ -12,6 +13,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using Npgsql;
+using System.Data;
 using System.Security.Cryptography;
 using System.Text.Json.Serialization;
 using static Gestion_Administrativa_Api.Repository.IUserRepository;
@@ -45,6 +48,10 @@ IConfiguration config = new ConfigurationBuilder()
 
 builder.Services.AddDbContext<_context>(options =>
 options.UseNpgsql(config.GetConnectionString("cn")));
+
+
+builder.Services.AddTransient<IDbConnection>(db => new NpgsqlConnection(
+config.GetConnectionString("cn")));
 
 
 // Add services to the container.
@@ -120,6 +127,7 @@ builder.Services.AddTransient<IProveedores, ProveedoresI>();
 builder.Services.AddTransient<IEmpleados, EmpleadosI>();
 builder.Services.AddTransient<IProductos, ProductosI>();
 builder.Services.AddTransient<IIvas, IvasI>();
+builder.Services.AddTransient<IDatosContribuyentes, DatosContribuyentesI>();
 
 
 builder.Services.AddControllers();

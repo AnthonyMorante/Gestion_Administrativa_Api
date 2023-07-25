@@ -1,7 +1,7 @@
 ﻿using Gestion_Administrativa_Api.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace Gestion_Administrativa_Api.Interfaces
+namespace Gestion_Administrativa_Api.Interfaces.Interfaz
 {
     public interface IProvincias
     {

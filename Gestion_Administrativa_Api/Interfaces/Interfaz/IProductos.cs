@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
-using Gestion_Administrativa_Api.Dtos;
+using Gestion_Administrativa_Api.Dtos.Interfaz;
 using Gestion_Administrativa_Api.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace Gestion_Administrativa_Api.Interfaces
+namespace Gestion_Administrativa_Api.Interfaces.Interfaz
 {
     public interface IProductos
     {
@@ -40,7 +40,7 @@ namespace Gestion_Administrativa_Api.Interfaces
             {
 
 
-                return await _context.Productos.Include(x => x.IdIvaNavigation).Where(x=>x.Activo==true && x.IdEmpresa== idEmpresa).ToListAsync();
+                return await _context.Productos.Include(x => x.IdIvaNavigation).Where(x => x.Activo == true && x.IdEmpresa == idEmpresa).ToListAsync();
 
 
             }
@@ -57,7 +57,7 @@ namespace Gestion_Administrativa_Api.Interfaces
             {
 
 
-               return new
+                return new
                 {
                     productos = await _context.Productos.Include(x => x.IdIvaNavigation).FirstOrDefaultAsync(x => x.IdProducto == idProducto),
                     detalleprecioProductos = await _context.DetallePrecioProductos.Where(x => x.IdProducto == idProducto).ToListAsync()
@@ -101,7 +101,7 @@ namespace Gestion_Administrativa_Api.Interfaces
             {
 
                 var producto = _mapper.Map<Productos>(_productos);
-          
+
 
                 var repetido = await comprobarRepetido(producto);
 
@@ -139,7 +139,7 @@ namespace Gestion_Administrativa_Api.Interfaces
                 }
 
 
-                var consulta = await _context.Productos.Include(x=>x.DetallePrecioProductos).AsNoTracking().FirstOrDefaultAsync(x=>x.IdProducto == _productos.IdProducto);
+                var consulta = await _context.Productos.Include(x => x.DetallePrecioProductos).AsNoTracking().FirstOrDefaultAsync(x => x.IdProducto == _productos.IdProducto);
                 var idNuevos = _productos.DetallePrecioProductos.Select(d => d.IdDetallePrecioProducto).ToList();
 
                 foreach (var detalle in consulta.DetallePrecioProductos.ToList())
@@ -148,7 +148,7 @@ namespace Gestion_Administrativa_Api.Interfaces
                     {
                         consulta.DetallePrecioProductos.Remove(detalle);
                         _context.Entry(detalle).State = EntityState.Deleted;
-                 
+
                     }
 
                 }

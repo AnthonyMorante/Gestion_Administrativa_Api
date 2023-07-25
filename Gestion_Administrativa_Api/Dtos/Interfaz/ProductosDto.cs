@@ -1,10 +1,10 @@
 ﻿using Gestion_Administrativa_Api.Models;
 
-namespace Gestion_Administrativa_Api.Dtos
+namespace Gestion_Administrativa_Api.Dtos.Interfaz
 {
     public class ProductosDto
     {
-        public Guid ?IdProducto { get; set; }
+        public Guid? IdProducto { get; set; }
 
         public string? Codigo { get; set; }
 

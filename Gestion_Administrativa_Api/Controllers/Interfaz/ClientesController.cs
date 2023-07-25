@@ -1,9 +1,10 @@
-﻿using Gestion_Administrativa_Api.Dtos;
-using Gestion_Administrativa_Api.Interfaces;
+﻿using Gestion_Administrativa_Api.Dtos.Interfaz;
+using Gestion_Administrativa_Api.Interfaces.Interfaz;
 using Gestion_Administrativa_Api.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Runtime.CompilerServices;
 
 namespace Gestion_Administrativa_Api.Controllers.Interfaz
 {
@@ -98,6 +99,26 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
 
         }
 
+
+        [HttpGet]
+        [Route("[action]/{identificacion}")]
+        public async Task<IActionResult> cargarPorIdentificacion(String identificacion)
+        {
+
+            try
+            {
+
+                var consulta = await _IClientes.cargarPorIdentificacion(identificacion);
+                return StatusCode(200, consulta);
+
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = "error", exc = ex });
+            }
+
+        }
 
         [HttpPut]
         [Route("[action]")]

@@ -1,28 +1,31 @@
 ﻿using AutoMapper;
-using Gestion_Administrativa_Api.Dtos;
+using Gestion_Administrativa_Api.Dtos.Interfaz;
 using Gestion_Administrativa_Api.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace Gestion_Administrativa_Api.Interfaces
+namespace Gestion_Administrativa_Api.Interfaces.Interfaz
 {
-    public interface IEmpleados
+    public interface IProveedores
     {
-        Task<string> insertar(EmpleadosDto _clientes);
-        Task<IEnumerable<Empleados>> listar(Guid idEmpresa);
-        Task<Empleados> cargar(Guid idCliente);
-        Task<string> editar(Empleados _clientes);
+        Task<string> insertar(ProveedoresDto _clientes);
+        Task<IEnumerable<Proveedores>> listar(Guid idEmpresa);
+        Task<Proveedores> cargar(Guid idCliente);
+        Task<string> editar(Proveedores _clientes);
         Task<string> eliminar(Guid idCliente);
     }
 
-    public class EmpleadosI : IEmpleados
+
+    public class ProveedoresI : IProveedores
     {
+
+
 
 
         private readonly _context _context;
         private readonly IMapper _mapper;
 
 
-        public EmpleadosI(_context context, IMapper mapper)
+        public ProveedoresI(_context context, IMapper mapper)
         {
             _context = context;
             _mapper = mapper;
@@ -31,13 +34,13 @@ namespace Gestion_Administrativa_Api.Interfaces
 
 
 
-        public async Task<IEnumerable<Empleados>> listar(Guid idEmpresa)
+        public async Task<IEnumerable<Proveedores>> listar(Guid idEmpresa)
         {
             try
             {
 
 
-                return await _context.Empleados.Include(x => x.IdCiudadNavigation).Where(x => x.Activo == true && x.IdEmpresa == idEmpresa).ToListAsync();
+                return await _context.Proveedores.Include(x => x.IdCiudadNavigation).Where(x => x.Activo == true).ToListAsync();
 
 
             }
@@ -48,13 +51,13 @@ namespace Gestion_Administrativa_Api.Interfaces
             }
         }
 
-        public async Task<Empleados> cargar(Guid idCliente)
+        public async Task<Proveedores> cargar(Guid idCliente)
         {
             try
             {
 
 
-                return await _context.Empleados.Include(x => x.IdCiudadNavigation).Where(x => x.IdEmpleado == idCliente).FirstOrDefaultAsync();
+                return await _context.Proveedores.Include(x => x.IdCiudadNavigation).Where(x => x.IdProveedor == idCliente).FirstOrDefaultAsync();
 
 
             }
@@ -68,12 +71,12 @@ namespace Gestion_Administrativa_Api.Interfaces
 
 
 
-        public async Task<string> insertar(EmpleadosDto _clientes)
+        public async Task<string> insertar(ProveedoresDto _clientes)
         {
             try
             {
 
-                var cliente = _mapper.Map<Empleados>(_clientes);
+                var cliente = _mapper.Map<Proveedores>(_clientes);
 
                 var repetido = await comprobarRepetido(cliente);
 
@@ -98,12 +101,12 @@ namespace Gestion_Administrativa_Api.Interfaces
 
 
 
-        public async Task<string> editar(Empleados _clientes)
+        public async Task<string> editar(Proveedores _clientes)
         {
             try
             {
 
-                var repetido = await _context.Empleados.AnyAsync(x => x.IdEmpleado != _clientes.IdEmpleado && x.Identificacion == _clientes.Identificacion && x.Activo == true);
+                var repetido = await _context.Proveedores.AnyAsync(x => x.IdProveedor != _clientes.IdProveedor && x.Identificacion == _clientes.Identificacion && x.Activo == true);
 
                 if (repetido)
                 {
@@ -111,7 +114,7 @@ namespace Gestion_Administrativa_Api.Interfaces
                 }
 
 
-                var consulta = await _context.Empleados.FindAsync(_clientes.IdEmpleado);
+                var consulta = await _context.Proveedores.FindAsync(_clientes.IdProveedor);
                 var map = _mapper.Map(_clientes, consulta);
                 _mapper.Map(_clientes, consulta);
                 _context.Update(consulta);
@@ -126,12 +129,12 @@ namespace Gestion_Administrativa_Api.Interfaces
             }
         }
 
-        public async Task<bool> comprobarRepetido(Empleados _clientes)
+        public async Task<bool> comprobarRepetido(Proveedores _clientes)
         {
             try
             {
 
-                var consultaRepetido = await _context.Empleados.Where(x => x.Identificacion == _clientes.Identificacion && x.Activo == true).ToListAsync();
+                var consultaRepetido = await _context.Proveedores.Where(x => x.Identificacion == _clientes.Identificacion && x.Activo == true).ToListAsync();
 
                 if (consultaRepetido.Count > 0)
                 {
@@ -157,7 +160,7 @@ namespace Gestion_Administrativa_Api.Interfaces
             try
             {
 
-                var consulta = await _context.Empleados.FindAsync(idCliente);
+                var consulta = await _context.Proveedores.FindAsync(idCliente);
                 consulta.Activo = false;
                 await _context.SaveChangesAsync();
                 return "ok";
@@ -169,8 +172,6 @@ namespace Gestion_Administrativa_Api.Interfaces
                 throw;
             }
         }
-
-
 
 
 

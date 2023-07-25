@@ -1,7 +1,7 @@
 ﻿using Gestion_Administrativa_Api.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace Gestion_Administrativa_Api.Interfaces
+namespace Gestion_Administrativa_Api.Interfaces.Interfaz
 {
     public interface ITipoIdentificaciones
     {
@@ -28,7 +28,7 @@ namespace Gestion_Administrativa_Api.Interfaces
             {
 
 
-                return await _context.TipoIdentificaciones.Where(x=>x.Activo == true).ToListAsync();
+                return await _context.TipoIdentificaciones.Where(x => x.Activo == true).ToListAsync();
 
 
             }
@@ -43,4 +43,4 @@ namespace Gestion_Administrativa_Api.Interfaces
 
 
     }
-  }
+}
