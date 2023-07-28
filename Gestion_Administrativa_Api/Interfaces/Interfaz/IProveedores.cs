@@ -134,7 +134,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
             try
             {
 
-                var consultaRepetido = await _context.Proveedores.Where(x => x.Identificacion == _clientes.Identificacion && x.Activo == true).ToListAsync();
+                var consultaRepetido = await _context.Proveedores.Where(x => x.Identificacion == _clientes.Identificacion && x.IdEmpresa == _clientes.IdEmpresa && x.Activo == true).ToListAsync();
 
                 if (consultaRepetido.Count > 0)
                 {

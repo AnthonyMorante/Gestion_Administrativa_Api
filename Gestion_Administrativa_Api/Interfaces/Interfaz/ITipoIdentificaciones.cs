@@ -28,7 +28,9 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
             {
 
 
-                return await _context.TipoIdentificaciones.Where(x => x.Activo == true).ToListAsync();
+                return await _context.TipoIdentificaciones.Where(x => x.Activo == true)
+                    .OrderBy(x=>x.Activo==true)
+                    .ToListAsync();
 
 
             }

@@ -11,8 +11,6 @@ public partial class Clientes
 
     public string? RazonSocial { get; set; }
 
-    public string? Representante { get; set; }
-
     public string? Direccion { get; set; }
 
     public string? Email { get; set; }
@@ -37,3 +35,4 @@ public partial class Clientes
 
     public virtual TipoIdentificaciones? IdTipoIdentificacionNavigation { get; set; }
 }
+    

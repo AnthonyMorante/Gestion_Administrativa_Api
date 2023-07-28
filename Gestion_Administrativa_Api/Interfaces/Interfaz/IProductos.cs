@@ -171,7 +171,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
             try
             {
 
-                var consultaRepetido = await _context.Productos.Where(x => x.Codigo == _productos.Codigo && x.Activo == true).ToListAsync();
+                var consultaRepetido = await _context.Productos.Where(x => x.Codigo == _productos.Codigo &&x.IdEmpresa==_productos.IdEmpresa && x.Activo == true).ToListAsync();
 
                 if (consultaRepetido.Count > 0)
                 {

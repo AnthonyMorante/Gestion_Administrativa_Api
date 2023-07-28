@@ -14,4 +14,6 @@ public partial class Usuarios
     public DateTime? FechaRegistro { get; set; }
 
     public bool? Activo { get; set; }
+
+    public virtual ICollection<UsuarioEmpresas> UsuarioEmpresas { get; set; } = new List<UsuarioEmpresas>();
 }

@@ -31,6 +31,8 @@ public partial class Empresas
 
     public virtual ICollection<Empleados> Empleados { get; set; } = new List<Empleados>();
 
+    public virtual ICollection<Establecimientos> Establecimientos { get; set; } = new List<Establecimientos>();
+
     public virtual Empresas IdEmpresaNavigation { get; set; } = null!;
 
     public virtual TipoNegocios? IdTipoNegocioNavigation { get; set; }
@@ -40,4 +42,8 @@ public partial class Empresas
     public virtual ICollection<Productos> Productos { get; set; } = new List<Productos>();
 
     public virtual ICollection<Proveedores> Proveedores { get; set; } = new List<Proveedores>();
+
+    public virtual ICollection<PuntoEmisiones> PuntoEmisiones { get; set; } = new List<PuntoEmisiones>();
+
+    public virtual ICollection<UsuarioEmpresas> UsuarioEmpresas { get; set; } = new List<UsuarioEmpresas>();
 }
