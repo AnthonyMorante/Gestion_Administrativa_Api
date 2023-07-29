@@ -24,14 +24,14 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
 
 
         [HttpGet]
-        [Route("[action]")]
-        public async Task<IActionResult> listar(PuntoEmisiones _establecimientos)
+        [Route("[action]/{idEmpresa}")]
+        public async Task<IActionResult> listar(Guid idEmpresa)
         {
 
             try
             {
 
-                var consulta = await _IPuntoEmisiones.listar(_establecimientos);
+                var consulta = await _IPuntoEmisiones.listar(idEmpresa);
                 return StatusCode(200, consulta);
 
 

@@ -9,7 +9,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
         public interface IPuntoEmisiones
         {
 
-            Task<IEnumerable<PuntoEmisiones>> listar(PuntoEmisiones _PuntoEmisiones);
+            Task<IEnumerable<PuntoEmisiones>> listar(Guid idEmpresa);
         }
 
 
@@ -26,13 +26,15 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
 
 
 
-            public async Task<IEnumerable<PuntoEmisiones>> listar(PuntoEmisiones _PuntoEmisiones)
+            public async Task<IEnumerable<PuntoEmisiones>> listar(Guid idEmpresa)
             {
                 try
                 {
 
 
-                    return await _context.PuntoEmisiones.Where(x => x.IdEmpresa == _PuntoEmisiones.IdEmpresa && x.Activo == true).ToListAsync();
+                    return await _context.PuntoEmisiones.Where(x => x.IdEmpresa == idEmpresa && x.Activo == true)
+                        .OrderByDescending(x=>x.Predeterminado)
+                        .ToListAsync();
 
 
                 }

@@ -17,5 +17,7 @@ public partial class DetallePrecioProductos
 
     public DateTime? FechaRegistro { get; set; }
 
+    public bool? Activo { get; set; }
+
     public virtual Productos? IdProductoNavigation { get; set; }
 }

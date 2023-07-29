@@ -21,6 +21,8 @@ public partial class _context : DbContext
 
     public virtual DbSet<DetallePrecioProductos> DetallePrecioProductos { get; set; }
 
+    public virtual DbSet<DocumentosEmitir> DocumentosEmitir { get; set; }
+
     public virtual DbSet<Empleados> Empleados { get; set; }
 
     public virtual DbSet<Empresas> Empresas { get; set; }
@@ -143,6 +145,9 @@ public partial class _context : DbContext
             entity.Property(e => e.IdDetallePrecioProducto)
                 .HasDefaultValueSql("gen_random_uuid()")
                 .HasColumnName("idDetallePrecioProducto");
+            entity.Property(e => e.Activo)
+                .HasDefaultValueSql("true")
+                .HasColumnName("activo");
             entity.Property(e => e.FechaRegistro)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("timestamp without time zone")
@@ -161,6 +166,32 @@ public partial class _context : DbContext
             entity.HasOne(d => d.IdProductoNavigation).WithMany(p => p.DetallePrecioProductos)
                 .HasForeignKey(d => d.IdProducto)
                 .HasConstraintName("detallePrecioProductos_idProducto_fkey");
+        });
+
+        modelBuilder.Entity<DocumentosEmitir>(entity =>
+        {
+            entity.HasKey(e => e.IdDocumentoEmitir).HasName("documentosEmitir_pkey");
+
+            entity.ToTable("documentosEmitir");
+
+            entity.Property(e => e.IdDocumentoEmitir)
+                .HasDefaultValueSql("gen_random_uuid()")
+                .HasColumnName("idDocumentoEmitir");
+            entity.Property(e => e.Activo)
+                .HasDefaultValueSql("false")
+                .HasColumnName("activo");
+            entity.Property(e => e.FechaRegistro)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("fechaRegistro");
+            entity.Property(e => e.IdTipoDocumento).HasColumnName("idTipoDocumento");
+            entity.Property(e => e.Nombre)
+                .HasMaxLength(500)
+                .HasColumnName("nombre");
+
+            entity.HasOne(d => d.IdTipoDocumentoNavigation).WithMany(p => p.DocumentosEmitir)
+                .HasForeignKey(d => d.IdTipoDocumento)
+                .HasConstraintName("documentosEmitir_idTipoDocumento_fkey");
         });
 
         modelBuilder.Entity<Empleados>(entity =>
@@ -275,9 +306,7 @@ public partial class _context : DbContext
                 .HasColumnType("timestamp without time zone")
                 .HasColumnName("fechaRegistro");
             entity.Property(e => e.IdEmpresa).HasColumnName("idEmpresa");
-            entity.Property(e => e.Nombre)
-                .HasMaxLength(10)
-                .HasColumnName("nombre");
+            entity.Property(e => e.Nombre).HasColumnName("nombre");
             entity.Property(e => e.Predeterminado)
                 .HasDefaultValueSql("false")
                 .HasColumnName("predeterminado");
@@ -330,6 +359,7 @@ public partial class _context : DbContext
             entity.Property(e => e.ActivoProducto)
                 .HasDefaultValueSql("true")
                 .HasColumnName("activoProducto");
+            entity.Property(e => e.Cantidad).HasColumnName("cantidad");
             entity.Property(e => e.Codigo)
                 .HasMaxLength(500)
                 .HasColumnName("codigo");
@@ -459,9 +489,7 @@ public partial class _context : DbContext
                 .HasColumnType("timestamp without time zone")
                 .HasColumnName("fechaRegistro");
             entity.Property(e => e.IdEmpresa).HasColumnName("idEmpresa");
-            entity.Property(e => e.Nombre)
-                .HasMaxLength(10)
-                .HasColumnName("nombre");
+            entity.Property(e => e.Nombre).HasColumnName("nombre");
             entity.Property(e => e.Predeterminado)
                 .HasDefaultValueSql("false")
                 .HasColumnName("predeterminado");

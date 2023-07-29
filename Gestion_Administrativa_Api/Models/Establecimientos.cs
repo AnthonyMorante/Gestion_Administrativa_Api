@@ -7,8 +7,6 @@ public partial class Establecimientos
 {
     public Guid IdEstablecimiento { get; set; }
 
-    public string? Nombre { get; set; }
-
     public bool? Predeterminado { get; set; }
 
     public string? Descripcion { get; set; }
@@ -18,6 +16,8 @@ public partial class Establecimientos
     public Guid? IdEmpresa { get; set; }
 
     public DateTime? FechaRegistro { get; set; }
+
+    public long? Nombre { get; set; }
 
     public virtual Empresas? IdEmpresaNavigation { get; set; }
 }

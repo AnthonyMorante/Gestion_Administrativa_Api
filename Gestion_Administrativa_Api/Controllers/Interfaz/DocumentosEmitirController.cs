@@ -1,41 +1,34 @@
 ﻿using Gestion_Administrativa_Api.Interfaces.Interfaz;
-using Gestion_Administrativa_Api.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gestion_Administrativa_Api.Controllers.Interfaz
 {
-
-
-
     [Route("api/[controller]")]
     [ApiController]
-    public class EstablecimientosController : ControllerBase
+    public class DocumentosEmitirController : ControllerBase
     {
 
+        private readonly IDocumentosEmitir _IDocumentosEmitir;
 
-
-
-        private readonly IEstablecimientos _IEstablecimientos;
-
-        public EstablecimientosController(IEstablecimientos IEstablecimientos)
+        public DocumentosEmitirController(IDocumentosEmitir IDocumentosEmitir)
         {
 
-            _IEstablecimientos = IEstablecimientos;
+            _IDocumentosEmitir = IDocumentosEmitir;
 
         }
 
 
 
         [HttpGet]
-        [Route("[action]/{idEmpresa}")]
-        public async Task<IActionResult> listar(Guid idEmpresa)
+        [Route("[action]/{codigo}")]
+        public async Task<IActionResult> listar(int codigo)
         {
 
             try
             {
 
-                var consulta = await _IEstablecimientos.listar(idEmpresa);
+                var consulta = await _IDocumentosEmitir.listar(codigo);
                 return StatusCode(200, consulta);
 
 
@@ -48,9 +41,5 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
         }
 
 
-
     }
-
-
-
 }

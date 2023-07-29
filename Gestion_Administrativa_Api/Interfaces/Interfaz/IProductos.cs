@@ -14,6 +14,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
         Task<bool> comprobarRepetido(Productos _productos);
         Task<string> eliminar(Guid idProducto);
         Task<bool> desactivar(Guid idProducto, bool activo);
+        Task<IEnumerable<Productos>> listarFactura(Guid idEmpresa);
 
     }
 
@@ -41,6 +42,24 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
 
 
                 return await _context.Productos.Include(x => x.IdIvaNavigation).Where(x => x.Activo == true && x.IdEmpresa == idEmpresa).ToListAsync();
+
+
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
+
+
+        public async Task<IEnumerable<Productos>> listarFactura(Guid idEmpresa)
+        {
+            try
+            {
+
+
+                return await _context.Productos.Include(x => x.IdIvaNavigation).Where(x => x.ActivoProducto == true && x.IdEmpresa == idEmpresa).ToListAsync();
 
 
             }

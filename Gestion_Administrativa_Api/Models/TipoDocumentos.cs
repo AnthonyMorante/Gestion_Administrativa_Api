@@ -16,4 +16,6 @@ public partial class TipoDocumentos
     public bool? Activo { get; set; }
 
     public DateTime? FechaRegistro { get; set; }
+
+    public virtual ICollection<DocumentosEmitir> DocumentosEmitir { get; set; } = new List<DocumentosEmitir>();
 }

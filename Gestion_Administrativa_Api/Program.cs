@@ -17,6 +17,7 @@ using Npgsql;
 using System.Data;
 using System.Security.Cryptography;
 using System.Text.Json.Serialization;
+using static Gestion_Administrativa_Api.Interfaces.Interfaz.IpuntoEmisiones;
 using static Gestion_Administrativa_Api.Repository.IUserRepository;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -128,6 +129,11 @@ builder.Services.AddTransient<IEmpleados, EmpleadosI>();
 builder.Services.AddTransient<IProductos, ProductosI>();
 builder.Services.AddTransient<IIvas, IvasI>();
 builder.Services.AddTransient<IDatosContribuyentes, DatosContribuyentesI>();
+builder.Services.AddTransient<IEstablecimientos, EstablecimientosI>();
+builder.Services.AddTransient<IPuntoEmisiones, PuntoEmisionesI>();
+builder.Services.AddTransient<IDocumentosEmitir, DocumentosEmitirI>();
+builder.Services.AddTransient<IDetallePrecioProductos, DetallePrecioProductosI>();
+
 
 
 builder.Services.AddControllers();

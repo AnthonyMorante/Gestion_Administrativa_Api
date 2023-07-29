@@ -35,4 +35,3 @@ public partial class Clientes
 
     public virtual TipoIdentificaciones? IdTipoIdentificacionNavigation { get; set; }
 }
-    

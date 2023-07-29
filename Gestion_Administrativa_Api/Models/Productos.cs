@@ -27,6 +27,8 @@ public partial class Productos
 
     public decimal? TotalIva { get; set; }
 
+    public long? Cantidad { get; set; }
+
     public virtual ICollection<DetallePrecioProductos> DetallePrecioProductos { get; set; } = new List<DetallePrecioProductos>();
 
     public virtual Empresas? IdEmpresaNavigation { get; set; }

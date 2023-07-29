@@ -79,6 +79,27 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
 
 
         [HttpGet]
+        [Route("[action]/{idEmpresa}")]
+        public async Task<IActionResult> listarFactura(Guid idEmpresa)
+        {
+
+            try
+            {
+
+                var consulta = await _IProductos.listarFactura(idEmpresa);
+                return StatusCode(200, consulta);
+
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = "error", exc = ex });
+            }
+
+        }
+
+
+        [HttpGet]
         [Route("[action]/{idProducto}")]
         public async Task<IActionResult> cargar(Guid idProducto)
         {
