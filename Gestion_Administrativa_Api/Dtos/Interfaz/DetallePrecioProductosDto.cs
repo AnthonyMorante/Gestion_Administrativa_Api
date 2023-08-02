@@ -13,5 +13,8 @@
 
         public Guid? IdProducto { get; set; }
 
+        public Guid? IdIva { get; set; }
+
+
     }
 }

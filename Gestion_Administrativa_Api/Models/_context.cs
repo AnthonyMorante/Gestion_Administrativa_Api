@@ -53,9 +53,6 @@ public partial class _context : DbContext
 
     public virtual DbSet<Usuarios> Usuarios { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseNpgsql("Host=localhost;Port=5432; Database=gestion_administrativa; Username=postgres; Password=123");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -152,6 +149,7 @@ public partial class _context : DbContext
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("timestamp without time zone")
                 .HasColumnName("fechaRegistro");
+            entity.Property(e => e.IdIva).HasColumnName("idIva");
             entity.Property(e => e.IdProducto).HasColumnName("idProducto");
             entity.Property(e => e.Porcentaje)
                 .HasPrecision(8, 2)
@@ -162,6 +160,10 @@ public partial class _context : DbContext
             entity.Property(e => e.TotalIva)
                 .HasPrecision(8, 2)
                 .HasColumnName("totalIva");
+
+            entity.HasOne(d => d.IdIvaNavigation).WithMany(p => p.DetallePrecioProductos)
+                .HasForeignKey(d => d.IdIva)
+                .HasConstraintName("detallePrecioProductos_idIva_fkey");
 
             entity.HasOne(d => d.IdProductoNavigation).WithMany(p => p.DetallePrecioProductos)
                 .HasForeignKey(d => d.IdProducto)

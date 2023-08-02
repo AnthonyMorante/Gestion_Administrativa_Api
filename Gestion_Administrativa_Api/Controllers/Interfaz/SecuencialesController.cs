@@ -1,27 +1,22 @@
 ﻿using Gestion_Administrativa_Api.Interfaces.Interfaz;
-using Gestion_Administrativa_Api.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gestion_Administrativa_Api.Controllers.Interfaz
 {
-
-
-
     [Route("api/[controller]")]
     [ApiController]
-    public class EstablecimientosController : ControllerBase
+    public class SecuencialesController : ControllerBase
     {
 
 
 
+        private readonly ISecuenciales _ISecuenciales;
 
-        private readonly IEstablecimientos _IEstablecimientos;
-
-        public EstablecimientosController(IEstablecimientos IEstablecimientos)
+        public SecuencialesController(ISecuenciales ISecuenciales)
         {
 
-            _IEstablecimientos = IEstablecimientos;
+            _ISecuenciales = ISecuenciales;
 
         }
 
@@ -35,7 +30,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             try
             {
 
-              var consulta = await _IEstablecimientos.listar(idEmpresa);
+                var consulta = await _ISecuenciales.listar(idEmpresa);
                 return StatusCode(200, consulta);
 
 
@@ -48,9 +43,5 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
         }
 
 
-
     }
-
-
-
 }

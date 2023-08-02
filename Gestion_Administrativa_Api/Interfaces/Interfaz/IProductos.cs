@@ -132,7 +132,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                 }
                 _context.Add(producto);
                 await _context.SaveChangesAsync();
-                return "ok";
+                    return "ok";
 
             }
             catch (Exception ex)

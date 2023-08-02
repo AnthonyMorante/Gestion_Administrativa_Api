@@ -133,6 +133,7 @@ builder.Services.AddTransient<IEstablecimientos, EstablecimientosI>();
 builder.Services.AddTransient<IPuntoEmisiones, PuntoEmisionesI>();
 builder.Services.AddTransient<IDocumentosEmitir, DocumentosEmitirI>();
 builder.Services.AddTransient<IDetallePrecioProductos, DetallePrecioProductosI>();
+builder.Services.AddTransient<ISecuenciales, SecuencialesI>();
 
 
 

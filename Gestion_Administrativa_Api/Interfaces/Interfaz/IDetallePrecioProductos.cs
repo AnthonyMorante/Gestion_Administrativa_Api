@@ -27,7 +27,8 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
             {
 
 
-                return await _context.DetallePrecioProductos.Where(x => x.IdProducto == idProducto /*&& x.Activo*/ == true)
+                return await _context.DetallePrecioProductos.Where(x => x.IdProducto == idProducto && x.Activo == true)
+                    .Include(x=>x.IdIvaNavigation)
                     .OrderByDescending(x => x.TotalIva)
                     .ToListAsync();
 
