@@ -50,7 +50,10 @@ namespace Gestion_Administrativa_Api.AutoMapper
 
             #region Productos
 
-            CreateMap<ProductosDto, Productos>();
+            CreateMap<ProductosDto, Productos>()
+
+                            .ForMember(dest => dest.TotalIva, opt => opt.MapFrom(src => src.PrecioIva))
+                ;
             CreateMap<Productos, Productos>()
            .ForMember(dest => dest.Activo, opt => opt.Ignore())
            .ForMember(dest => dest.FechaRegistro, opt => opt.Ignore()

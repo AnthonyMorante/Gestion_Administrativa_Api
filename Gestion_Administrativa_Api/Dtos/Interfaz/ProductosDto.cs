@@ -15,6 +15,7 @@ namespace Gestion_Administrativa_Api.Dtos.Interfaz
         public bool? Activo { get; set; }
 
         public decimal? Precio { get; set; }
+        public decimal? PrecioIva { get; set; }
 
         public DateTime? FechaRegistro { get; set; }
 

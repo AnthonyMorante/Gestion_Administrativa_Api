@@ -26,13 +26,13 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
         [Route("[action]")]
 
 
-        public async Task<IActionResult> insertar(ProductosDto _empleados)
+        public async Task<IActionResult> insertar(ProductosDto _productos)
         {
 
             try
             {
 
-                var consulta = await _IProductos.insertar(_empleados);
+                var consulta = await _IProductos.insertar(_productos);
 
                 if (consulta == "ok")
                 {
