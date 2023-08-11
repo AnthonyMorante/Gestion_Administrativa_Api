@@ -29,6 +29,8 @@ public partial class _context : DbContext
 
     public virtual DbSet<Establecimientos> Establecimientos { get; set; }
 
+    public virtual DbSet<FormaPagos> FormaPagos { get; set; }
+
     public virtual DbSet<Ivas> Ivas { get; set; }
 
     public virtual DbSet<Productos> Productos { get; set; }
@@ -40,6 +42,8 @@ public partial class _context : DbContext
     public virtual DbSet<PuntoEmisiones> PuntoEmisiones { get; set; }
 
     public virtual DbSet<Secuenciales> Secuenciales { get; set; }
+
+    public virtual DbSet<TiempoFormaPagos> TiempoFormaPagos { get; set; }
 
     public virtual DbSet<TipoDocumentos> TipoDocumentos { get; set; }
 
@@ -53,6 +57,7 @@ public partial class _context : DbContext
 
     public virtual DbSet<Usuarios> Usuarios { get; set; }
 
+   
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -318,6 +323,31 @@ public partial class _context : DbContext
                 .HasConstraintName("establecimientos_idEmpresa_fkey");
         });
 
+        modelBuilder.Entity<FormaPagos>(entity =>
+        {
+            entity.HasKey(e => e.IdFormaPago).HasName("formaPagos_pkey");
+
+            entity.ToTable("formaPagos");
+
+            entity.Property(e => e.IdFormaPago)
+                .HasDefaultValueSql("gen_random_uuid()")
+                .HasColumnName("idFormaPago");
+            entity.Property(e => e.Activo)
+                .HasDefaultValueSql("true")
+                .HasColumnName("activo");
+            entity.Property(e => e.Codigo).HasColumnName("codigo");
+            entity.Property(e => e.Descripcion)
+                .HasMaxLength(500)
+                .HasColumnName("descripcion");
+            entity.Property(e => e.FechaRegistro)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("fechaRegistro");
+            entity.Property(e => e.Nombre)
+                .HasMaxLength(500)
+                .HasColumnName("nombre");
+        });
+
         modelBuilder.Entity<Ivas>(entity =>
         {
             entity.HasKey(e => e.IdIva).HasName("ivas_pkey");
@@ -528,6 +558,31 @@ public partial class _context : DbContext
             entity.HasOne(d => d.IdTipoDocumentoNavigation).WithMany()
                 .HasForeignKey(d => d.IdTipoDocumento)
                 .HasConstraintName("secuenciales_idTipoDocumento_fkey");
+        });
+
+        modelBuilder.Entity<TiempoFormaPagos>(entity =>
+        {
+            entity.HasKey(e => e.IdTiempoFormaPago).HasName("tiempoFormaPagos_pkey");
+
+            entity.ToTable("tiempoFormaPagos");
+
+            entity.Property(e => e.IdTiempoFormaPago)
+                .HasDefaultValueSql("gen_random_uuid()")
+                .HasColumnName("idTiempoFormaPago");
+            entity.Property(e => e.Activo)
+                .HasDefaultValueSql("true")
+                .HasColumnName("activo");
+            entity.Property(e => e.Codigo).HasColumnName("codigo");
+            entity.Property(e => e.Descripcion)
+                .HasMaxLength(500)
+                .HasColumnName("descripcion");
+            entity.Property(e => e.FechaRegistro)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("fechaRegistro");
+            entity.Property(e => e.Nombre)
+                .HasMaxLength(500)
+                .HasColumnName("nombre");
         });
 
         modelBuilder.Entity<TipoDocumentos>(entity =>
