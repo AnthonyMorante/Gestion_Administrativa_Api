@@ -136,6 +136,7 @@ builder.Services.AddTransient<IDetallePrecioProductos, DetallePrecioProductosI>(
 builder.Services.AddTransient<ISecuenciales, SecuencialesI>();
 builder.Services.AddTransient<IFormaPagos, FormaPagosI>();
 builder.Services.AddTransient<ITiempoFormaPagos, TiempoFormaPagosI>();
+builder.Services.AddTransient<IFacturas, FacturasI>();
 
 
 
