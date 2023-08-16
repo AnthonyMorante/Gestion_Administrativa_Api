@@ -5,8 +5,11 @@ using Gestion_Administrativa_Api.Interfaces.Utilidades;
 using Gestion_Administrativa_Api.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using System.Xml.Serialization;
+using System.Xml;
 using static Gestion_Administrativa_Api.Documents_Models.Factura.factura_V100;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Xml.Linq;
 
 namespace Gestion_Administrativa_Api.Interfaces.Interfaz
 {
@@ -109,9 +112,9 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                     await _context.InformacionAdicional.AddRangeAsync(informacionAdicional);
 
                 }
-                await generarXml(factura);
+                await generarXml(factura,_facturaDto);
                 await _context.SaveChangesAsync();
-                await generarXml(factura);
+                await generarXml(factura, _facturaDto);
                 return "ok";
 
 
@@ -123,22 +126,40 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
             }
         }
 
-        public async Task<bool> generarXml(Facturas? _factura)
+        public async Task<bool> generarXml(Facturas? _factura,FacturaDto _facturaDto)
         {
             try
             {
                 var factura = new factura_V1_0_0();
                 var infoTributaria = _mapper.Map<infoTributaria_V1_0_0>(_factura);
                 var infoFactura = _mapper.Map<infoFactura_V1_0_0>(_factura);
-                var infoAdicional= _mapper.Map<IEnumerable <detAdicional_V1_0_0>>(_factura.InformacionAdicional);
-                var formaPago = _mapper.Map<IEnumerable<pago_V1_0_0>>(_factura.DetalleFormaPagos);
+                var detalleFactura = _mapper.Map<List <detalle_V1_0_0>>(_facturaDto.detalleFactura);
+                var infoAdicional= _mapper.Map<List <detAdicional_V1_0_0>>(_factura.InformacionAdicional);
+                var formaPago = _mapper.Map<List<pago_V1_0_0>>(_factura.DetalleFormaPagos);
                 factura.infoTributaria = infoTributaria;
                 factura.infoFactura = infoFactura;
+                factura.detalles=detalleFactura;
                 factura.infoAdicional = infoAdicional;
                 factura.pagos = formaPago;
-
                 var a = factura;
+                XmlSerializerNamespaces serialize = new XmlSerializerNamespaces();
+                serialize.Add("", "");
+                XmlSerializer oXmlSerializar = new XmlSerializer(typeof(factura_V1_0_0));
+                string xmlFactura = "";
+                using (var stream = new System.IO.StringWriter())
+                {
+                    using (XmlWriter writter = XmlWriter.Create(stream))
+                    {
 
+
+                        oXmlSerializar.Serialize(writter, factura, serialize);
+
+                        xmlFactura = stream.ToString();
+                    }
+                }
+                XDocument doc = XDocument.Parse(xmlFactura);
+                doc.Descendants().Where(e => string.IsNullOrEmpty(e.Value)).Remove();
+                doc.Save($"D:\\Xml\\{_factura.ClaveAcceso}.xml");
                 return true;
 
 

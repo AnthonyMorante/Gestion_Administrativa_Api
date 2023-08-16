@@ -11,14 +11,67 @@ namespace Gestion_Administrativa_Api.AutoMapper
 
         public MappingProfile()
         {
-            #region detAdicional_V1_0_0
 
-            CreateMap<DetalleFormaPagos, pago_V1_0_0>()
-                  .ForMember(dest => dest.total, opt => opt.MapFrom(src => src.Valor))
+
+            #region FormaPago
+
+            CreateMap<DetalleDto, detalle_V1_0_0>()
+                  .ForMember(dest => dest.codigoPrincipal, opt => opt.MapFrom(src => src.codigo))
+                  .ForMember(dest => dest.codigoAuxiliar, opt => opt.MapFrom(src => src.codigo))
+                  .ForMember(dest => dest.descripcion, opt => opt.MapFrom(src => src.nombre))
+                  .ForMember(dest => dest.descuento, opt => opt.MapFrom(src => src.descuento==null ? 0 : src.descuento))
+                  .ForMember(dest => dest.precioTotalSinImpuesto, opt => opt.MapFrom(src => src.totalSinIva))
+                  .ForMember(dest => dest.precioUnitario, opt => opt.MapFrom(src => src.valor))
+                  .ForMember(dest => dest.totalConImpuestos, opt => opt.MapFrom(src => src.total))
+                  .ForMember(dest => dest.impuestos, opt => opt.MapFrom(src => new List<impuesto_V1_0_0>
+                    {
+                        new impuesto_V1_0_0
+                        {
+                            codigo=2,//por que es iva tabla 16,
+                            codigoPorcentaje = src.idIva ==  Guid.Parse("53347a4d-5c75-42e8-9456-595a728306aa") ? 2:
+                            src.idIva ==  Guid.Parse("d4c41fb5-1791-4739-8285-a312e010afa9") ? 0:
+                            src.idIva ==  Guid.Parse("aaf450c1-058f-4406-8c69-7ab3b1d1c339") ? 6:
+                            src.idIva ==  Guid.Parse("8980f44a-df38-400a-9d89-4150cadd13ba") ? 7: -1,
+                            baseImponible=src.totalSinIva,
+                            valor=src.valor
+
+                        }
+                    }))
 
             .ReverseMap();
             ;
             #endregion
+
+
+            #region pago_V1_0_0
+
+            CreateMap<DetalleFormaPagos, pago_V1_0_0>()
+                  .ForMember(dest => dest.total, opt => opt.MapFrom(src => src.Valor))
+                  .ForMember(d => d.unidadTiempo, opt =>
+                  {
+
+                      opt.MapFrom(src => src.IdTiempoFormaPago == Guid.Parse("0c99e1ec-c09e-41e4-80e1-1f0769c68593") ? "dias" :
+                                         src.IdTiempoFormaPago == Guid.Parse("3d558987-97d7-4c3a-a4cb-71fc4971e61b") ? "meses" :
+                                         null);
+                  })
+                  .ForMember(d => d.formaPago, opt =>
+                  {
+
+                       opt.MapFrom(src => src.IdFormaPago == Guid.Parse("234c0c98-1831-42ab-a3bb-9b4b2caae4f1") ? "01" :
+                                          src.IdTiempoFormaPago == Guid.Parse("94a782b2-d3cc-4585-9701-35c99dcf141b") ? "15" :
+                                          src.IdTiempoFormaPago == Guid.Parse("0159cfa0-144a-4c57-8053-2d98934d7e10") ? "16" :
+                                          src.IdTiempoFormaPago == Guid.Parse("5a7a7fb4-8be6-44b9-8925-da5a75cf36f2") ? "17" :
+                                          src.IdTiempoFormaPago == Guid.Parse("fc7b9f2a-bb33-4da3-861e-86113f4abc78") ? "18" :
+                                          src.IdTiempoFormaPago == Guid.Parse("11ffab20-dd28-48dc-a6ea-6b367a7a08ac") ? "19" :
+                                          src.IdTiempoFormaPago == Guid.Parse("fc7b9f2a-bb33-4da3-861e-86113f4abc78") ? "20" :
+                                          src.IdTiempoFormaPago == Guid.Parse("6db235fe-e81c-4fe9-8a12-b3cf54ddcd92") ? "21" :
+                                          null);
+                  })
+
+            .ReverseMap();
+            ;
+            #endregion
+
             #region detAdicional_V1_0_0
 
             CreateMap<InformacionAdicional, detAdicional_V1_0_0>()
@@ -43,7 +96,6 @@ namespace Gestion_Administrativa_Api.AutoMapper
             .ReverseMap();
             ;
             #endregion
-
 
             #region infoFactura_V1_0_0
 
