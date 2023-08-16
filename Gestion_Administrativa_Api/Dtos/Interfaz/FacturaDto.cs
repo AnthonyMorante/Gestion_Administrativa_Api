@@ -2,8 +2,19 @@
 {
     public class FacturaDto
     {
-        public Guid idCliente { get; set; }
 
+        public string versionXml { get; set; } = "1.0.0";
+        public int? TipoDocumento { get; set; } = 1;
+        public int? codigoTipoIdentificacion { get; set; } = 1;
+        public string establecimiento { get; set; }
+        public string puntoEmision { get; set; }
+        public string secuencial { get; set; }
+        public DateTime fechaEmision { get; set; }
+        public Guid idUsuario { get; set; }
+        public Guid idCiudad { get; set; }
+        public Guid idEmpresa { get; set; }
+        public Guid idCliente { get; set; }
+        public string? claveAcceso { get; set; }
         public string ?identificacion { get; set; }
         public string? razonSocial { get; set; }
         public string ?telefono { get; set; }
@@ -19,6 +30,7 @@
         public decimal? iva12{ get; set; }
         public decimal? totalFactura{ get; set; }
         public decimal? totalDecuento { get; set; }
+
         public IEnumerable<formaPagoDto>? formaPago { get; set; }
         public IEnumerable<informacionAdicionalDto>? informacionAdicional { get; set; }
         public IEnumerable<DetalleDto>? detalleFactura { get; set; }
@@ -31,6 +43,7 @@
     public class formaPagoDto
     {
         public Guid? idFormaPago { get; set; }
+        public Guid? idTiempoFormaPago { get; set; }
         public string? formaPago { get; set; }
         public int? plazo { get; set; }
         public string? tiempo{ get; set; }

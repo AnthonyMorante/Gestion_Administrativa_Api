@@ -4,6 +4,7 @@ using Gestion_Administrativa_Api.AutoMapper;
 using Gestion_Administrativa_Api.Configuration;
 using Gestion_Administrativa_Api.Interfaces.Interfaz;
 using Gestion_Administrativa_Api.Interfaces.Sri;
+using Gestion_Administrativa_Api.Interfaces.Utilidades;
 using Gestion_Administrativa_Api.Models;
 using Gestion_Administrativa_Api.Repository;
 using IdentityServer4.Models;
@@ -137,6 +138,8 @@ builder.Services.AddTransient<ISecuenciales, SecuencialesI>();
 builder.Services.AddTransient<IFormaPagos, FormaPagosI>();
 builder.Services.AddTransient<ITiempoFormaPagos, TiempoFormaPagosI>();
 builder.Services.AddTransient<IFacturas, FacturasI>();
+builder.Services.AddTransient<IUtilidades, UtilidadesI>();
+
 
 
 

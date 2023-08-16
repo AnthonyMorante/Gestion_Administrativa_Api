@@ -27,6 +27,8 @@ public partial class Empresas
 
     public DateTime? FechaRegistro { get; set; }
 
+    public string? DireccionMatriz { get; set; }
+
     public virtual ICollection<Clientes> Clientes { get; set; } = new List<Clientes>();
 
     public virtual ICollection<Empleados> Empleados { get; set; } = new List<Empleados>();

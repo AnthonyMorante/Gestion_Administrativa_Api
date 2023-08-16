@@ -15,5 +15,7 @@ public partial class Usuarios
 
     public bool? Activo { get; set; }
 
+    public virtual ICollection<Facturas> Facturas { get; set; } = new List<Facturas>();
+
     public virtual ICollection<UsuarioEmpresas> UsuarioEmpresas { get; set; } = new List<UsuarioEmpresas>();
 }

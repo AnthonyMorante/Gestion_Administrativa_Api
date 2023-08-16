@@ -19,5 +19,7 @@ public partial class Establecimientos
 
     public long? Nombre { get; set; }
 
+    public string? Direccion { get; set; }
+
     public virtual Empresas? IdEmpresaNavigation { get; set; }
 }

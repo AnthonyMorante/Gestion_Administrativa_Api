@@ -27,6 +27,7 @@ namespace Gestion_Administrativa_Api.Auth
 
                             new Claim("usuario", $"{consulta.IdUsuarioNavigation.Nombre}"),
                             new Claim("idEmpresa", $"{consulta.IdEmpresaNavigation.IdEmpresa}"),
+                            new Claim("idUsuario", $"{consulta.IdUsuario}"),
 
             };
 

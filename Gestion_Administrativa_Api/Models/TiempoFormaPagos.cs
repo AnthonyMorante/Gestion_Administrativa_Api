@@ -16,4 +16,6 @@ public partial class TiempoFormaPagos
     public DateTime? FechaRegistro { get; set; }
 
     public int? Codigo { get; set; }
+
+    public virtual ICollection<DetalleFormaPagos> DetalleFormaPagos { get; set; } = new List<DetalleFormaPagos>();
 }

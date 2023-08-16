@@ -78,7 +78,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
             {
 
 
-                return await _context.Clientes.Include(x => x.IdCiudadNavigation).Where(x => x.Identificacion == identificacion).FirstOrDefaultAsync();
+                return await _context.Clientes.Include(x => x.IdCiudadNavigation).Include(x=>x.IdTipoIdentificacionNavigation).Where(x => x.Identificacion == identificacion).FirstOrDefaultAsync();
 
 
             }
