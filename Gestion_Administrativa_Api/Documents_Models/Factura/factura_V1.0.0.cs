@@ -4,25 +4,27 @@ using System.Xml.Serialization;
 
 namespace Gestion_Administrativa_Api.Documents_Models.Factura
 {
-    public class factura_V1
+    public class factura_V100
     {
 
 
-        public class factura
+        public class factura_V1_0_0
         {
             [XmlAttribute]
             public string id { get; set; } = "comprobante";
             [XmlAttribute]
             public string version { get; set; } = "1.0.0";
-            public infoTributaria? infoTributaria { get; set; }
-            public infoFactura? infoFactura { get; set; }
-            public detalle? detalles { get; set; }
+            public infoTributaria_V1_0_0? infoTributaria { get; set; }
+            public infoFactura_V1_0_0? infoFactura { get; set; }
+            public detalle_V1_0_0? detalles { get; set; }
+            [XmlArray("pagos")]
+            public IEnumerable<pago_V1_0_0>? pagos { get; set; }
             [XmlArray("infoAdicional")]
-            public IEnumerable<detAdicional>? infoAdicional { get; set; }
+            public IEnumerable<detAdicional_V1_0_0>? infoAdicional { get; set; }
         }
 
 
-        public class infoTributaria
+        public class infoTributaria_V1_0_0
         {
             public string? ambiente { get; set; }
             public string? tipoEmision { get; set; }
@@ -37,7 +39,7 @@ namespace Gestion_Administrativa_Api.Documents_Models.Factura
             public string? dirMatriz { get; set; }
             public string? agenteRetencion { get; set; }
             public string? contribuyenteRimpe { get; set; }
-            public infoFactura? infoFactura { get; set; }
+            public infoFactura_V1_0_0? infoFactura { get; set; }
             public decimal? propina { get; set; }
             public decimal? fleteInternacional { get; set; }
             public decimal? seguroInternacional { get; set; }
@@ -49,7 +51,7 @@ namespace Gestion_Administrativa_Api.Documents_Models.Factura
 
         }
 
-        public class infoFactura
+        public class infoFactura_V1_0_0
         {
 
             public string? fechaEmision { get; set; }
@@ -77,8 +79,8 @@ namespace Gestion_Administrativa_Api.Documents_Models.Factura
             public decimal? totalComprobantesReembolso { get; set; }
             public decimal? totalBaseImponibleReembolso { get; set; }
             public decimal? totalImpuestoReembolso { get; set; }
-            public IEnumerable<totalImpuesto>? totalConImpuestos { get; set; }
-            public IEnumerable<compensacion>? compensaciones { get; set; }
+            public decimal? totalConImpuestos { get; set; }
+            public IEnumerable<compensacion_V1_0_0>? compensaciones { get; set; }
             public decimal? propina { get; set; }
             public decimal? fleteInternacional { get; set; }
             public decimal? seguroInternacional { get; set; }
@@ -87,16 +89,16 @@ namespace Gestion_Administrativa_Api.Documents_Models.Factura
             public decimal? importeTotal { get; set; }
             public string moneda { get; set; }
             public string placa { get; set; }
-            public IEnumerable<pago>? pagos { get; set; }
+            public IEnumerable<pago_V1_0_0>? pagos { get; set; }
             public decimal? valorRetIva { get; set; }
             public decimal? valorRetRenta { get; set; }
-            public IEnumerable<detalle>? detalles { get; set; }
+            public IEnumerable<detalle_V1_0_0>? detalles { get; set; }
 
 
 
         }
 
-        public class totalImpuesto
+        public class totalImpuesto_V1_0_0
         {
             public string? Codigo { get; set; }
             public string? CodigoPorcentaje { get; set; }
@@ -108,7 +110,7 @@ namespace Gestion_Administrativa_Api.Documents_Models.Factura
         }
 
 
-        public class compensacion
+        public class compensacion_V1_0_0
         {
             public string? codigo { get; set; }
             public decimal? tarifa { get; set; }
@@ -117,7 +119,7 @@ namespace Gestion_Administrativa_Api.Documents_Models.Factura
 
         }
 
-        public class pago
+        public class pago_V1_0_0
         {
             public string? formaPago { get; set; }
             public decimal? total { get; set; }
@@ -126,7 +128,7 @@ namespace Gestion_Administrativa_Api.Documents_Models.Factura
         }
 
 
-        public class detAdicional
+        public class detAdicional_V1_0_0
         {
             [XmlAttribute]
             public string? nombre { get; set; }
@@ -137,7 +139,7 @@ namespace Gestion_Administrativa_Api.Documents_Models.Factura
 
 
 
-        public class impuesto
+        public class impuesto_V1_0_0
         {
             public string? codigo { get; set; }
             public string? codigoPorcentaje { get; set; }
@@ -147,7 +149,7 @@ namespace Gestion_Administrativa_Api.Documents_Models.Factura
         }
 
 
-        public class detalle
+        public class detalle_V1_0_0
         {
             public string codigoPrincipal { get; set; }
             public string codigoAuxiliar { get; set; }
@@ -158,8 +160,8 @@ namespace Gestion_Administrativa_Api.Documents_Models.Factura
             public decimal precioSinSubsidio { get; set; }
             public decimal? descuento { get; set; }
             public decimal? precioTotalSinImpuesto { get; set; }
-            public List<detAdicional>? totalConImpuestos { get; set; }
-            public List<impuesto>? impuestos { get; set; }
+            public List<detAdicional_V1_0_0>? totalConImpuestos { get; set; }
+            public List<impuesto_V1_0_0>? impuestos { get; set; }
         }
 
     }

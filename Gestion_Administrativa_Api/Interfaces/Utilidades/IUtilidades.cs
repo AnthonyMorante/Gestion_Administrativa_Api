@@ -1,5 +1,5 @@
 ﻿using Gestion_Administrativa_Api.Models;
-using static Gestion_Administrativa_Api.Documents_Models.Factura.factura_V1;
+
 
 namespace Gestion_Administrativa_Api.Interfaces.Utilidades
 {

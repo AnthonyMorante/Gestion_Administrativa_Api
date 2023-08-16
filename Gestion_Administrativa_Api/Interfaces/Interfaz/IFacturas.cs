@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
+using Gestion_Administrativa_Api.Documents_Models.Factura;
 using Gestion_Administrativa_Api.Dtos.Interfaz;
 using Gestion_Administrativa_Api.Interfaces.Utilidades;
 using Gestion_Administrativa_Api.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using static Gestion_Administrativa_Api.Documents_Models.Factura.factura_V100;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Gestion_Administrativa_Api.Interfaces.Interfaz
@@ -40,6 +42,9 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
         {
             try
             {
+
+                
+
 
 
                 var consultaEmpresa = await _context.Empresas.FindAsync(_facturaDto.idEmpresa);
@@ -78,6 +83,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                factura.DireccionEstablecimiento = consultaEstablecimiento.Direccion;
                factura.TipoDocumento = _facturaDto.codigoTipoIdentificacion;
                await _context.Facturas.AddAsync(factura);
+           
                await _context.DetalleFacturas.AddRangeAsync(detalle);
                await _context.SaveChangesAsync();
 
@@ -103,9 +109,37 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                     await _context.InformacionAdicional.AddRangeAsync(informacionAdicional);
 
                 }
-
+                await generarXml(factura);
                 await _context.SaveChangesAsync();
+                await generarXml(factura);
                 return "ok";
+
+
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
+
+        public async Task<bool> generarXml(Facturas? _factura)
+        {
+            try
+            {
+                var factura = new factura_V1_0_0();
+                var infoTributaria = _mapper.Map<infoTributaria_V1_0_0>(_factura);
+                var infoFactura = _mapper.Map<infoFactura_V1_0_0>(_factura);
+                var infoAdicional= _mapper.Map<IEnumerable <detAdicional_V1_0_0>>(_factura.InformacionAdicional);
+                var formaPago = _mapper.Map<IEnumerable<pago_V1_0_0>>(_factura.DetalleFormaPagos);
+                factura.infoTributaria = infoTributaria;
+                factura.infoFactura = infoFactura;
+                factura.infoAdicional = infoAdicional;
+                factura.pagos = formaPago;
+
+                var a = factura;
+
+                return true;
 
 
             }
