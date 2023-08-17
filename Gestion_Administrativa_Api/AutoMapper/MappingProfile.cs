@@ -93,6 +93,9 @@ namespace Gestion_Administrativa_Api.AutoMapper
                     .ForMember(dest => dest.razonSocial, opt => opt.MapFrom(src => src.EmisorRazonSocial.ToUpper()))
                     .ForMember(dest => dest.nombreComercial, opt => opt.MapFrom(src => src.EmisorRazonSocial.ToUpper()))
                     .ForMember(dest => dest.ruc, opt => opt.MapFrom(src => src.EmisorRuc.ToUpper()))
+                    .ForMember(dest => dest.agenteRetencion, opt => opt.MapFrom(src => Convert.ToBoolean(src.AgenteRetencion) == true ? "SI" : null))
+                    .ForMember(dest => dest.contribuyenteRimpe, opt => opt.MapFrom(src => Convert.ToBoolean(src.ContribuyenteRimpe) == true ? "SI" : null))
+                    .ForMember(dest => dest.ruc, opt => opt.MapFrom(src => src.EmisorRuc.ToUpper()))
             .ReverseMap();
             ;
             #endregion
@@ -108,6 +111,7 @@ namespace Gestion_Administrativa_Api.AutoMapper
                 .ForMember(dest => dest.totalSinImpuestos, opt => opt.MapFrom(src => src.TotalSinImpuesto))
                 .ForMember(dest => dest.moneda, opt => opt.MapFrom(src => src.Moneda.ToLower()))
                 .ForMember(dest => dest.importeTotal, opt => opt.MapFrom(src => src.TotalImporte))
+                
 
 
             .ReverseMap();

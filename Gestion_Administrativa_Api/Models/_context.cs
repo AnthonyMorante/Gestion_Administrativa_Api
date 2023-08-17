@@ -39,6 +39,8 @@ public partial class _context : DbContext
 
     public virtual DbSet<InformacionAdicional> InformacionAdicional { get; set; }
 
+    public virtual DbSet<InformacionFirmas> InformacionFirmas { get; set; }
+
     public virtual DbSet<Ivas> Ivas { get; set; }
 
     public virtual DbSet<Productos> Productos { get; set; }
@@ -350,6 +352,7 @@ public partial class _context : DbContext
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("timestamp without time zone")
                 .HasColumnName("fechaRegistro");
+            entity.Property(e => e.IdInformacionFirma).HasColumnName("idInformacionFirma");
             entity.Property(e => e.IdTipoNegocio).HasColumnName("idTipoNegocio");
             entity.Property(e => e.Identificacion)
                 .HasMaxLength(30)
@@ -368,6 +371,10 @@ public partial class _context : DbContext
                 .HasForeignKey<Empresas>(d => d.IdEmpresa)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("empresas_empresas");
+
+            entity.HasOne(d => d.IdInformacionFirmaNavigation).WithMany(p => p.Empresas)
+                .HasForeignKey(d => d.IdInformacionFirma)
+                .HasConstraintName("fk_empresas_informacionfirmas");
 
             entity.HasOne(d => d.IdTipoNegocioNavigation).WithMany(p => p.Empresas)
                 .HasForeignKey(d => d.IdTipoNegocio)
@@ -582,6 +589,36 @@ public partial class _context : DbContext
                 .HasForeignKey(d => d.IdFactura)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("informacionAdicional_idFactura_fkey");
+        });
+
+        modelBuilder.Entity<InformacionFirmas>(entity =>
+        {
+            entity.HasKey(e => e.IdInformacionFirma).HasName("informacionFirmas_pkey");
+
+            entity.ToTable("informacionFirmas");
+
+            entity.Property(e => e.IdInformacionFirma)
+                .HasDefaultValueSql("gen_random_uuid()")
+                .HasColumnName("idInformacionFirma");
+            entity.Property(e => e.Activo)
+                .HasDefaultValueSql("true")
+                .HasColumnName("activo");
+            entity.Property(e => e.Codigo)
+                .HasMaxLength(500)
+                .HasColumnName("codigo");
+            entity.Property(e => e.FechaRegistro)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("fechaRegistro");
+            entity.Property(e => e.Identificacion)
+                .HasMaxLength(20)
+                .HasColumnName("identificacion");
+            entity.Property(e => e.RazonSocial)
+                .HasMaxLength(500)
+                .HasColumnName("razonSocial");
+            entity.Property(e => e.Ruta)
+                .HasMaxLength(1000)
+                .HasColumnName("ruta");
         });
 
         modelBuilder.Entity<Ivas>(entity =>

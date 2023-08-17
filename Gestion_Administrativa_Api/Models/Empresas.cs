@@ -29,6 +29,8 @@ public partial class Empresas
 
     public string? DireccionMatriz { get; set; }
 
+    public Guid? IdInformacionFirma { get; set; }
+
     public virtual ICollection<Clientes> Clientes { get; set; } = new List<Clientes>();
 
     public virtual ICollection<Empleados> Empleados { get; set; } = new List<Empleados>();
@@ -36,6 +38,8 @@ public partial class Empresas
     public virtual ICollection<Establecimientos> Establecimientos { get; set; } = new List<Establecimientos>();
 
     public virtual Empresas IdEmpresaNavigation { get; set; } = null!;
+
+    public virtual InformacionFirmas? IdInformacionFirmaNavigation { get; set; }
 
     public virtual TipoNegocios? IdTipoNegocioNavigation { get; set; }
 

@@ -84,12 +84,10 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                factura.Isd = 0;
                factura.DireccionMatriz = consultaEmpresa.DireccionMatriz;
                factura.DireccionEstablecimiento = consultaEstablecimiento.Direccion;
-               factura.TipoDocumento = _facturaDto.codigoTipoIdentificacion;
+               factura.IdFactura = Guid.NewGuid();
                await _context.Facturas.AddAsync(factura);
            
                await _context.DetalleFacturas.AddRangeAsync(detalle);
-               await _context.SaveChangesAsync();
-
 
                 if (_facturaDto.formaPago.ToList().Count > 0)
                 {
@@ -112,9 +110,12 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                     await _context.InformacionAdicional.AddRangeAsync(informacionAdicional);
 
                 }
-                await generarXml(factura,_facturaDto);
+             
                 await _context.SaveChangesAsync();
-                await generarXml(factura, _facturaDto);
+                var ruta = await generarXml(factura, _facturaDto)??throw new Exception("Error al generar Documento"); 
+                var firmar = await firmarXml(factura.IdFactura,ruta?.documento) ?? throw new Exception("Error al firmar y guardar XML");
+
+
                 return "ok";
 
 
@@ -126,7 +127,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
             }
         }
 
-        public async Task<bool> generarXml(Facturas? _factura,FacturaDto _facturaDto)
+        public async Task<dynamic> generarXml(Facturas? _factura,FacturaDto _facturaDto)
         {
             try
             {
@@ -159,9 +160,44 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                 }
                 XDocument doc = XDocument.Parse(xmlFactura);
                 doc.Descendants().Where(e => string.IsNullOrEmpty(e.Value)).Remove();
-                doc.Save($"D:\\Xml\\{_factura.ClaveAcceso}.xml");
-                return true;
+                var ruta = $"{_configuration["Pc:disco"]}\\Facturacion\\Xml\\{_factura.ClaveAcceso}.xml";
+                _factura.Ruta = ruta;
+                return new {estado= true,documento = doc };
 
+                
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
+
+
+
+
+        public async Task<bool> firmarXml(Guid idFactura, XDocument documento)
+        {
+            try
+            {
+                var consultaFactura = await _context.Facturas.FindAsync(idFactura);
+                if (consultaFactura == null) return false;
+                var consultaUsuarioEmpresa = await _context.UsuarioEmpresas
+                    .Include(x=>x.IdEmpresaNavigation)
+                    .Include(x => x.IdEmpresaNavigation.IdInformacionFirmaNavigation)
+                    .FirstOrDefaultAsync(x=>x.IdUsuario == consultaFactura.IdUsuario);
+                if (consultaFactura == null) return false;
+               var firmar = await _IUtilidades.firmar(consultaFactura.ClaveAcceso,consultaUsuarioEmpresa.IdEmpresaNavigation.IdInformacionFirmaNavigation.Codigo, consultaUsuarioEmpresa.IdEmpresaNavigation.IdInformacionFirmaNavigation.Ruta,documento);
+
+                if (firmar == true)
+                {
+                    consultaFactura.IdTipoEstadoDocumento = 2;
+                    _context.Entry(consultaFactura).Property("IdTipoEstadoDocumento").IsModified = true;
+                    _context.SaveChanges();
+
+                }
+
+                return true;
 
             }
             catch (Exception ex)
