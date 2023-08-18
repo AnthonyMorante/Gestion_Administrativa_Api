@@ -21,7 +21,6 @@ namespace Gestion_Administrativa_Api.AutoMapper
                             src.idIva == Guid.Parse("d4c41fb5-1791-4739-8285-a312e010afa9") ? 0 :
                             src.idIva == Guid.Parse("aaf450c1-058f-4406-8c69-7ab3b1d1c339") ? 6 :
                             src.idIva == Guid.Parse("8980f44a-df38-400a-9d89-4150cadd13ba") ? 7 : -1))
-                 .ForMember(dest => dest.descuentoAdicional, opt => opt.MapFrom(src => src.descuento))
                  .ForMember(dest => dest.baseImponible, opt => opt.MapFrom(src => src.total))
                  .ForMember(dest => dest.valor, opt => opt.MapFrom(src => src.porcentaje))
             .ReverseMap();
@@ -49,7 +48,7 @@ namespace Gestion_Administrativa_Api.AutoMapper
                             src.idIva ==  Guid.Parse("d4c41fb5-1791-4739-8285-a312e010afa9") ? 0:
                             src.idIva ==  Guid.Parse("aaf450c1-058f-4406-8c69-7ab3b1d1c339") ? 6:
                             src.idIva ==  Guid.Parse("8980f44a-df38-400a-9d89-4150cadd13ba") ? 7: -1,
-                            tarifa="12.00",
+                            tarifa=src.tarifaPorcentaje,
                             baseImponible=src.totalSinIva,
                             valor=src.porcentaje
 

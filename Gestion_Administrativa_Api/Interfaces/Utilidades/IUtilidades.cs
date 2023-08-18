@@ -202,6 +202,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Utilidades
 
                 var content = new StringContent(xml, Encoding.ASCII, "text/xml");
                 var peticion = await _httpClient.PostAsync(_configuration["SRI:urlEnvioComprobantes"], content);
+                //var peticionTask = _httpClient.PostAsync(_configuration["SRI:urlEnvioComprobantes"], content);
                 peticion.EnsureSuccessStatusCode();
                 var consulta = await peticion.Content.ReadAsStringAsync();
                 consulta += $"<ns2:validarComprobanteClaveAcceso xmlns:ns2=\"http://ec.gob.sri.ws.recepcion\">{claveAcceso}</ns2:validarComprobanteClaveAcceso>";
