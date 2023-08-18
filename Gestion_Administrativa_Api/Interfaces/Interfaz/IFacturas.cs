@@ -10,6 +10,7 @@ using System.Xml;
 using static Gestion_Administrativa_Api.Documents_Models.Factura.factura_V100;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Xml.Linq;
+using System.Reflection.Metadata;
 
 namespace Gestion_Administrativa_Api.Interfaces.Interfaz
 {
@@ -64,8 +65,8 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                 var factura = _mapper.Map<Facturas>(_facturaDto);
                 var detalle = _mapper.Map<IEnumerable<DetalleFacturas>>(_facturaDto.detalleFactura);
 
-               
 
+                factura.EmisorRuc = consultaEmpresa.Identificacion;
                var claveAcceso = await _IUtilidades.claveAcceso(factura);
                factura.ClaveAcceso = claveAcceso;
                factura.TipoEmision = Convert.ToInt16(_configuration["SRI:tipoEmision"]);
@@ -110,10 +111,14 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                     await _context.InformacionAdicional.AddRangeAsync(informacionAdicional);
 
                 }
-             
+
+                var consultaSecuencial = await _context.Secuenciales.FirstOrDefaultAsync(x => x.IdEmpresa == consultaEmpresa.IdEmpresa && x.IdTipoDocumento == _facturaDto.idTipoDocumento);
+                consultaSecuencial.Nombre = consultaSecuencial.Nombre + 1;
+                _context.Secuenciales.Update(consultaSecuencial);
                 await _context.SaveChangesAsync();
                 var ruta = await generarXml(factura, _facturaDto)??throw new Exception("Error al generar Documento"); 
                 var firmar = await firmarXml(factura.IdFactura,ruta?.documento) ?? throw new Exception("Error al firmar y guardar XML");
+                var enviar = await enviarSri(factura.ClaveAcceso);if(enviar == null)throw new Exception("Error al enviar XML");
 
 
                 return "ok";
@@ -134,15 +139,17 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                 var factura = new factura_V1_0_0();
                 var infoTributaria = _mapper.Map<infoTributaria_V1_0_0>(_factura);
                 var infoFactura = _mapper.Map<infoFactura_V1_0_0>(_factura);
+                var totalConImpuestos = _mapper.Map<List<totalImpuesto_V1_0_0>>(_facturaDto.detalleFactura);
                 var detalleFactura = _mapper.Map<List <detalle_V1_0_0>>(_facturaDto.detalleFactura);
                 var infoAdicional= _mapper.Map<List <detAdicional_V1_0_0>>(_factura.InformacionAdicional);
                 var formaPago = _mapper.Map<List<pago_V1_0_0>>(_factura.DetalleFormaPagos);
                 factura.infoTributaria = infoTributaria;
                 factura.infoFactura = infoFactura;
-                factura.detalles=detalleFactura;
+                factura.infoFactura.totalConImpuestos= totalConImpuestos;
+                factura.infoFactura.pagos = formaPago;
+                factura.detalles = detalleFactura;
                 factura.infoAdicional = infoAdicional;
-                factura.pagos = formaPago;
-                var a = factura;
+
                 XmlSerializerNamespaces serialize = new XmlSerializerNamespaces();
                 serialize.Add("", "");
                 XmlSerializer oXmlSerializar = new XmlSerializer(typeof(factura_V1_0_0));
@@ -207,6 +214,25 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
             }
         }
 
+
+
+        public async Task<bool> enviarSri(string ?claveAcceso)
+        {
+            try
+            {
+
+                var enviar =  await _IUtilidades.envioXmlSRI(claveAcceso, null);
+              
+
+                return true;
+
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
 
     }
 }

@@ -51,5 +51,7 @@ public partial class Empresas
 
     public virtual ICollection<PuntoEmisiones> PuntoEmisiones { get; set; } = new List<PuntoEmisiones>();
 
+    public virtual ICollection<Secuenciales> Secuenciales { get; set; } = new List<Secuenciales>();
+
     public virtual ICollection<UsuarioEmpresas> UsuarioEmpresas { get; set; } = new List<UsuarioEmpresas>();
 }

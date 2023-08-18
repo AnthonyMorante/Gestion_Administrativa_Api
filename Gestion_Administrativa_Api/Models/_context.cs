@@ -71,9 +71,6 @@ public partial class _context : DbContext
 
     public virtual DbSet<Usuarios> Usuarios { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseNpgsql("Host=localhost;Port=5432; Database=gestion_administrativa; Username=postgres; Password=123");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -809,10 +806,13 @@ public partial class _context : DbContext
 
         modelBuilder.Entity<Secuenciales>(entity =>
         {
-            entity
-                .HasNoKey()
-                .ToTable("secuenciales");
+            entity.HasKey(e => e.IdSecuencial).HasName("secuenciales_pkey");
 
+            entity.ToTable("secuenciales");
+
+            entity.Property(e => e.IdSecuencial)
+                .HasDefaultValueSql("gen_random_uuid()")
+                .HasColumnName("idSecuencial");
             entity.Property(e => e.Activo)
                 .HasDefaultValueSql("true")
                 .HasColumnName("activo");
@@ -821,17 +821,14 @@ public partial class _context : DbContext
                 .HasColumnType("timestamp without time zone")
                 .HasColumnName("fechaRegistro");
             entity.Property(e => e.IdEmpresa).HasColumnName("idEmpresa");
-            entity.Property(e => e.IdSecuencial)
-                .HasDefaultValueSql("gen_random_uuid()")
-                .HasColumnName("idSecuencial");
             entity.Property(e => e.IdTipoDocumento).HasColumnName("idTipoDocumento");
             entity.Property(e => e.Nombre).HasColumnName("nombre");
 
-            entity.HasOne(d => d.IdEmpresaNavigation).WithMany()
+            entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.Secuenciales)
                 .HasForeignKey(d => d.IdEmpresa)
                 .HasConstraintName("secuenciales_idEmpresa_fkey");
 
-            entity.HasOne(d => d.IdTipoDocumentoNavigation).WithMany()
+            entity.HasOne(d => d.IdTipoDocumentoNavigation).WithMany(p => p.Secuenciales)
                 .HasForeignKey(d => d.IdTipoDocumento)
                 .HasConstraintName("secuenciales_idTipoDocumento_fkey");
         });

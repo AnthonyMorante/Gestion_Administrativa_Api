@@ -13,11 +13,10 @@ namespace Gestion_Administrativa_Api.Documents_Models.Factura
             [XmlAttribute]
             public string id { get; set; } = "comprobante";
             [XmlAttribute]
-            public string version { get; set; } = "1.0.0";
+            public string version { get; set; } = "1.1.0";
             public infoTributaria_V1_0_0? infoTributaria { get; set; }
             public infoFactura_V1_0_0? infoFactura { get; set; }
             public List <detalle_V1_0_0>? detalles { get; set; }
-            public List<pago_V1_0_0>? pagos { get; set; }
             public List<detAdicional_V1_0_0>? infoAdicional { get; set; }
         }
 
@@ -43,8 +42,8 @@ namespace Gestion_Administrativa_Api.Documents_Models.Factura
             public decimal? seguroInternacional { get; set; }
             public decimal? gastosAduaneros { get; set; }
             public decimal? gastosTransporteOtros { get; set; }
-            public decimal? importeTotal { get; set; }
-            public string moneda { get; set; }
+            //public decimal? importeTotal { get; set; }
+            //public string moneda { get; set; }
             public string placa { get; set; }
 
         }
@@ -61,10 +60,10 @@ namespace Gestion_Administrativa_Api.Documents_Models.Factura
             public string? lugarIncoTerm { get; set; }
             public string? paisOrigen { get; set; }
             public string? puertoEmbarque { get; set; }
+            public string? tipoIdentificacionComprador { get; set; }
             public string? puertoDestino { get; set; }
             public string? paisDestino { get; set; }
             public string? paisAdquisicion { get; set; }
-            public string? tipoIdentificacionComprador { get; set; }
             public string? guiaRemision { get; set; }
             public string? razonSocialComprador { get; set; }
             public string? identificacionComprador { get; set; }
@@ -77,34 +76,40 @@ namespace Gestion_Administrativa_Api.Documents_Models.Factura
             public decimal? totalComprobantesReembolso { get; set; }
             public decimal? totalBaseImponibleReembolso { get; set; }
             public decimal? totalImpuestoReembolso { get; set; }
-            public decimal? totalConImpuestos { get; set; }
-            //public IEnumerable<compensacion_V1_0_0>? compensaciones { get; set; }
-            public decimal? propina { get; set; }
+            //public decimal? totalConImpuestos { get; set; }
+             //public ienumerable<compensacion_v1_0_0>? compensaciones { get; set; }
+            //public ienumerable<compensacion_v1_0_0>? compensaciones { get; set; }
+  
             public decimal? fleteInternacional { get; set; }
             public decimal? seguroInternacional { get; set; }
             public decimal? gastosAduaneros { get; set; }
             public decimal? gastosTransporteOtros { get; set; }
-            public decimal? importeTotal { get; set; }
-            public string moneda { get; set; }
             public string placa { get; set; }
             //public IEnumerable<pago_V1_0_0>? pagos { get; set; }
             public decimal? valorRetIva { get; set; }
             public decimal? valorRetRenta { get; set; }
             //public IEnumerable<detalle_V1_0_0>? detalles { get; set; }
+            public List<totalImpuesto_V1_0_0>? totalConImpuestos { get; set; }
+            public string? propina { get; set; }
+            public decimal? importeTotal { get; set; }
+            public string moneda { get; set; }
 
+
+            public List<pago_V1_0_0>? pagos { get; set; }
 
 
         }
 
+        [XmlType("totalImpuesto")]
         public class totalImpuesto_V1_0_0
         {
-            public string? Codigo { get; set; }
-            public string? CodigoPorcentaje { get; set; }
-            public decimal? DescuentoAdicional { get; set; }
-            public decimal? BaseImponible { get; set; }
-            public decimal? Tarifa { get; set; }
-            public decimal? Valor { get; set; }
-            public decimal? ValorDevolucionIva { get; set; }
+            public string? codigo { get; set; }
+            public string? codigoPorcentaje { get; set; }
+            public decimal? descuentoAdicional { get; set; }
+            public decimal? baseImponible { get; set; }
+            public decimal? tarifa { get; set; }
+            public decimal? valor { get; set; }
+            public decimal? valorDevolucionIva { get; set; }
         }
 
 
@@ -141,7 +146,7 @@ namespace Gestion_Administrativa_Api.Documents_Models.Factura
         {
             public int codigo { get; set; }
             public int? codigoPorcentaje { get; set; }
-            public decimal? tarifa { get; set; }
+            public string? tarifa { get; set; }
             public decimal? baseImponible { get; set; }
             public decimal? valor { get; set; }
         }
@@ -155,10 +160,9 @@ namespace Gestion_Administrativa_Api.Documents_Models.Factura
             public string unidadMedida { get; set; }
             public decimal cantidad { get; set; }
             public decimal precioUnitario { get; set; }
-            public decimal precioSinSubsidio { get; set; }
             public decimal? descuento { get; set; }
             public decimal? precioTotalSinImpuesto { get; set; }
-            public decimal? totalConImpuestos { get; set; }
+            //public decimal? totalConImpuestos { get; set; }
             public List<impuesto_V1_0_0>? impuestos { get; set; }
         }
 

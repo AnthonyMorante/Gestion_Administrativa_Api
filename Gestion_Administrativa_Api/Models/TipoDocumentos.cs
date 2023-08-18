@@ -18,4 +18,6 @@ public partial class TipoDocumentos
     public DateTime? FechaRegistro { get; set; }
 
     public virtual ICollection<DocumentosEmitir> DocumentosEmitir { get; set; } = new List<DocumentosEmitir>();
+
+    public virtual ICollection<Secuenciales> Secuenciales { get; set; } = new List<Secuenciales>();
 }

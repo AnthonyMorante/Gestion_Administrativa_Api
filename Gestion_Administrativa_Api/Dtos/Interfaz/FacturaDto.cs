@@ -14,6 +14,7 @@
         public Guid idCiudad { get; set; }
         public Guid idEmpresa { get; set; }
         public Guid idCliente { get; set; }
+        public Guid idTipoDocumento { get; set; } = Guid.Parse("b973cdf3-3d69-444b-8a09-a8ef9f0aab55");
         public string? claveAcceso { get; set; }
         public string ?identificacion { get; set; }
         public string? razonSocial { get; set; }
@@ -80,6 +81,7 @@
         public decimal? totalSinIva{ get; set; }
         public decimal? valor { get; set; }
         public decimal? valorPorcentaje { get; set; }
+        public string? tarifaPorcentaje { get; set; }
 
 
 
