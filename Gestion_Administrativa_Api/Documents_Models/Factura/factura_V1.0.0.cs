@@ -103,8 +103,8 @@ namespace Gestion_Administrativa_Api.Documents_Models.Factura
         [XmlType("totalImpuesto")]
         public class totalImpuesto_V1_0_0
         {
-            public string? codigo { get; set; }
-            public string? codigoPorcentaje { get; set; }
+            public int? codigo { get; set; }
+            public int? codigoPorcentaje { get; set; }
             public decimal? descuentoAdicional { get; set; }
             public decimal? baseImponible { get; set; }
             public decimal? tarifa { get; set; }

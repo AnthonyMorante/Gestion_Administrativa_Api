@@ -13,19 +13,19 @@ namespace Gestion_Administrativa_Api.AutoMapper
         {
 
 
-            #region FormaPago
+            //#region FormaPago
 
-            CreateMap<DetalleDto, totalImpuesto_V1_0_0>()
-                 .ForMember(dest => dest.codigo, opt => opt.MapFrom(src => 2))
-                 .ForMember(dest => dest.codigoPorcentaje, opt => opt.MapFrom(src => src.idIva == Guid.Parse("53347a4d-5c75-42e8-9456-595a728306aa") ? 2 :
-                            src.idIva == Guid.Parse("d4c41fb5-1791-4739-8285-a312e010afa9") ? 0 :
-                            src.idIva == Guid.Parse("aaf450c1-058f-4406-8c69-7ab3b1d1c339") ? 6 :
-                            src.idIva == Guid.Parse("8980f44a-df38-400a-9d89-4150cadd13ba") ? 7 : -1))
-                 .ForMember(dest => dest.baseImponible, opt => opt.MapFrom(src => src.total))
-                 .ForMember(dest => dest.valor, opt => opt.MapFrom(src => src.porcentaje))
-            .ReverseMap();
-            ;
-            #endregion
+            //CreateMap<DetalleDto, totalImpuesto_V1_0_0>()
+            //     .ForMember(dest => dest.codigo, opt => opt.MapFrom(src => 2))
+            //     .ForMember(dest => dest.codigoPorcentaje, opt => opt.MapFrom(src => src.idIva == Guid.Parse("53347a4d-5c75-42e8-9456-595a728306aa") ? 2 :
+            //                src.idIva == Guid.Parse("d4c41fb5-1791-4739-8285-a312e010afa9") ? 0 :
+            //                src.idIva == Guid.Parse("aaf450c1-058f-4406-8c69-7ab3b1d1c339") ? 6 :
+            //                src.idIva == Guid.Parse("8980f44a-df38-400a-9d89-4150cadd13ba") ? 7 : -1))
+            //     .ForMember(dest => dest.baseImponible, opt => opt.MapFrom(src => src.total))
+            //     .ForMember(dest => dest.valor, opt => opt.MapFrom(src => src.porcentaje))
+            //.ReverseMap();
+            //;
+            //#endregion
 
 
 
@@ -37,7 +37,7 @@ namespace Gestion_Administrativa_Api.AutoMapper
                   .ForMember(dest => dest.descripcion, opt => opt.MapFrom(src => src.nombre))
                   .ForMember(dest => dest.descuento, opt => opt.MapFrom(src => src.descuento==null ? 0 : src.descuento))
                   .ForMember(dest => dest.precioTotalSinImpuesto, opt => opt.MapFrom(src => src.totalSinIva))
-                  .ForMember(dest => dest.precioUnitario, opt => opt.MapFrom(src => src.valor))
+                  .ForMember(dest => dest.precioUnitario, opt => opt.MapFrom(src => src.valorProductoSinIva))
                   //.ForMember(dest => dest.totalConImpuestos, opt => opt.MapFrom(src => src.total))
                   .ForMember(dest => dest.impuestos, opt => opt.MapFrom(src => new List<impuesto_V1_0_0>
                     {
@@ -125,16 +125,16 @@ namespace Gestion_Administrativa_Api.AutoMapper
                 .ForMember(dest => dest.contribuyenteEspecial, opt => opt.MapFrom(src => Convert.ToBoolean(src.ContribuyenteEspecial) == true ? "SI" : null))
                 .ForMember(dest => dest.dirEstablecimiento, opt => opt.MapFrom(src => src.DireccionEstablecimiento))
                 .ForMember(dest => dest.direccionComprador, opt => opt.MapFrom(src => src.ReceptorDireccion))
-                 .ForMember(dest => dest.razonSocialComprador, opt => opt.MapFrom(src => src.ReceptorRazonSocial))
+                .ForMember(dest => dest.razonSocialComprador, opt => opt.MapFrom(src => src.ReceptorRazonSocial))
                 .ForMember(dest => dest.identificacionComprador, opt => opt.MapFrom(src => src.ReceptorRuc))
                 .ForMember(dest => dest.totalSinImpuestos, opt => opt.MapFrom(src => src.TotalSinImpuesto))
-                 .ForMember(dest => dest.propina, opt => opt.MapFrom(src => "0.00"))
+                .ForMember(dest => dest.propina, opt => opt.MapFrom(src => "0.00"))
                 .ForMember(dest => dest.moneda, opt => opt.MapFrom(src => src.Moneda.ToUpper()))
                 .ForMember(dest => dest.importeTotal, opt => opt.MapFrom(src => src.TotalImporte))
+                .ForMember(dest => dest.totalDescuento, opt => opt.MapFrom(src => src.TotalDescuento))
                 .ForMember(dest => dest.tipoIdentificacionComprador, opt => opt.MapFrom(src => src.ReceptorTipoIdentificacion.ToString().PadLeft(2,'0')))
 
-
-
+ 
 
             .ReverseMap();
             ;
@@ -184,7 +184,7 @@ namespace Gestion_Administrativa_Api.AutoMapper
             .ForMember(dest => dest.Subtotal12, opt => opt.MapFrom(src => src.subtotal12))
             .ForMember(dest => dest.TotalImporte, opt => opt.MapFrom(src => src.totalFactura))
             .ForMember(dest => dest.ReceptorTelefono, opt => opt.MapFrom(src => src.telefono))
-            .ForMember(dest => dest.TotalDescuento, opt => opt.MapFrom(src => src.totalDecuento==null ? 0 : src.totalDecuento))
+            .ForMember(dest => dest.TotalDescuento, opt => opt.MapFrom(src => src.totDescuento == null ? 0 : src.totDescuento))
             .ForMember(dest => dest.ReceptorTipoIdentificacion, opt => opt.MapFrom(src => src.codigoTipoIdentificacion.ToString().PadLeft(2, '0')))         
             .ReverseMap();
             ;

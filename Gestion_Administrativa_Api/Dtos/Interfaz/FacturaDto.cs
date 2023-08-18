@@ -30,7 +30,7 @@
         public decimal? subtotal { get; set; }
         public decimal? iva12{ get; set; }
         public decimal? totalFactura{ get; set; }
-        public decimal? totalDecuento { get; set; }
+        public decimal? totDescuento { get; set; }
 
         public IEnumerable<formaPagoDto>? formaPago { get; set; }
         public IEnumerable<informacionAdicionalDto>? informacionAdicional { get; set; }
@@ -82,6 +82,9 @@
         public decimal? valor { get; set; }
         public decimal? valorPorcentaje { get; set; }
         public string? tarifaPorcentaje { get; set; }
+        public decimal? valorProductoSinIva { get; set; }
+
+        
 
 
 

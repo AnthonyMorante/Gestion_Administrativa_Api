@@ -137,15 +137,21 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
             try
             {
                 var factura = new factura_V1_0_0();
+                var totalImpuestoList = new List<totalImpuesto_V1_0_0>();
+                var totalImpuesto = new totalImpuesto_V1_0_0();
+                totalImpuesto.codigo = 2;
+                totalImpuesto.codigoPorcentaje = 2;
+                totalImpuesto.baseImponible = _factura.Subtotal12;
+                totalImpuesto.valor = _factura.Iva12;
+                totalImpuestoList.Add(totalImpuesto);
                 var infoTributaria = _mapper.Map<infoTributaria_V1_0_0>(_factura);
                 var infoFactura = _mapper.Map<infoFactura_V1_0_0>(_factura);
-                var totalConImpuestos = _mapper.Map<List<totalImpuesto_V1_0_0>>(_facturaDto.detalleFactura);
                 var detalleFactura = _mapper.Map<List <detalle_V1_0_0>>(_facturaDto.detalleFactura);
                 var infoAdicional= _mapper.Map<List <detAdicional_V1_0_0>>(_factura.InformacionAdicional);
                 var formaPago = _mapper.Map<List<pago_V1_0_0>>(_factura.DetalleFormaPagos);
                 factura.infoTributaria = infoTributaria;
                 factura.infoFactura = infoFactura;
-                factura.infoFactura.totalConImpuestos= totalConImpuestos;
+                factura.infoFactura.totalConImpuestos= totalImpuestoList;
                 factura.infoFactura.pagos = formaPago;
                 factura.detalles = detalleFactura;
                 factura.infoAdicional = infoAdicional;
