@@ -19,7 +19,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
         Task<string> guardar(FacturaDto? _facturaDto);
     }
 
-    public class FacturasI:IFacturas
+    public class FacturasI : IFacturas
     {
 
 
@@ -47,7 +47,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
             try
             {
 
-                
+
 
 
 
@@ -56,7 +56,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
 
 
 
-                if (consultaEmpresa == null || consultaEstablecimiento==null )
+                if (consultaEmpresa == null || consultaEstablecimiento == null)
                 {
 
                     return "null";
@@ -67,35 +67,51 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
 
 
                 factura.EmisorRuc = consultaEmpresa.Identificacion;
-               var claveAcceso = await _IUtilidades.claveAcceso(factura);
-               factura.ClaveAcceso = claveAcceso;
-               factura.TipoEmision = Convert.ToInt16(_configuration["SRI:tipoEmision"]);
-               factura.Ambiente = Convert.ToInt16(_configuration["SRI:ambiente"]);
-               factura.Moneda = _configuration["SRI:moneda"];
-               factura.EmisorRuc = consultaEmpresa.Identificacion;
-               factura.EmisorRazonSocial = consultaEmpresa.RazonSocial;
-               factura.RegimenMicroempresas = consultaEmpresa.RegimenMicroempresas;
-               factura.ObligadoContabilidad = consultaEmpresa.LlevaContabilidad;
-               factura.AgenteRetencion = consultaEmpresa.AgenteRetencion;
-               factura.RegimenRimpe = consultaEmpresa.RegimenRimpe;
-               factura.IdTipoEstadoDocumento = 1;
-               factura.ExentoIva = 0;
-               factura.Ice = 0;
-               factura.Irbpnr = 0;
-               factura.Isd = 0;
-               factura.DireccionMatriz = consultaEmpresa.DireccionMatriz;
-               factura.DireccionEstablecimiento = consultaEstablecimiento.Direccion;
-               factura.IdFactura = Guid.NewGuid();
-               await _context.Facturas.AddAsync(factura);
-           
-               await _context.DetalleFacturas.AddRangeAsync(detalle);
+                var claveAcceso = await _IUtilidades.claveAcceso(factura);
+                factura.ClaveAcceso = claveAcceso;
+                factura.TipoEmision = Convert.ToInt16(_configuration["SRI:tipoEmision"]);
+                factura.Ambiente = Convert.ToInt16(_configuration["SRI:ambiente"]);
+                factura.Moneda = _configuration["SRI:moneda"];
+                factura.EmisorRuc = consultaEmpresa.Identificacion;
+                factura.EmisorRazonSocial = consultaEmpresa.RazonSocial;
+                factura.RegimenMicroempresas = consultaEmpresa.RegimenMicroempresas;
+                factura.ObligadoContabilidad = consultaEmpresa.LlevaContabilidad;
+                factura.AgenteRetencion = consultaEmpresa.AgenteRetencion;
+                factura.RegimenRimpe = consultaEmpresa.RegimenRimpe;
+                factura.IdTipoEstadoDocumento = 1;
+                factura.ExentoIva = 0;
+                factura.Ice = 0;
+                factura.Irbpnr = 0;
+                factura.Isd = 0;
+                factura.DireccionMatriz = consultaEmpresa.DireccionMatriz;
+                factura.DireccionEstablecimiento = consultaEstablecimiento.Direccion;
+                factura.IdFactura = Guid.NewGuid();
+                await _context.Facturas.AddAsync(factura);
+
+                await _context.DetalleFacturas.AddRangeAsync(detalle);
+
+
+                foreach (var item in detalle)
+                {
+                    var consultaProducto = await _context.Productos.FindAsync(item.IdProducto);
+         
+                    if (consultaProducto != null)
+                    {
+                        consultaProducto.Cantidad -= item.Cantidad;
+                        _context.Entry(consultaProducto).State = EntityState.Modified;
+                        await _context.SaveChangesAsync();
+                    }
+                }
+
 
                 if (_facturaDto.formaPago.ToList().Count > 0)
                 {
                     var formaPago = _mapper.Map<IEnumerable<DetalleFormaPagos>>(_facturaDto.formaPago);
                     formaPago = formaPago.Select(x =>
-                    {x.IdFactura = factura.IdFactura;
-                     return x;}).ToList();
+                    {
+                        x.IdFactura = factura.IdFactura;
+                        return x;
+                    }).ToList();
                     await _context.DetalleFormaPagos.AddRangeAsync(formaPago);
 
                 }
@@ -116,9 +132,9 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                 consultaSecuencial.Nombre = consultaSecuencial.Nombre + 1;
                 _context.Secuenciales.Update(consultaSecuencial);
                 await _context.SaveChangesAsync();
-                var ruta = await generarXml(factura, _facturaDto)??throw new Exception("Error al generar Documento"); 
-                var firmar = await firmarXml(factura.IdFactura,ruta?.documento) ?? throw new Exception("Error al firmar y guardar XML");
-                var enviar = await enviarSri(factura.ClaveAcceso);if(enviar == null)throw new Exception("Error al enviar XML");
+                var ruta = await generarXml(factura, _facturaDto) ?? throw new Exception("Error al generar Documento");
+                var firmar = await firmarXml(factura.IdFactura, ruta?.documento) ?? throw new Exception("Error al firmar y guardar XML");
+                var enviar = await enviarSri(factura.ClaveAcceso); if (enviar == null) throw new Exception("Error al enviar XML");
 
 
                 return "ok";
@@ -132,7 +148,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
             }
         }
 
-        public async Task<dynamic> generarXml(Facturas? _factura,FacturaDto _facturaDto)
+        public async Task<dynamic> generarXml(Facturas? _factura, FacturaDto _facturaDto)
         {
             try
             {
@@ -146,12 +162,12 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                 totalImpuestoList.Add(totalImpuesto);
                 var infoTributaria = _mapper.Map<infoTributaria_V1_0_0>(_factura);
                 var infoFactura = _mapper.Map<infoFactura_V1_0_0>(_factura);
-                var detalleFactura = _mapper.Map<List <detalle_V1_0_0>>(_facturaDto.detalleFactura);
-                var infoAdicional= _mapper.Map<List <detAdicional_V1_0_0>>(_factura.InformacionAdicional);
+                var detalleFactura = _mapper.Map<List<detalle_V1_0_0>>(_facturaDto.detalleFactura);
+                var infoAdicional = _mapper.Map<List<detAdicional_V1_0_0>>(_factura.InformacionAdicional);
                 var formaPago = _mapper.Map<List<pago_V1_0_0>>(_factura.DetalleFormaPagos);
                 factura.infoTributaria = infoTributaria;
                 factura.infoFactura = infoFactura;
-                factura.infoFactura.totalConImpuestos= totalImpuestoList;
+                factura.infoFactura.totalConImpuestos = totalImpuestoList;
                 factura.infoFactura.pagos = formaPago;
                 factura.detalles = detalleFactura;
                 factura.infoAdicional = infoAdicional;
@@ -175,9 +191,9 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                 doc.Descendants().Where(e => string.IsNullOrEmpty(e.Value)).Remove();
                 var ruta = $"{_configuration["Pc:disco"]}\\Facturacion\\Xml\\{_factura.ClaveAcceso}.xml";
                 _factura.Ruta = ruta;
-                return new {estado= true,documento = doc };
+                return new { estado = true, documento = doc };
 
-                
+
             }
             catch (Exception ex)
             {
@@ -196,11 +212,11 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                 var consultaFactura = await _context.Facturas.FindAsync(idFactura);
                 if (consultaFactura == null) return false;
                 var consultaUsuarioEmpresa = await _context.UsuarioEmpresas
-                    .Include(x=>x.IdEmpresaNavigation)
+                    .Include(x => x.IdEmpresaNavigation)
                     .Include(x => x.IdEmpresaNavigation.IdInformacionFirmaNavigation)
-                    .FirstOrDefaultAsync(x=>x.IdUsuario == consultaFactura.IdUsuario);
+                    .FirstOrDefaultAsync(x => x.IdUsuario == consultaFactura.IdUsuario);
                 if (consultaFactura == null) return false;
-               var firmar = await _IUtilidades.firmar(consultaFactura.ClaveAcceso,consultaUsuarioEmpresa.IdEmpresaNavigation.IdInformacionFirmaNavigation.Codigo, consultaUsuarioEmpresa.IdEmpresaNavigation.IdInformacionFirmaNavigation.Ruta,documento);
+                var firmar = await _IUtilidades.firmar(consultaFactura.ClaveAcceso, consultaUsuarioEmpresa.IdEmpresaNavigation.IdInformacionFirmaNavigation.Codigo, consultaUsuarioEmpresa.IdEmpresaNavigation.IdInformacionFirmaNavigation.Ruta, documento);
 
                 if (firmar == true)
                 {
@@ -222,13 +238,13 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
 
 
 
-        public async Task<bool> enviarSri(string ?claveAcceso)
+        public async Task<bool> enviarSri(string? claveAcceso)
         {
             try
             {
 
-                var enviar =  await _IUtilidades.envioXmlSRI(claveAcceso, null);
-              
+                var enviar = await _IUtilidades.envioXmlSRI(claveAcceso, null);
+
 
                 return true;
 
