@@ -11,12 +11,17 @@ using static Gestion_Administrativa_Api.Documents_Models.Factura.factura_V100;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Xml.Linq;
 using System.Reflection.Metadata;
+using Microsoft.AspNetCore.Mvc;
+using Rotativa.AspNetCore;
+using Microsoft.AspNetCore.Mvc.Controllers;
+using Microsoft.AspNetCore.Http;
 
 namespace Gestion_Administrativa_Api.Interfaces.Interfaz
 {
     public interface IFacturas
     {
-        Task<string> guardar(FacturaDto? _facturaDto);
+        Task<dynamic> guardar(FacturaDto? _facturaDto);
+        Task<bool> generaRide(ActionContext ac, factura_V1_0_0 _factura);
     }
 
     public class FacturasI : IFacturas
@@ -27,6 +32,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
         private readonly IMapper _mapper;
         private readonly IUtilidades _IUtilidades;
         private readonly IConfiguration _configuration;
+        private factura_V1_0_0? _factura_V1_0_0;
 
 
         public FacturasI(_context context, IMapper mapper, IUtilidades iUtilidades, IConfiguration configuration)
@@ -42,7 +48,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
 
 
 
-        public async Task<string> guardar(FacturaDto? _facturaDto)
+        public async Task<dynamic> guardar(FacturaDto? _facturaDto)
         {
             try
             {
@@ -135,9 +141,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                 var ruta = await generarXml(factura, _facturaDto) ?? throw new Exception("Error al generar Documento");
                 var firmar = await firmarXml(factura.IdFactura, ruta?.documento) ?? throw new Exception("Error al firmar y guardar XML");
                 var enviar = await enviarSri(factura.ClaveAcceso); if (enviar == null) throw new Exception("Error al enviar XML");
-
-
-                return "ok";
+                return _factura_V1_0_0;
 
 
             }
@@ -191,6 +195,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                 doc.Descendants().Where(e => string.IsNullOrEmpty(e.Value)).Remove();
                 var ruta = $"{_configuration["Pc:disco"]}\\Facturacion\\Xml\\{_factura.ClaveAcceso}.xml";
                 _factura.Ruta = ruta;
+                _factura_V1_0_0 = factura;
                 return new { estado = true, documento = doc };
 
 
@@ -248,6 +253,55 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
 
                 return true;
 
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
+
+
+
+
+
+
+        public async Task<bool> generarRide(string? claveAcceso)
+        {
+            try
+            {
+
+
+
+                var httpContext = new DefaultHttpContext();
+                var pdf = new ViewAsPdf("~/Views/Factura/FacturaV1_1_0.cshtml");
+                byte[] pdfBytes = await pdf.BuildFile(null);
+                //string base64Pdf = Convert.ToBase64String(pdfBytes);
+
+
+                return true;
+
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
+
+
+        public async Task<bool> generaRide(ActionContext ac, factura_V1_0_0 factura_V1_0_0)
+        {
+
+            try
+            {
+
+
+                var a = _factura_V1_0_0;
+                var pdf = new ViewAsPdf("~/Views/Factura/FacturaV1_1_0.cshtml", factura_V1_0_0);
+                byte[] pdfBytes = await pdf.BuildFile(ac);
+                string base64 = Convert.ToBase64String(pdfBytes);
+                return true;
             }
             catch (Exception ex)
             {

@@ -15,9 +15,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Npgsql;
+using Rotativa.AspNetCore;
 using System.Data;
 using System.Security.Cryptography;
 using System.Text.Json.Serialization;
+using Wkhtmltopdf.NetCore;
 using static Gestion_Administrativa_Api.Interfaces.Interfaz.IpuntoEmisiones;
 using static Gestion_Administrativa_Api.Repository.IUserRepository;
 
@@ -79,6 +81,8 @@ var mapperConfig = new MapperConfiguration(m =>
 
 IMapper mapper = mapperConfig.CreateMapper();
 builder.Services.AddSingleton(mapper);
+
+
 
 
 builder.Services.AddControllers().AddJsonOptions(x =>
@@ -148,8 +152,10 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
+builder.Services.AddWkhtmltopdf();
 var app = builder.Build();
+string wwwroot = app.Environment.WebRootPath;
+RotativaConfiguration.Setup(wwwroot,"Rotativa/Windows");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -158,6 +164,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseStaticFiles();
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
