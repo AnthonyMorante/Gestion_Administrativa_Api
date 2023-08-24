@@ -376,43 +376,78 @@
                 <tbody>
                     <tr>
                         <td class="pie_izquierdo">
-                            <table class="tab_info font_size40 bd_total br_total" border="0" cellpadding="0" cellspacing="0" style="width: 376px;resize: none;border-radius:5px 5px 5px 5px;">
-                                <tbody>
-                                    <tr>
-                                        <td colspan="2" style="text-align:center; border-radius:5px 5px 0px 0px" class="bg_columna br_total">
-                                            <b>Información adicional</b>
-                                        </td>
-                                    </tr>
-                                    &infoAdicional
 
-                                </tbody>
-                            </table>
+                            @if (Model.infoAdicional.Count() > 0)
+                            {
+
+                                <table class="tab_info font_size40 bd_total br_total" border="0" cellpadding="0" cellspacing="0" style="width: 376px;resize: none;border-radius:5px 5px 5px 5px;">
+                                    <tbody>
+                                        <tr>
+                                            <td colspan="2" style="text-align:center; border-radius:5px 5px 0px 0px" class="bg_columna br_total">
+                                                <b>Información adicional</b>
+                                            </td>
+                                        </tr>
 
 
-                            <!--
-                                     <configuracion_infoFactura_pagos>
-                                         <fila>
-                                             <tr>
-                                                 <td align="left" width="100">&formaPago</td>
-                                                 <td align="center" width="100">&total</td>
-                                                 <td align="center" width="100">&plazo &unidadTiempo</td>
-                                             </tr>
-                                         </fila>
+                                        @foreach (var item in Model.infoAdicional)
+                                        {
+                                            <tr>
+                                                <td align="left" width="100">@item.nombre</td>
+                                                <td align="center" width="100">@item.valor</td>
+                                            </tr>
 
-                                         <cabecera>
-                                             <tr>
-                                                 <th class="bg_columna" style="border-radius:5px 0px 0px 0px;" width="300"><b>Forma de pago</b></th>
-                                                 <th class="bg_columna" width="100"><b>Valor</b></th>
-                                                 <th class="bg_columna" style="border-radius:0px 5px 0px 0px;" width="100"><b>Plazo</b></th>
-                                             </tr>
-                                         </cabecera>
 
-                                     </configuracion_infoFactura_pagos>
-                                     -->
+                                        }
+
+
+
+                                    </tbody>
+                                </table>
+
+                                
+                            }
+
+                        
+
                             <table class="br_total bd_total" border="0" cellpadding="0" cellspacing="0" style="width:376px;">
                                 <tbody>
                                     <br />
-                                    &infoFactura.pagos
+
+                                    <tr>
+                                        <th class="bg_columna" style="border-radius:5px 0px 0px 0px;" width="300"><b>Forma de pago</b></th>
+                                        <th class="bg_columna" width="100"><b>Valor</b></th>
+                                        <th class="bg_columna" style="border-radius:0px 5px 0px 0px;" width="100"><b>Plazo</b></th>
+                                    </tr>
+
+                                    
+                                    @foreach (var item in Model.infoFactura.pagos)
+                                    {
+                                        <tr>
+                                            <td align="left" width="100">
+
+
+                                             
+                                                  @(item.formaPago == "01" ? "01-SIN UTILIZACION DEL SISTEMA FINANCIERO" :
+                                                  (item.formaPago == "16" ? "16-TARJETA DE DÉBITO" :
+                                                  (item.formaPago == "17" ? "17-DINERO ELECTRÓNICO" :
+                                                  (item.formaPago == "20" ? "20-OTROS CON UTILIZACIÓN DEL SISTEMA FINANCIERO":
+                                                  (item.formaPago == "21" ? "21-ENDOSO DE TÍTULOS":
+                                                  (item.formaPago == "15" ? "15-COMPENSACIÓN DE DEUDAS":
+                                                  (item.formaPago == "19" ? "19-TARJETA DE CRÉDITO"
+
+
+
+                                                    : ""))))))
+                                                  
+                                                  )
+
+
+                                            </td>
+                                            <td align="center" width="100">@item.total</td>
+                                            <td align="center" width="100">@item.plazo</td>
+                                        </tr>
+
+                                    }
                                 </tbody>
                             </table>
 
@@ -526,7 +561,7 @@
                 </tbody>
             </table>
 
-      
+
         </div>
     </div>
 </body>

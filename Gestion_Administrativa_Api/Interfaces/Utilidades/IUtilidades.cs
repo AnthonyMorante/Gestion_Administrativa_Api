@@ -4,6 +4,7 @@ using FirmaXadesNetCore.Signature.Parameters;
 using Gestion_Administrativa_Api.Models;
 using IdentityServer4.Models;
 using System.Net;
+using System.Net.Mail;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Xml;
@@ -178,8 +179,60 @@ namespace Gestion_Administrativa_Api.Interfaces.Utilidades
 
 
 
-        public async Task<object?> envioXmlSRI(string? claveAcceso, string? documentoProcesado)
+
+        public async Task<bool> envioCorreo()
         {
+
+           
+
+            try
+            {
+
+                string archivoCorreo = $@"index.html";
+                string root = _env.WebRootPath;
+                var folder = $@"{root}\\emailTemplate\\recursoEmail";
+                string patch = $"{folder}\\{archivoCorreo}";
+                StringBuilder emailHtml = new StringBuilder(new StreamReader(patch).ReadToEnd());
+
+            
+                AlternateView htmlimagen;
+                htmlimagen = AlternateView.CreateAlternateViewFromString(emailHtml.ToString(), null, "text/html");
+                MailMessage correo = new MailMessage();
+                var filename = $@"D:\Xml\PdfRides\{consultarDocumentoEmitido.claveAcceso}.pdf";
+                correo.Attachments.Add(new Attachment(filename));
+                correo.From = new MailAddress(_config["System:Email"]);
+                correo.To.Add(consultarDocumentoEmitido.email);
+                correo.Subject = "Restaurante Jessica - Documento Emitido";
+                correo.Body = emailHtml.ToString();
+                correo.AlternateViews.Add(htmlimagen);
+                correo.IsBodyHtml = true;
+                correo.Priority = MailPriority.Normal;
+                SmtpClient smtp = new SmtpClient();
+                smtp.Host = "smtp.office365.com";
+                smtp.Port = 587;
+                smtp.EnableSsl = true;
+                smtp.Credentials = new System.Net.NetworkCredential(_configuration["EnvioCorreo:Email"], _configuration["EnvioCorreo:Clave"]);
+
+                smtp.Send(correo);
+                return true;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return false;
+            }
+
+
+
+
+
+        }
+
+
+
+            public async Task<object?> envioXmlSRI(string? claveAcceso, string? documentoProcesado)
+        {
+
 
             var RutaFirmados = $"{_configuration["Pc:disco"]}\\Facturacion\\XmlFirmados\\{claveAcceso}.xml";
 

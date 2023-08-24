@@ -122,17 +122,19 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
 
                 }
 
-                if (_facturaDto.informacionAdicional.ToList().Count > 0)
-                {
-                    var informacionAdicional = _mapper.Map<IEnumerable<InformacionAdicional>>(_facturaDto.informacionAdicional);
-                    informacionAdicional = informacionAdicional.Select(x =>
-                    {
-                        x.IdFactura = factura.IdFactura;
-                        return x;
-                    }).ToList();
-                    await _context.InformacionAdicional.AddRangeAsync(informacionAdicional);
+                //if (_facturaDto.informacionAdicional.ToList().Count > 0)
+                //{
+ 
+                //    var informacionAdicional = _mapper.Map<IEnumerable<InformacionAdicional>>(_facturaDto.informacionAdicional);
+                //    informacionAdicional = informacionAdicional.Select(x =>
+                //    {
+                //        x.IdFactura = factura.IdFactura;
+                //        return x;
+                //    }).ToList();
+                //    factura.InformacionAdicional.Clear();
+                //    await _context.InformacionAdicional.AddRangeAsync(informacionAdicional);
 
-                }
+                //}
 
                 var consultaSecuencial = await _context.Secuenciales.FirstOrDefaultAsync(x => x.IdEmpresa == consultaEmpresa.IdEmpresa && x.IdTipoDocumento == _facturaDto.idTipoDocumento);
                 consultaSecuencial.Nombre = consultaSecuencial.Nombre + 1;

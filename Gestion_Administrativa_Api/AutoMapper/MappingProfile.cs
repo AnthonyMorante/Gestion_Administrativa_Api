@@ -75,13 +75,13 @@ namespace Gestion_Administrativa_Api.AutoMapper
                   {
 
                        opt.MapFrom(src => src.IdFormaPago == Guid.Parse("234c0c98-1831-42ab-a3bb-9b4b2caae4f1") ? "01" :
-                                          src.IdTiempoFormaPago == Guid.Parse("94a782b2-d3cc-4585-9701-35c99dcf141b") ? "15" :
-                                          src.IdTiempoFormaPago == Guid.Parse("0159cfa0-144a-4c57-8053-2d98934d7e10") ? "16" :
-                                          src.IdTiempoFormaPago == Guid.Parse("5a7a7fb4-8be6-44b9-8925-da5a75cf36f2") ? "17" :
-                                          src.IdTiempoFormaPago == Guid.Parse("fc7b9f2a-bb33-4da3-861e-86113f4abc78") ? "18" :
-                                          src.IdTiempoFormaPago == Guid.Parse("11ffab20-dd28-48dc-a6ea-6b367a7a08ac") ? "19" :
-                                          src.IdTiempoFormaPago == Guid.Parse("fc7b9f2a-bb33-4da3-861e-86113f4abc78") ? "20" :
-                                          src.IdTiempoFormaPago == Guid.Parse("6db235fe-e81c-4fe9-8a12-b3cf54ddcd92") ? "21" :
+                                          src.IdFormaPago == Guid.Parse("94a782b2-d3cc-4585-9701-35c99dcf141b") ? "15" :
+                                          src.IdFormaPago == Guid.Parse("0159cfa0-144a-4c57-8053-2d98934d7e10") ? "16" :
+                                          src.IdFormaPago == Guid.Parse("5a7a7fb4-8be6-44b9-8925-da5a75cf36f2") ? "17" :
+                                          src.IdFormaPago == Guid.Parse("fc7b9f2a-bb33-4da3-861e-86113f4abc78") ? "18" :
+                                          src.IdFormaPago == Guid.Parse("11ffab20-dd28-48dc-a6ea-6b367a7a08ac") ? "19" :
+                                          src.IdFormaPago == Guid.Parse("fc7b9f2a-bb33-4da3-861e-86113f4abc78") ? "20" :
+                                          src.IdFormaPago == Guid.Parse("6db235fe-e81c-4fe9-8a12-b3cf54ddcd92") ? "21" :
                                           null);
                   })
 
