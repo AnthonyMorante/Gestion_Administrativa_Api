@@ -18,6 +18,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Utilidades
         Task<string> claveAcceso(Facturas? _factura);
         Task<bool> firmar(string claveAcceso, string codigo, string rutaFirma, XDocument documento);
         Task<object?> envioXmlSRI(string? claveAcceso, string? documentoProcesado);
+        Task<bool> envioCorreo(string email, byte[] archivo, string nombreArchivo);
     }
 
     public class UtilidadesI : IUtilidades
@@ -180,7 +181,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Utilidades
 
 
 
-        public async Task<bool> envioCorreo()
+        public async Task<bool> envioCorreo(string email, byte[] archivo, string nombreArchivo)
         {
 
            
@@ -188,27 +189,15 @@ namespace Gestion_Administrativa_Api.Interfaces.Utilidades
             try
             {
 
-                string archivoCorreo = $@"index.html";
-                string root = _env.WebRootPath;
-                var folder = $@"{root}\\emailTemplate\\recursoEmail";
-                string patch = $"{folder}\\{archivoCorreo}";
-                StringBuilder emailHtml = new StringBuilder(new StreamReader(patch).ReadToEnd());
-
-            
-                AlternateView htmlimagen;
-                htmlimagen = AlternateView.CreateAlternateViewFromString(emailHtml.ToString(), null, "text/html");
                 MailMessage correo = new MailMessage();
-                var filename = $@"D:\Xml\PdfRides\{consultarDocumentoEmitido.claveAcceso}.pdf";
-                correo.Attachments.Add(new Attachment(filename));
-                correo.From = new MailAddress(_config["System:Email"]);
-                correo.To.Add(consultarDocumentoEmitido.email);
-                correo.Subject = "Restaurante Jessica - Documento Emitido";
-                correo.Body = emailHtml.ToString();
-                correo.AlternateViews.Add(htmlimagen);
+                correo.Attachments.Add((new Attachment(new MemoryStream(archivo), nombreArchivo+".pdf")));
+                correo.From = new MailAddress(_configuration["EnvioCorreo:Email"]);
+                correo.To.Add(email);
+                correo.Subject = "Mega Aceros - Documento Emitido";
                 correo.IsBodyHtml = true;
                 correo.Priority = MailPriority.Normal;
                 SmtpClient smtp = new SmtpClient();
-                smtp.Host = "smtp.office365.com";
+                smtp.Host = "smtp.gmail.com";
                 smtp.Port = 587;
                 smtp.EnableSsl = true;
                 smtp.Credentials = new System.Net.NetworkCredential(_configuration["EnvioCorreo:Email"], _configuration["EnvioCorreo:Clave"]);

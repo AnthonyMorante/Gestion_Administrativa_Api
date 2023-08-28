@@ -41,7 +41,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
 
 
                 var consulta = await _IFacturas.guardar(_facturaDto);
-                var ride = await generarRide(consulta);
+                var ride = await generarRide(consulta,_facturaDto.email);
                 return Ok("ok");
 
 
@@ -58,12 +58,12 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
         [AllowAnonymous]
         [HttpGet]
         [Route("[action]")]
-        public async Task<string> generarRide(factura_V1_0_0 _factura)
+        public async Task<string> generarRide(factura_V1_0_0 _factura, string email)
         {
 
             try
             {  
-                var consulta = await _IFacturas.generaRide(ControllerContext,_factura);
+                var consulta = await _IFacturas.generaRide(ControllerContext,_factura,email);
                 return "ok";
 
             }

@@ -21,7 +21,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
     public interface IFacturas
     {
         Task<dynamic> guardar(FacturaDto? _facturaDto);
-        Task<bool> generaRide(ActionContext ac, factura_V1_0_0 _factura);
+        Task<bool> generaRide(ActionContext ac, factura_V1_0_0 _factura,string email);
     }
 
     public class FacturasI : IFacturas
@@ -267,41 +267,16 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
 
 
 
-
-        public async Task<bool> generarRide(string? claveAcceso)
-        {
-            try
-            {
-
-
-
-                var httpContext = new DefaultHttpContext();
-                var pdf = new ViewAsPdf("~/Views/Factura/FacturaV1_1_0.cshtml");
-                byte[] pdfBytes = await pdf.BuildFile(null);
-                //string base64Pdf = Convert.ToBase64String(pdfBytes);
-
-
-                return true;
-
-            }
-            catch (Exception ex)
-            {
-
-                throw;
-            }
-        }
-
-
-        public async Task<bool> generaRide(ActionContext ac, factura_V1_0_0 factura_V1_0_0)
+        public async Task<bool> generaRide(ActionContext ac, factura_V1_0_0 factura_V1_0_0, string email)
         {
 
             try
             {
 
 
-                var a = _factura_V1_0_0;
                 var pdf = new ViewAsPdf("~/Views/Factura/FacturaV1_1_0.cshtml", factura_V1_0_0);
                 byte[] pdfBytes = await pdf.BuildFile(ac);
+                var envairRide = await _IUtilidades.envioCorreo(email,pdfBytes,factura_V1_0_0.infoTributaria.claveAcceso);
                 string base64 = Convert.ToBase64String(pdfBytes);
                 return true;
             }
