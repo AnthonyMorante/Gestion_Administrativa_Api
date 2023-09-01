@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Mvc;
 using Rotativa.AspNetCore;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Http;
+using System.Drawing.Printing;
 
 namespace Gestion_Administrativa_Api.Interfaces.Interfaz
 {
@@ -22,6 +23,8 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
     {
         Task<dynamic> guardar(FacturaDto? _facturaDto);
         Task<bool> generaRide(ActionContext ac, factura_V1_0_0 _factura,string email);
+        Task<string> generaRecibo(ActionContext ac, factura_V1_0_0 factura_V1_0_0);
+
     }
 
     public class FacturasI : IFacturas
@@ -279,6 +282,33 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                 var envairRide = await _IUtilidades.envioCorreo(email,pdfBytes,factura_V1_0_0.infoTributaria.claveAcceso);
                 string base64 = Convert.ToBase64String(pdfBytes);
                 return true;
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
+
+
+
+        public async Task<string> generaRecibo(ActionContext ac, factura_V1_0_0 factura_V1_0_0)
+        {
+
+            try
+            {
+
+                var pdf = new ViewAsPdf("~/Views/Factura/ReciboFacturaV1_1_0.cshtml", factura_V1_0_0)
+                {
+                    PageWidth = 80,
+                    PageHeight = 297,
+                    PageOrientation = Rotativa.AspNetCore.Options.Orientation.Portrait,
+                    CustomSwitches = "--margin-top 0 --margin-right 0 --margin-bottom 0 --margin-left 0"
+    
+                };
+                byte[] pdfBytes = await pdf.BuildFile(ac);
+                string base64 = Convert.ToBase64String(pdfBytes);
+                return base64;
             }
             catch (Exception ex)
             {

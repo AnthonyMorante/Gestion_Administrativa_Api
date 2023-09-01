@@ -42,7 +42,8 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
 
                 var consulta = await _IFacturas.guardar(_facturaDto);
                 var ride = await generarRide(consulta,_facturaDto.email);
-                return Ok("ok");
+                var recibo = await _IFacturas.generaRecibo(ControllerContext, consulta);
+                return Ok(recibo);
 
 
             }
