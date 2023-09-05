@@ -71,9 +71,7 @@ public partial class _context : DbContext
 
     public virtual DbSet<Usuarios> Usuarios { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseNpgsql("Host=localhost;Port=5432; Database=gestion_administrativa; Username=postgres; Password=123");
+    
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -361,8 +359,11 @@ public partial class _context : DbContext
             entity.Property(e => e.RazonSocial)
                 .HasMaxLength(500)
                 .HasColumnName("razonSocial");
-            entity.Property(e => e.RegimenMicroempresas).HasColumnName("regimenMicroempresas");
+            entity.Property(e => e.RegimenMicroEmpresas).HasColumnName("regimenMicroEmpresas");
             entity.Property(e => e.RegimenRimpe).HasColumnName("regimenRimpe");
+            entity.Property(e => e.ResolucionAgenteRetencion)
+                .HasMaxLength(500)
+                .HasColumnName("resolucionAgenteRetencion");
             entity.Property(e => e.Telefono)
                 .HasMaxLength(30)
                 .HasColumnName("telefono");
@@ -507,6 +508,9 @@ public partial class _context : DbContext
             entity.Property(e => e.ReceptorTipoIdentificacion).HasColumnName("receptorTipoIdentificacion");
             entity.Property(e => e.RegimenMicroempresas).HasColumnName("regimenMicroempresas");
             entity.Property(e => e.RegimenRimpe).HasColumnName("regimenRimpe");
+            entity.Property(e => e.ResolucionAgenteRetencion)
+                .HasMaxLength(500)
+                .HasColumnName("resolucionAgenteRetencion");
             entity.Property(e => e.Ruta)
                 .HasMaxLength(1000)
                 .HasColumnName("ruta");

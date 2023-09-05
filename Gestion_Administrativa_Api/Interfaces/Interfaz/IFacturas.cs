@@ -22,8 +22,8 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
     public interface IFacturas
     {
         Task<dynamic> guardar(FacturaDto? _facturaDto);
-        Task<bool> generaRide(ActionContext ac, factura_V1_0_0 _factura,string email);
-        Task<string> generaRecibo(ActionContext ac, factura_V1_0_0 factura_V1_0_0);
+        Task<bool> generaRide(ActionContext ac, factura_V1_0_0 _factura, string email);
+        Task<string> generaRecibo(ActionContext ac, factura_V1_0_0 factura_V1_0_0, FacturaDto facturaDto);
 
     }
 
@@ -55,15 +55,8 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
         {
             try
             {
-
-
-
-
-
                 var consultaEmpresa = await _context.Empresas.FindAsync(_facturaDto.idEmpresa);
                 var consultaEstablecimiento = await _context.Establecimientos.FindAsync(_facturaDto.idEstablecimiento);
-
-
 
                 if (consultaEmpresa == null || consultaEstablecimiento == null)
                 {
@@ -74,7 +67,6 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                 var factura = _mapper.Map<Facturas>(_facturaDto);
                 var detalle = _mapper.Map<IEnumerable<DetalleFacturas>>(_facturaDto.detalleFactura);
 
-
                 factura.EmisorRuc = consultaEmpresa.Identificacion;
                 var claveAcceso = await _IUtilidades.claveAcceso(factura);
                 factura.ClaveAcceso = claveAcceso;
@@ -83,9 +75,9 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                 factura.Moneda = _configuration["SRI:moneda"];
                 factura.EmisorRuc = consultaEmpresa.Identificacion;
                 factura.EmisorRazonSocial = consultaEmpresa.RazonSocial;
-                factura.RegimenMicroempresas = consultaEmpresa.RegimenMicroempresas;
+                factura.RegimenMicroempresas = consultaEmpresa.RegimenMicroEmpresas;
                 factura.ObligadoContabilidad = consultaEmpresa.LlevaContabilidad;
-                factura.AgenteRetencion = consultaEmpresa.AgenteRetencion;
+                factura.ResolucionAgenteRetencion = consultaEmpresa.ResolucionAgenteRetencion;
                 factura.RegimenRimpe = consultaEmpresa.RegimenRimpe;
                 factura.IdTipoEstadoDocumento = 1;
                 factura.ExentoIva = 0;
@@ -96,56 +88,47 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                 factura.DireccionEstablecimiento = consultaEstablecimiento.Direccion;
                 factura.IdFactura = Guid.NewGuid();
                 await _context.Facturas.AddAsync(factura);
-
                 await _context.DetalleFacturas.AddRangeAsync(detalle);
 
-
-                foreach (var item in detalle)
+                if (_facturaDto.idDocumentoEmitir == Guid.Parse("246e7fef-4260-4522-9861-b38c7499ce67"))
                 {
-                    var consultaProducto = await _context.Productos.FindAsync(item.IdProducto);
-         
-                    if (consultaProducto != null)
+
+                    foreach (var item in detalle)
                     {
-                        consultaProducto.Cantidad -= item.Cantidad;
-                        _context.Entry(consultaProducto).State = EntityState.Modified;
-                        await _context.SaveChangesAsync();
+                        var consultaProducto = await _context.Productos.FindAsync(item.IdProducto);
+
+                        if (consultaProducto != null)
+                        {
+                            consultaProducto.Cantidad -= item.Cantidad;
+                            _context.Entry(consultaProducto).State = EntityState.Modified;
+                            await _context.SaveChangesAsync();
+                        }
                     }
-                }
 
-
-                if (_facturaDto.formaPago.ToList().Count > 0)
-                {
-                    var formaPago = _mapper.Map<IEnumerable<DetalleFormaPagos>>(_facturaDto.formaPago);
-                    formaPago = formaPago.Select(x =>
+                    if (_facturaDto.formaPago.ToList().Count > 0)
                     {
-                        x.IdFactura = factura.IdFactura;
-                        return x;
-                    }).ToList();
-                    await _context.DetalleFormaPagos.AddRangeAsync(formaPago);
+                        var formaPago = _mapper.Map<IEnumerable<DetalleFormaPagos>>(_facturaDto.formaPago);
+                        formaPago = formaPago.Select(x =>
+                        {
+                            x.IdFactura = factura.IdFactura;
+                            return x;
+                        }).ToList();
+                        await _context.DetalleFormaPagos.AddRangeAsync(formaPago);
+
+                    }
+
+
+                    var consultaSecuencial = await _context.Secuenciales.FirstOrDefaultAsync(x => x.IdEmpresa == consultaEmpresa.IdEmpresa && x.IdTipoDocumento == _facturaDto.idTipoDocumento);
+                    consultaSecuencial.Nombre = consultaSecuencial.Nombre + 1;
+                    _context.Secuenciales.Update(consultaSecuencial);
+                    await _context.SaveChangesAsync();
+                    var ruta = await generarXml(factura, _facturaDto) ?? throw new Exception("Error al generar Documento");
+                    var firmar = await firmarXml(factura.IdFactura, ruta?.documento) ?? throw new Exception("Error al firmar y guardar XML");
+                    var enviar = await enviarSri(factura.ClaveAcceso); if (enviar == null) throw new Exception("Error al enviar XML");
+
 
                 }
 
-                //if (_facturaDto.informacionAdicional.ToList().Count > 0)
-                //{
- 
-                //    var informacionAdicional = _mapper.Map<IEnumerable<InformacionAdicional>>(_facturaDto.informacionAdicional);
-                //    informacionAdicional = informacionAdicional.Select(x =>
-                //    {
-                //        x.IdFactura = factura.IdFactura;
-                //        return x;
-                //    }).ToList();
-                //    factura.InformacionAdicional.Clear();
-                //    await _context.InformacionAdicional.AddRangeAsync(informacionAdicional);
-
-                //}
-
-                var consultaSecuencial = await _context.Secuenciales.FirstOrDefaultAsync(x => x.IdEmpresa == consultaEmpresa.IdEmpresa && x.IdTipoDocumento == _facturaDto.idTipoDocumento);
-                consultaSecuencial.Nombre = consultaSecuencial.Nombre + 1;
-                _context.Secuenciales.Update(consultaSecuencial);
-                await _context.SaveChangesAsync();
-                var ruta = await generarXml(factura, _facturaDto) ?? throw new Exception("Error al generar Documento");
-                var firmar = await firmarXml(factura.IdFactura, ruta?.documento) ?? throw new Exception("Error al firmar y guardar XML");
-                var enviar = await enviarSri(factura.ClaveAcceso); if (enviar == null) throw new Exception("Error al enviar XML");
                 return _factura_V1_0_0;
 
 
@@ -279,7 +262,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
 
                 var pdf = new ViewAsPdf("~/Views/Factura/FacturaV1_1_0.cshtml", factura_V1_0_0);
                 byte[] pdfBytes = await pdf.BuildFile(ac);
-                var envairRide = await _IUtilidades.envioCorreo(email,pdfBytes,factura_V1_0_0.infoTributaria.claveAcceso);
+                var envairRide = await _IUtilidades.envioCorreo(email, pdfBytes, factura_V1_0_0.infoTributaria.claveAcceso);
                 string base64 = Convert.ToBase64String(pdfBytes);
                 return true;
             }
@@ -292,19 +275,20 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
 
 
 
-        public async Task<string> generaRecibo(ActionContext ac, factura_V1_0_0 factura_V1_0_0)
+        public async Task<string> generaRecibo(ActionContext ac, factura_V1_0_0 factura_V1_0_0, FacturaDto facturaDto)
         {
 
             try
             {
+                string telefono = facturaDto.telefono;
 
-                var pdf = new ViewAsPdf("~/Views/Factura/ReciboFacturaV1_1_0.cshtml", factura_V1_0_0)
+                var pdf = new ViewAsPdf("~/Views/Factura/ReciboFacturaV1_1_0.cshtml", new { factura_V1_0_0, telefono })
                 {
                     PageWidth = 80,
                     PageHeight = 297,
                     PageOrientation = Rotativa.AspNetCore.Options.Orientation.Portrait,
                     CustomSwitches = "--margin-top 0 --margin-right 0 --margin-bottom 0 --margin-left 0"
-    
+
                 };
                 byte[] pdfBytes = await pdf.BuildFile(ac);
                 string base64 = Convert.ToBase64String(pdfBytes);

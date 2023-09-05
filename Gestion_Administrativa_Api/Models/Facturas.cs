@@ -101,6 +101,8 @@ public partial class Facturas
 
     public string? Ruta { get; set; }
 
+    public string? ResolucionAgenteRetencion { get; set; }
+
     public virtual ICollection<DetalleFormaPagos> DetalleFormaPagos { get; set; } = new List<DetalleFormaPagos>();
 
     public virtual TipoEstadoDocumentos IdTipoEstadoDocumentoNavigation { get; set; } = null!;

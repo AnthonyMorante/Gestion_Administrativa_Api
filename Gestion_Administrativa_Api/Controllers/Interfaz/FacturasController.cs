@@ -39,10 +39,16 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             try
             {
 
+                if (_facturaDto.idDocumentoEmitir == Guid.Parse("6741a8d2-2e5b-4281-b188-c04e2c909049"))
+                {
 
+                    var proforma = await _IFacturas.guardar(_facturaDto);
+                    return  Ok("proforma");
+
+                }
                 var consulta = await _IFacturas.guardar(_facturaDto);
                 var ride = await generarRide(consulta,_facturaDto.email);
-                var recibo = await _IFacturas.generaRecibo(ControllerContext, consulta);
+                var recibo = await _IFacturas.generaRecibo(ControllerContext, consulta, _facturaDto);
                 return Ok(recibo);
 
 

@@ -15,7 +15,7 @@ public partial class Empresas
 
     public bool? LlevaContabilidad { get; set; }
 
-    public bool? RegimenMicroempresas { get; set; }
+    public bool? RegimenMicroEmpresas { get; set; }
 
     public bool? RegimenRimpe { get; set; }
 
@@ -30,6 +30,8 @@ public partial class Empresas
     public string? DireccionMatriz { get; set; }
 
     public Guid? IdInformacionFirma { get; set; }
+
+    public string? ResolucionAgenteRetencion { get; set; }
 
     public virtual ICollection<Clientes> Clientes { get; set; } = new List<Clientes>();
 
