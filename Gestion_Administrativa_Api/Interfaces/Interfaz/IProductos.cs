@@ -2,6 +2,7 @@
 using Gestion_Administrativa_Api.Dtos.Interfaz;
 using Gestion_Administrativa_Api.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualBasic;
 
 namespace Gestion_Administrativa_Api.Interfaces.Interfaz
 {
@@ -120,7 +121,9 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
             {
 
                 var producto = _mapper.Map<Productos>(_productos);
-
+                producto.ActivoProducto = true;
+                producto.FechaRegistro = DateTime.Now;
+                producto.Activo=true;
 
                 var repetido = await comprobarRepetido(producto);
 
@@ -173,6 +176,9 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                 }
                 var map = _mapper.Map(_productos, consulta);
                 _mapper.Map(_productos, consulta);
+                map.ActivoProducto = consulta.ActivoProducto;
+                map.Activo = consulta.Activo;
+                map.FechaRegistro= consulta.FechaRegistro;
                 _context.Update(consulta);
                 await _context.SaveChangesAsync();
                 return "ok";

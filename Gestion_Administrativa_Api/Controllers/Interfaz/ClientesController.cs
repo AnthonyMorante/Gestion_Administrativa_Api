@@ -52,7 +52,8 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             try
             {
                 var idEmpresa = Tools.getIdEmpresa(HttpContext);
-                string sql = @"SELECT * FROM Clientes WHERE ""idEmpresa""=uuid(@idEmpresa) AND activo=true";
+                string sql = @"SELECT ""idCliente"", identificacion, ""razonSocial"", direccion, email, telefono,""idEmpresa"", activo 
+                               FROM Clientes WHERE ""idEmpresa""=uuid(@idEmpresa) AND activo=true";
                 return Ok(await Tools.DataTablePostgresSql(new Tools.DataTableParams
                 {
                     parameters = new { idEmpresa },

@@ -1,37 +1,39 @@
-﻿using Gestion_Administrativa_Api.Dtos.Interfaz;
+﻿using Dapper;
+using Gestion_Administrativa_Api.Dtos.Interfaz;
 using Gestion_Administrativa_Api.Interfaces.Interfaz;
 using Gestion_Administrativa_Api.Models;
+using Gestion_Administrativa_Api.Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Data;
 
 namespace Gestion_Administrativa_Api.Controllers.Interfaz
 {
     [Authorize]
-    [Route("api/[controller]")]
+    [Route("api/[controller]/[action]")]
     [ApiController]
     public class ProductosController : ControllerBase
     {
 
         private readonly IProductos _IProductos;
+        private readonly IDbConnection _dapper;
 
-        public ProductosController(IProductos IProductos)
+        public ProductosController(IProductos IProductos, IDbConnection dapper)
         {
 
             _IProductos = IProductos;
+            _dapper = dapper;
 
         }
 
         [HttpPost]
-        [Route("[action]")]
-
-
         public async Task<IActionResult> insertar(ProductosDto _productos)
         {
 
             try
             {
-
+                _productos.IdEmpresa = new Guid(Tools.getIdEmpresa(HttpContext));
                 var consulta = await _IProductos.insertar(_productos);
 
                 if (consulta == "ok")
@@ -57,18 +59,24 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
 
 
 
-        [HttpGet]
-        [Route("[action]/{idEmpresa}")]
-        public async Task<IActionResult> listar(Guid idEmpresa)
+        [HttpPost]
+        public async Task<IActionResult> listar([FromBody] Tools.DataTableModel _params)
         {
 
             try
             {
-
-                var consulta = await _IProductos.listar(idEmpresa);
-                return StatusCode(200, consulta);
-
-
+                var idEmpresa = new Guid(Tools.getIdEmpresa(HttpContext));
+                string sql = @"SELECT p.*,i.""nombre"" as iva
+                                FROM productos p
+                                INNER JOIN ivas i ON i.""idIva"" =p.""idIva"" 
+                                WHERE ""idEmpresa""=uuid(@idEmpresa)";
+                return Ok(await Tools.DataTablePostgresSql(new Tools.DataTableParams
+                {
+                    parameters = new { idEmpresa },
+                    query = sql,
+                    dapperConnection = _dapper,
+                    dataTableModel = _params
+                }));
             }
             catch (Exception ex)
             {
@@ -77,6 +85,45 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
 
         }
 
+
+        [HttpGet]
+        [Route("{idProducto}")]
+        public async Task<IActionResult> activar(Guid idProducto)
+        {
+            try
+            {
+                string sql = @"UPDATE productos 
+                                SET ""activoProducto""  = not""activoProducto"" 
+                                WHERE ""idProducto"" = uuid(@idProducto);
+                                ";
+                await _dapper.ExecuteAsync(sql, new { idProducto });
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+
+                return Problem(ex.Message);
+            }
+        }
+        [HttpGet]
+        [Route("{idProducto}")]
+        public async Task<IActionResult> visualizar(Guid idProducto)
+        {
+            try
+            {
+                string sql = @"UPDATE productos 
+                                SET ""activo""  = not""activo"" 
+                                WHERE ""idProducto"" = uuid(@idProducto);
+                                ";
+                await _dapper.ExecuteAsync(sql, new { idProducto });
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+
+                return Problem(ex.Message);
+            }
+        }
 
         [HttpGet]
         [Route("[action]/{idEmpresa}")]
@@ -100,21 +147,26 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
 
 
         [HttpGet]
-        [Route("[action]/{idProducto}")]
+        [Route("{idProducto}")]
         public async Task<IActionResult> cargar(Guid idProducto)
         {
 
             try
             {
+                string sql = @"SELECT * FROM Productos
+                                 WHERE ""idProducto"" = uuid(@idProducto);
+                               "; 
+                var producto=await _dapper.QueryFirstOrDefaultAsync(sql,new { idProducto });
+                sql = @"SELECT * FROM ""detallePrecioProductos"" 
+                        WHERE ""idProducto"" = uuid(@idProducto);
+                        ";
+                var detallePrecios = await _dapper.QueryAsync(sql, new { idProducto });
 
-                var consulta = await _IProductos.cargar(idProducto);
-                return StatusCode(200, consulta);
-
-
+                return Ok(new { producto, detallePrecios });
             }
             catch (Exception ex)
             {
-                return BadRequest(new { error = "error", exc = ex });
+                return Problem(ex.Message);
             }
 
         }
@@ -129,34 +181,19 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             {
 
                 var consulta = await _IProductos.editar(_producto);
-                if (consulta == "ok")
-                {
-
-                    return StatusCode(200, consulta);
-
-                }
-                if (consulta == "repetido")
-                {
-
-                    return StatusCode(200, consulta);
-
-                }
-
-                return BadRequest();
-
-
-
+                if (consulta == "repetido") throw new Exception("Ya existe un producto con ese código");
+                return Ok();
             }
             catch (Exception ex)
             {
-                return BadRequest(new { error = "error", exc = ex });
+                return Problem(ex.Message);
             }
 
         }
 
 
         [HttpDelete]
-        [Route("[action]/{idProducto}")]
+        [Route("{idProducto}")]
         public async Task<IActionResult> eliminar(Guid idProducto)
         {
 
@@ -185,7 +222,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
 
 
         [HttpPut]
-        [Route("[action]/{idProducto}")]
+        [Route("{idProducto}")]
         public async Task<IActionResult> desactivar(Guid idProducto, bool activo)
         {
 
