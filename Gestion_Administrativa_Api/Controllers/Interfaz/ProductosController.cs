@@ -1,9 +1,12 @@
-﻿using Dapper;
+﻿using AutoMapper;
+using Dapper;
 using Gestion_Administrativa_Api.Dtos.Interfaz;
 using Gestion_Administrativa_Api.Interfaces.Interfaz;
+using Gestion_Administrativa_Api.Models;
 using Gestion_Administrativa_Api.Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Data;
 
 namespace Gestion_Administrativa_Api.Controllers.Interfaz
@@ -15,36 +18,45 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
     {
         private readonly IProductos _IProductos;
         private readonly IDbConnection _dapper;
+        private readonly _context _context;
 
-        public ProductosController(IProductos IProductos, IDbConnection dapper)
+        public ProductosController(IProductos IProductos, IDbConnection dapper, _context context)
         {
             _IProductos = IProductos;
             _dapper = dapper;
+            _context = context;
         }
 
         [HttpPost]
-        public async Task<IActionResult> insertar(ProductosDto _productos)
+        public async Task<IActionResult> guardar(Productos _producto)
         {
             try
             {
-                _productos.IdEmpresa = new Guid(Tools.getIdEmpresa(HttpContext));
-                var consulta = await _IProductos.insertar(_productos);
-
-                if (consulta == "ok")
+                _producto.IdEmpresa = new Guid(Tools.getIdEmpresa(HttpContext));
+                var producto = await _context.Productos.AsNoTracking().Where(x => x.IdProducto == _producto.IdProducto).FirstOrDefaultAsync();
+                if ( producto!= null)
                 {
-                    return StatusCode(200, consulta);
+                    _producto.Activo = producto.Activo;
+                    _producto.FechaRegistro = DateTime.Now;
+                    _producto.ActivoProducto= producto.ActivoProducto;
+                    string sql = @"DELETE FROM ""detallePrecioProductos"" WHERE ""idProducto""=uuid(@idProducto);";
+                    await _dapper.ExecuteAsync(sql, _producto);
+                    _producto.DetallePrecioProductos.Select(x => { x.FechaRegistro = DateTime.Now; return x; });
+                    _context.Productos.Update(_producto);
                 }
-
-                if (consulta == "repetido")
+                else
                 {
-                    return StatusCode(200, consulta);
+                    _producto.Activo= true;
+                    _producto.ActivoProducto = true;
+                    _producto.FechaRegistro=DateTime.Now;
+                    _context.Productos.Add(_producto);
                 }
-
-                return BadRequest();
+                await _context.SaveChangesAsync();
+                return Ok();
             }
             catch (Exception ex)
             {
-                return BadRequest(new { error = "error", exc = ex });
+                return Problem(ex.Message);
             }
         }
 
@@ -149,11 +161,11 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
         }
 
         [HttpPut]
-        [Route("[action]")]
         public async Task<IActionResult> actualizar(ProductosDto _producto)
         {
             try
             {
+                _producto.IdEmpresa = new Guid(Tools.getIdEmpresa(HttpContext));
                 var consulta = await _IProductos.editar(_producto);
                 if (consulta == "repetido") throw new Exception("Ya existe un producto con ese código");
                 return Ok();
@@ -190,7 +202,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
         {
             try
             {
-                string sql = @"DELETE FROM ""DetallePrecioProductos"" WHERE idDetallePrecioProducto=uuid(@idDetallePrecioProducto);";
+                string sql = @"DELETE FROM ""detallePrecioProductos"" WHERE ""idDetallePrecioProducto""=uuid(@idDetallePrecioProducto);";
                 await _dapper.ExecuteAsync(sql, new { idDetallePrecioProducto });
                 return Ok();
             }
@@ -200,20 +212,5 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             }
         }
 
-        [HttpPut]
-        [Route("{idProducto}")]
-        public async Task<IActionResult> desactivar(Guid idProducto, bool activo)
-        {
-            try
-            {
-                var consulta = await _IProductos.desactivar(idProducto, activo);
-
-                return StatusCode(200, consulta);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { error = "error", exc = ex });
-            }
-        }
     }
 }
