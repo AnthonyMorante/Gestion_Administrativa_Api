@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using Dapper;
+﻿using Dapper;
 using Gestion_Administrativa_Api.Dtos.Interfaz;
 using Gestion_Administrativa_Api.Interfaces.Interfaz;
 using Gestion_Administrativa_Api.Models;
@@ -34,11 +33,11 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             {
                 _producto.IdEmpresa = new Guid(Tools.getIdEmpresa(HttpContext));
                 var producto = await _context.Productos.AsNoTracking().Where(x => x.IdProducto == _producto.IdProducto).FirstOrDefaultAsync();
-                if ( producto!= null)
+                if (producto != null)
                 {
                     _producto.Activo = producto.Activo;
                     _producto.FechaRegistro = DateTime.Now;
-                    _producto.ActivoProducto= producto.ActivoProducto;
+                    _producto.ActivoProducto = producto.ActivoProducto;
                     string sql = @"DELETE FROM ""detallePrecioProductos"" WHERE ""idProducto""=uuid(@idProducto);";
                     await _dapper.ExecuteAsync(sql, _producto);
                     _producto.DetallePrecioProductos.Select(x => { x.FechaRegistro = DateTime.Now; return x; });
@@ -46,9 +45,9 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                 }
                 else
                 {
-                    _producto.Activo= true;
+                    _producto.Activo = true;
                     _producto.ActivoProducto = true;
-                    _producto.FechaRegistro=DateTime.Now;
+                    _producto.FechaRegistro = DateTime.Now;
                     _context.Productos.Add(_producto);
                 }
                 await _context.SaveChangesAsync();
@@ -211,6 +210,5 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                 return Problem(ex.Message);
             }
         }
-
     }
 }

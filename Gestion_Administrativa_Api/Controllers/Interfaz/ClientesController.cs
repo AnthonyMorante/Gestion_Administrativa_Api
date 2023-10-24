@@ -4,7 +4,6 @@ using Gestion_Administrativa_Api.Models;
 using Gestion_Administrativa_Api.Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Npgsql;
 using System.Data;
 
 namespace Gestion_Administrativa_Api.Controllers.Interfaz
@@ -17,7 +16,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
         private readonly IClientes _IClientes;
         private readonly IDbConnection _dapper;
 
-        public ClientesController(IClientes IClientes,IDbConnection dapper)
+        public ClientesController(IClientes IClientes, IDbConnection dapper)
         {
             _IClientes = IClientes;
             _dapper = dapper;
@@ -52,7 +51,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             try
             {
                 var idEmpresa = Tools.getIdEmpresa(HttpContext);
-                string sql = @"SELECT ""idCliente"", identificacion, ""razonSocial"", direccion, email, telefono,""idEmpresa"", activo 
+                string sql = @"SELECT ""idCliente"", identificacion, ""razonSocial"", direccion, email, telefono,""idEmpresa"", activo
                                FROM Clientes WHERE ""idEmpresa""=uuid(@idEmpresa) AND activo=true";
                 return Ok(await Tools.DataTablePostgresSql(new Tools.DataTableParams
                 {
@@ -104,16 +103,9 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             try
             {
                 var consulta = await _IClientes.editar(_cliente);
-                if (consulta == "ok")
-                {
-                    return StatusCode(200, consulta);
-                }
-                if (consulta == "repetido")
-                {
-                    return StatusCode(200, consulta);
-                }
-
-                return BadRequest();
+                if (consulta == "ok") return Ok();
+                if (consulta == "repetido") throw new Exception("El número de identificación ya se encuentra registrado.");
+                return Problem();
             }
             catch (Exception ex)
             {
