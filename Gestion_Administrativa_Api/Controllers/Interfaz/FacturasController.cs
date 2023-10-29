@@ -34,11 +34,11 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                                 f.""receptorTelefono"" AS ""telefonoCliente"", f.""receptorCorreo"" AS ""emailCliente"",
                                 f.""idTipoEstadoSri"",f.""idTipoEstadoDocumento"",""establecimiento"",f.""tipoEmision"",f.""idPuntoEmision"",
                                 pe.""nombre"" AS ""puntoEmision""
-                                FROM facturas f 
-                                INNER JOIN ""tipoEstadoSri"" tes ON tes.""idTipoEstadoSri"" = f.""idTipoEstadoSri"" 
+                                FROM facturas f
+                                INNER JOIN ""tipoEstadoSri"" tes ON tes.""idTipoEstadoSri"" = f.""idTipoEstadoSri""
                                 INNER JOIN ""tipoEstadoDocumentos"" ted ON ted.""idTipoEstadoDocumento"" = f.""idTipoEstadoDocumento""
-                                INNER JOIN ""establecimientos"" e ON e.""idEstablecimiento"" = f.""idEstablecimiento"" 
-                                INNER JOIN ""puntoEmisiones"" pe ON pe.""idPuntoEmision"" = f.""idPuntoEmision"" 
+                                INNER JOIN ""establecimientos"" e ON e.""idEstablecimiento"" = f.""idEstablecimiento""
+                                INNER JOIN ""puntoEmisiones"" pe ON pe.""idPuntoEmision"" = f.""idPuntoEmision""
                                 WHERE (DATE_PART('year', f.""fechaEmision""::date) - DATE_PART('year', current_date::date)) * 12 +
                                 (DATE_PART('month', f.""fechaEmision""::date) - DATE_PART('month', current_date::date))<=3
                                 AND e.""idEmpresa""=uuid(@idEmpresa)
@@ -110,5 +110,111 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                 return "false";
             }
         }
+
+        [HttpGet]
+        public async Task<IActionResult> tiposDocumentos()
+        {
+            try
+            {
+                string sql = @"
+                            SELECT * FROM ""tipoDocumentos""
+                            WHERE codigo in(1,0)
+                            AND activo=true
+                            ";
+                return Ok(await _dapper.QueryAsync(sql));
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> puntosEmisiones()
+        {
+            try
+            {
+                var idEmpresa = Tools.getIdEmpresa(HttpContext);
+                string sql = @"SELECT * FROM ""puntoEmisiones""
+                                WHERE ""idEmpresa""=uuid(@idEmpresa)
+                                ORDER BY NOT predeterminado;
+                            ";
+                return Ok(await _dapper.QueryAsync(sql, new { idEmpresa }));
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> establecimientos()
+        {
+            try
+            {
+                var idEmpresa = Tools.getIdEmpresa(HttpContext);
+                string sql = @"SELECT * FROM ""establecimientos""
+                                WHERE ""idEmpresa""=uuid(@idEmpresa)
+                                ORDER BY NOT predeterminado;
+                                
+                            ";
+                return Ok(await _dapper.QueryAsync(sql, new { idEmpresa }));
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> listaProductos()
+        {
+            try
+            {
+                var idEmpresa = Tools.getIdEmpresa(HttpContext);
+                string sql = @"SELECT * FROM ""productos""
+                              WHERE ""activo""=TRUE
+                              AND ""idEmpresa""=uuid(@idEmpresa)
+                              ORDER BY ""nombre""; 
+                            ";
+                return Ok(await _dapper.QueryAsync(sql, new { idEmpresa }));
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> listaPreciosProductos()
+        {
+            try
+            {
+                var idEmpresa = Tools.getIdEmpresa(HttpContext);
+                string sql = @"SELECT ""idProducto"",p.""nombre"" AS ""producto"",p.""codigo"" AS ""codigoProducto"",""precio"",i.codigo AS ""codigoIva"",i.""idIva"",i.""nombre"" AS ""nombreIva""
+                                FROM productos p
+                                INNER JOIN ivas i ON i.""idIva"" = p.""idIva"" 
+                                WHERE p.""activo"" = true 
+                                AND p.""idEmpresa""=uuid(@idEmpresa)
+                                UNION ALL 
+                                SELECT dp.""idProducto"",p.""nombre"" AS ""producto"",p.""codigo"" AS ""codigoProducto"",dp.""totalIva"" AS ""precio"",i.""codigo"" AS ""codigoIva"",i.""idIva"",i.""nombre"" AS ""nombreIva"" 
+                                FROM ""detallePrecioProductos"" dp
+                                INNER JOIN ""productos"" p ON dp.""idProducto"" = p.""idProducto"" 
+                                INNER JOIN ""ivas"" i ON i.""idIva"" = dp.""idIva""  
+                                WHERE p.""activo"" =TRUE AND dp.""activo""=true
+                                AND p.""idEmpresa""=uuid(@idEmpresa)
+
+                            ";
+                return Ok(await _dapper.QueryAsync(sql, new { idEmpresa }));
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
+        }
+               
+
+
     }
 }
