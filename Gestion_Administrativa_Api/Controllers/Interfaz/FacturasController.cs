@@ -213,7 +213,26 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                 return Problem(ex.Message);
             }
         }
-               
+        [HttpGet]
+        [Route("{identificacion}")]
+        public async Task<IActionResult> buscarCliente(string identificacion)
+        {
+            try
+            {
+                var idEmpresa= Tools.getIdEmpresa(HttpContext);
+                string sql = @"SELECT * FROM ""clientes""
+                            WHERE ""identificacion""=@identificacion
+                            AND ""idEmpresa""=uuid(@idEmpresa);
+                            ";
+                return Ok(await _dapper.QueryFirstOrDefaultAsync(sql, new { idEmpresa,identificacion }));
+            }
+            catch (Exception ex)
+            {
+
+                return Problem(ex.Message);
+            }
+        }
+        
 
 
     }
