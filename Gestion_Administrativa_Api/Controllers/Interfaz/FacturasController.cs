@@ -172,10 +172,12 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             try
             {
                 var idEmpresa = Tools.getIdEmpresa(HttpContext);
-                string sql = @"SELECT * FROM ""productos""
-                              WHERE ""activo""=TRUE
-                              AND ""idEmpresa""=uuid(@idEmpresa)
-                              ORDER BY ""nombre""; 
+                string sql = @"SELECT p.*,v.valor AS ""iva"",v.nombre AS ""nombreIva"" 
+                                FROM ""productos"" p
+                                INNER JOIN ""ivas"" v ON v.""idIva""= p.""idIva""	
+                                WHERE p.""activo""=TRUE
+                                AND ""idEmpresa""=uuid(@idEmpresa)
+                                ORDER BY ""nombre""; 
                             ";
                 return Ok(await _dapper.QueryAsync(sql, new { idEmpresa }));
             }
@@ -192,13 +194,13 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             try
             {
                 var idEmpresa = Tools.getIdEmpresa(HttpContext);
-                string sql = @"SELECT ""idProducto"",p.""nombre"" AS ""producto"",p.""codigo"" AS ""codigoProducto"",""precio"",i.codigo AS ""codigoIva"",i.""idIva"",i.""nombre"" AS ""nombreIva""
+                string sql = @"SELECT p.""idProducto"" as""idDetallePrecioProducto"",""idProducto"",p.""nombre"" AS ""producto"",p.""codigo"" AS ""codigoProducto"",""precio"",i.codigo AS ""codigoIva"",i.""idIva"",i.""nombre"" AS ""nombreIva"",i.""valor"" as iva
                                 FROM productos p
                                 INNER JOIN ivas i ON i.""idIva"" = p.""idIva"" 
                                 WHERE p.""activo"" = true 
                                 AND p.""idEmpresa""=uuid(@idEmpresa)
                                 UNION ALL 
-                                SELECT dp.""idProducto"",p.""nombre"" AS ""producto"",p.""codigo"" AS ""codigoProducto"",dp.""totalIva"" AS ""precio"",i.""codigo"" AS ""codigoIva"",i.""idIva"",i.""nombre"" AS ""nombreIva"" 
+                                SELECT ""idDetallePrecioProducto"",dp.""idProducto"",p.""nombre"" AS ""producto"",p.""codigo"" AS ""codigoProducto"",dp.""totalIva"" AS ""precio"",i.""codigo"" AS ""codigoIva"",i.""idIva"",i.""nombre"" AS ""nombreIva"",i.""valor"" as iva
                                 FROM ""detallePrecioProductos"" dp
                                 INNER JOIN ""productos"" p ON dp.""idProducto"" = p.""idProducto"" 
                                 INNER JOIN ""ivas"" i ON i.""idIva"" = dp.""idIva""  
