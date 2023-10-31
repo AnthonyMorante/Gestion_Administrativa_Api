@@ -165,6 +165,38 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                 return Problem(ex.Message);
             }
         }
+        [HttpGet]
+        public async Task<IActionResult> formaPagos()
+        {
+            try
+            {
+                string sql = @"SELECT * FROM ""formaPagos"" 
+                               WHERE ""activo""=true
+                               ORDER BY codigo;
+                            ";
+                return Ok(await _dapper.QueryAsync(sql));
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
+        }
+        [HttpGet]
+        public async Task<IActionResult> tiempoFormaPagos()
+        {
+            try
+            {
+                string sql = @"SELECT * FROM ""tiempoFormaPagos""
+                               WHERE ""activo""=true
+                            ";
+                return Ok(await _dapper.QueryAsync(sql));
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
+        }
+        
 
         [HttpGet]
         public async Task<IActionResult> listaProductos()
