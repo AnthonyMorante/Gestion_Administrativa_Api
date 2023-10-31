@@ -63,8 +63,13 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             try
             {
                 var idEmpresa = Tools.getIdEmpresa(HttpContext);
-                string sql = @" SELECT * FROM secuenciales
-                                WHERE activo = TRUE AND ""idEmpresa""=uidd(@idEmpresa)
+                string sql = @" SELECT ""nombre"",""idTipoDocumento"" FROM secuenciales
+                                WHERE ""activo""= TRUE
+                                AND ""idEmpresa""=uuid(@idEmpresa)
+                                UNION ALL 
+                                SELECT nombre,""idTipoDocumento"" FROM ""secuencialesProformas"" 
+                                WHERE ""activo""= TRUE
+                                AND ""idEmpresa""=uuid(@idEmpresa)
                                 ";
                 return Ok(await _dapper.QueryAsync(sql, new { idEmpresa }));
             }
@@ -92,7 +97,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             }
             catch (Exception ex)
             {
-                return BadRequest(new { error = "error", exc = ex });
+                return Problem(ex.Message);
             }
         }
 
