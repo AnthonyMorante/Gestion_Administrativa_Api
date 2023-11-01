@@ -6,7 +6,7 @@ namespace Gestion_Administrativa_Api.Models;
 public partial class DetalleFacturas
 {
     public Guid IdDetalleFactura { get; set; }
-
+    public Guid? IdFactura { get; set; }
     public decimal? Cantidad { get; set; }
 
     public decimal? Descuento { get; set; }
