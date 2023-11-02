@@ -111,7 +111,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
         {
             _facturaDto.idEmpresa = new Guid(Tools.getIdEmpresa(HttpContext));
             var empresa = await _context.Clientes.AsNoTracking().Where(x => x.IdEmpresa == _facturaDto.idEmpresa).FirstOrDefaultAsync();
-            string sql = @"SELECT * FROM ""clientes"" WHERE ""identificacion""=@identificacion";
+            string sql = @"SELECT * FROM ""clientes"" WHERE ""identificacion""=@identificacion AND ""idEmpresa""=uuid(@idEmpresa)";
             string ciudadDefecto = "Pelileo";
             var cliente = await _dapper.QueryFirstOrDefaultAsync<Clientes>(sql,_facturaDto);
             if (cliente == null){
