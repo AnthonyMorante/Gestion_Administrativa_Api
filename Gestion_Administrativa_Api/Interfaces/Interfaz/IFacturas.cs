@@ -16,6 +16,7 @@ using Rotativa.AspNetCore;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Http;
 using System.Drawing.Printing;
+using Gestion_Administrativa_Api.Utilities;
 
 namespace Gestion_Administrativa_Api.Interfaces.Interfaz
 {
@@ -88,7 +89,11 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                 factura.DireccionEstablecimiento = consultaEstablecimiento.Direccion;
                 factura.IdFactura = Guid.NewGuid();
                 await _context.Facturas.AddAsync(factura);
+                await _context.SaveChangesAsync();
+                var idFactura = Tools.toGuid(factura.IdFactura);
+                detalle.Select(x => { x.IdFactura = idFactura; return x; }).ToList();
                 await _context.DetalleFacturas.AddRangeAsync(detalle);
+                await _context.SaveChangesAsync();
 
                 if (_facturaDto.idDocumentoEmitir == Guid.Parse("246e7fef-4260-4522-9861-b38c7499ce67"))
                 {
@@ -101,7 +106,6 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                         {
                             consultaProducto.Cantidad -= item.Cantidad;
                             _context.Entry(consultaProducto).State = EntityState.Modified;
-                            await _context.SaveChangesAsync();
                         }
                     }
 
@@ -116,8 +120,6 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                         await _context.DetalleFormaPagos.AddRangeAsync(formaPago);
 
                     }
-
-
                     var consultaSecuencial = await _context.Secuenciales.FirstOrDefaultAsync(x => x.IdEmpresa == consultaEmpresa.IdEmpresa && x.IdTipoDocumento == _facturaDto.idTipoDocumento);
                     consultaSecuencial.Nombre = consultaSecuencial.Nombre + 1;
                     _context.Secuenciales.Update(consultaSecuencial);

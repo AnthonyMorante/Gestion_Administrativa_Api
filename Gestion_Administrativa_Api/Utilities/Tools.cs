@@ -88,6 +88,19 @@ namespace Gestion_Administrativa_Api.Utilities
             }
         }
 
+        public static string getIdUsuario(HttpContext _httpContext)
+        {
+            try
+            {
+                return getClaim(_httpContext, "idUsuario");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return "";
+            }
+        }
+
         public static string getClaim(HttpContext _httpContext, string claim)
         {
             try
@@ -431,6 +444,11 @@ namespace Gestion_Administrativa_Api.Utilities
                 data = lista,
                 recordsFiltered = recordsFiltered,
             };
+        }
+
+        public static Guid toGuid(Guid? guid)
+        {
+            return guid??Guid.Empty;
         }
     
 }
