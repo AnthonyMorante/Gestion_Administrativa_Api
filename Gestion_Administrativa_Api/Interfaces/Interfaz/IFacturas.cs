@@ -66,8 +66,9 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                 }
 
                 var factura = _mapper.Map<Facturas>(_facturaDto);
-                var detalle = _mapper.Map<IEnumerable<DetalleFacturas>>(_facturaDto.detalleFactura);
-
+                var detalle = _mapper.Map<List<DetalleFacturas>>(_facturaDto.detalleFactura);
+                var detallePagos = _mapper.Map<List<DetalleFormaPagos>>(_facturaDto.formaPago);
+                var detalleAdicional = _mapper.Map<List<InformacionAdicional>>(_facturaDto.informacionAdicional);
                 factura.EmisorRuc = consultaEmpresa.Identificacion;
                 var claveAcceso = await _IUtilidades.claveAcceso(factura);
                 factura.ClaveAcceso = claveAcceso;
@@ -87,13 +88,13 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                 factura.Isd = 0;
                 factura.DireccionMatriz = consultaEmpresa.DireccionMatriz;
                 factura.DireccionEstablecimiento = consultaEstablecimiento.Direccion;
-                factura.IdFactura = Guid.NewGuid();
-                await _context.Facturas.AddAsync(factura);
+                factura.DetalleFormaPagos = detallePagos;
+                factura.InformacionAdicional = detalleAdicional;
+                //factura.DetalleFactura = detalle;
+                _context.Facturas.Add(factura);
                 await _context.SaveChangesAsync();
-                var idFactura = Tools.toGuid(factura.IdFactura);
-                detalle.Select(x => { x.IdFactura = idFactura; return x; }).ToList();
-                await _context.DetalleFacturas.AddRangeAsync(detalle);
-                await _context.SaveChangesAsync();
+                //await _context.DetalleFacturas.AddRangeAsync(detalle);
+  
 
                 if (_facturaDto.idDocumentoEmitir == Guid.Parse("246e7fef-4260-4522-9861-b38c7499ce67"))
                 {
