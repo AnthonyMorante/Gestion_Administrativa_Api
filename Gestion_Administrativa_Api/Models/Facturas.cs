@@ -103,9 +103,23 @@ public partial class Facturas
 
     public string? ResolucionAgenteRetencion { get; set; }
 
+    public decimal? Saldo { get; set; }
+
+    public decimal? ValorRecibido { get; set; }
+
+    public decimal? Cambio { get; set; }
+
+    public int? IdTipoEstadoSri { get; set; }
+
+    public string? Mensaje { get; set; }
+
+    public virtual ICollection<DetalleFacturas> DetalleFacturas { get; set; } = new List<DetalleFacturas>();
+
     public virtual ICollection<DetalleFormaPagos> DetalleFormaPagos { get; set; } = new List<DetalleFormaPagos>();
 
     public virtual TipoEstadoDocumentos IdTipoEstadoDocumentoNavigation { get; set; } = null!;
+
+    public virtual TipoEstadoSri? IdTipoEstadoSriNavigation { get; set; }
 
     public virtual Usuarios IdUsuarioNavigation { get; set; } = null!;
 

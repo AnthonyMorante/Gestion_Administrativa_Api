@@ -16,4 +16,6 @@ public partial class TipoEstadoSri
     public bool? Activo { get; set; }
 
     public int? Codigo { get; set; }
+
+    public virtual ICollection<Facturas> Facturas { get; set; } = new List<Facturas>();
 }

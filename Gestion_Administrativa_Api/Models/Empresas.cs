@@ -55,5 +55,7 @@ public partial class Empresas
 
     public virtual ICollection<Secuenciales> Secuenciales { get; set; } = new List<Secuenciales>();
 
+    public virtual ICollection<SecuencialesProformas> SecuencialesProformas { get; set; } = new List<SecuencialesProformas>();
+
     public virtual ICollection<UsuarioEmpresas> UsuarioEmpresas { get; set; } = new List<UsuarioEmpresas>();
 }

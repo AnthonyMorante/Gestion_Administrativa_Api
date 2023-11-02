@@ -81,8 +81,6 @@ IMapper mapper = mapperConfig.CreateMapper();
 builder.Services.AddSingleton(mapper);
 
 
-
-
 builder.Services.AddControllers().AddJsonOptions(x =>
                 x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
@@ -149,6 +147,7 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddWkhtmltopdf();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -165,5 +164,7 @@ app.UseAuthorization();
 app.UseIdentityServer();
 app.MapControllers();
 app.UseCors("cors");
-RotativaConfiguration.Setup(app.Environment.WebRootPath);
+string wwwroot = app.Environment.WebRootPath;
+RotativaConfiguration.Setup(wwwroot, "Rotativa/Windows");
+//RotativaConfiguration.Setup(app.Environment.WebRootPath);
 app.Run();

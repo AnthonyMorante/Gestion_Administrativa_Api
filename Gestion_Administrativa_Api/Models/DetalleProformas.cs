@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace Gestion_Administrativa_Api.Models;
 
-public partial class DetalleFacturas
+public partial class DetalleProformas
 {
-    public Guid IdDetalleFactura { get; set; }
+    public Guid IdDetalleProforma { get; set; }
 
     public decimal? Cantidad { get; set; }
 
@@ -25,7 +25,7 @@ public partial class DetalleFacturas
 
     public decimal? Total { get; set; }
 
-    public Guid IdFactura { get; set; }
+    public Guid IdProforma { get; set; }
 
-    public virtual Facturas IdFacturaNavigation { get; set; } = null!;
+    public virtual Proformas IdProformaNavigation { get; set; } = null!;
 }

@@ -82,6 +82,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                 factura.ResolucionAgenteRetencion = consultaEmpresa.ResolucionAgenteRetencion;
                 factura.RegimenRimpe = consultaEmpresa.RegimenRimpe;
                 factura.IdTipoEstadoDocumento = 1;
+                factura.IdTipoEstadoSri = 1;
                 factura.ExentoIva = 0;
                 factura.Ice = 0;
                 factura.Irbpnr = 0;
@@ -90,9 +91,9 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                 factura.DireccionEstablecimiento = consultaEstablecimiento.Direccion;
                 factura.DetalleFormaPagos = detallePagos;
                 factura.InformacionAdicional = detalleAdicional;
-                //factura.DetalleFactura = detalle;
+                factura.DetalleFacturas = detalle;
                 _context.Facturas.Add(factura);
-                await _context.SaveChangesAsync();
+                //await _context.SaveChangesAsync();
                 //await _context.DetalleFacturas.AddRangeAsync(detalle);
   
 
@@ -106,28 +107,28 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                         if (consultaProducto != null)
                         {
                             consultaProducto.Cantidad -= item.Cantidad;
-                            _context.Entry(consultaProducto).State = EntityState.Modified;
+                            _context.Productos.Update(consultaProducto);
                         }
                     }
 
-                    if (_facturaDto.formaPago.ToList().Count > 0)
-                    {
-                        var formaPago = _mapper.Map<IEnumerable<DetalleFormaPagos>>(_facturaDto.formaPago);
-                        formaPago = formaPago.Select(x =>
-                        {
-                            x.IdFactura = factura.IdFactura;
-                            return x;
-                        }).ToList();
-                        await _context.DetalleFormaPagos.AddRangeAsync(formaPago);
+                    //if (_facturaDto.formaPago.ToList().Count > 0)
+                    //{
+                    //    var formaPago = _mapper.Map<IEnumerable<DetalleFormaPagos>>(_facturaDto.formaPago);
+                    //    formaPago = formaPago.Select(x =>
+                    //    {
+                    //        x.IdFactura = factura.IdFactura;
+                    //        return x;
+                    //    }).ToList();
+                    //    await _context.DetalleFormaPagos.AddRangeAsync(formaPago);
 
-                    }
+                    //}
                     var consultaSecuencial = await _context.Secuenciales.FirstOrDefaultAsync(x => x.IdEmpresa == consultaEmpresa.IdEmpresa && x.IdTipoDocumento == _facturaDto.idTipoDocumento);
                     consultaSecuencial.Nombre = consultaSecuencial.Nombre + 1;
                     _context.Secuenciales.Update(consultaSecuencial);
                     await _context.SaveChangesAsync();
                     var ruta = await generarXml(factura, _facturaDto) ?? throw new Exception("Error al generar Documento");
                     var firmar = await firmarXml(factura.IdFactura, ruta?.documento) ?? throw new Exception("Error al firmar y guardar XML");
-                    var enviar = await enviarSri(factura.ClaveAcceso); if (enviar == null) throw new Exception("Error al enviar XML");
+                    var enviar = await enviarSri(factura.ClaveAcceso,factura.Ruta); if (enviar == null) throw new Exception("Error al enviar XML");
 
 
                 }
@@ -184,8 +185,9 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                 }
                 XDocument doc = XDocument.Parse(xmlFactura);
                 doc.Descendants().Where(e => string.IsNullOrEmpty(e.Value)).Remove();
-                var ruta = $"{_configuration["Pc:disco"]}\\Facturacion\\Xml\\{_factura.ClaveAcceso}.xml";
-                _factura.Ruta = ruta;
+                var ruta = $"/Facturacion/XML_FIRMADOS/{_facturaDto.idEmpresa}";
+                if (!Directory.Exists($"{Tools.rootPath}{ruta}")) Directory.CreateDirectory($"{Tools.rootPath}{ruta}");
+                _factura.Ruta = $"{ruta}/{_factura.ClaveAcceso}.xml"; ;
                 _factura_V1_0_0 = factura;
                 return new { estado = true, documento = doc };
 
@@ -212,7 +214,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                     .Include(x => x.IdEmpresaNavigation.IdInformacionFirmaNavigation)
                     .FirstOrDefaultAsync(x => x.IdUsuario == consultaFactura.IdUsuario);
                 if (consultaFactura == null) return false;
-                var firmar = await _IUtilidades.firmar(consultaFactura.ClaveAcceso, consultaUsuarioEmpresa.IdEmpresaNavigation.IdInformacionFirmaNavigation.Codigo, consultaUsuarioEmpresa.IdEmpresaNavigation.IdInformacionFirmaNavigation.Ruta, documento);
+                var firmar = await _IUtilidades.firmar(consultaFactura.ClaveAcceso, consultaUsuarioEmpresa.IdEmpresaNavigation.IdInformacionFirmaNavigation.Codigo,$"{Tools.rootPath}{consultaUsuarioEmpresa.IdEmpresaNavigation.IdInformacionFirmaNavigation.Ruta}", documento,consultaUsuarioEmpresa.IdEmpresa);
 
                 if (firmar == true)
                 {
@@ -234,12 +236,11 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
 
 
 
-        public async Task<bool> enviarSri(string? claveAcceso)
+        public async Task<bool> enviarSri(string? claveAcceso,string ruta)
         {
             try
             {
-
-                var enviar = await _IUtilidades.envioXmlSRI(claveAcceso, null);
+                var enviar = await _IUtilidades.envioXmlSRI(claveAcceso, null,ruta);
 
 
                 return true;
@@ -261,8 +262,6 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
 
             try
             {
-
-
                 var pdf = new ViewAsPdf("~/Views/Factura/FacturaV1_1_0.cshtml", factura_V1_0_0);
                 byte[] pdfBytes = await pdf.BuildFile(ac);
                 var envairRide = await _IUtilidades.envioCorreo(email, pdfBytes, factura_V1_0_0.infoTributaria.claveAcceso);

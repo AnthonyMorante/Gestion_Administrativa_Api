@@ -1,1 +1,1 @@
-Scaffold-DbContext 'Host=localhost;Port=5432; Database=gestion_administrativa; Username=postgres; Password=123' Npgsql.EntityFrameworkCore.PostgreSQL -OutputDir Models -f -NoPluralize -Context _context
+Scaffold-DbContext name=cn Npgsql.EntityFrameworkCore.PostgreSQL -OutputDir Models -f -NoPluralize -Context _context

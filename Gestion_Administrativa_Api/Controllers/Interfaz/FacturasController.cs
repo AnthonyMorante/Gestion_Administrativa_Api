@@ -165,6 +165,10 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             _facturaDto.secuencial = Convert.ToInt32(await _dapper.ExecuteScalarAsync<string>(sql, _facturaDto)).ToString("D9");
             _facturaDto.idUsuario = new Guid(Tools.getIdUsuario(HttpContext));
             _facturaDto.idFormaPago = _facturaDto.formaPago.FirstOrDefault().idFormaPago;
+            sql = @"SELECT codigo FROM clientes c
+                   INNER JOIN ""tipoIdentificaciones"" ti ON ti.""idTipoIdentificacion""=c.""idTipoIdentificacion""
+                   WHERE ""idCliente""=uuid(@idCliente);";
+            _facturaDto.codigoTipoIdentificacion=await _dapper.ExecuteScalarAsync<int>(sql, _facturaDto);
             return _facturaDto;
         } 
 
@@ -278,7 +282,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             try
             {
                 var idEmpresa = Tools.getIdEmpresa(HttpContext);
-                string sql = @"SELECT p.*,v.valor AS ""iva"",v.nombre AS ""nombreIva"" 
+                string sql = @"SELECT p.*,v.valor AS ""iva"",v.nombre AS ""nombreIva"" ,v.""descripcion"" as ""tarifaPorcentaje""
                                 FROM ""productos"" p
                                 INNER JOIN ""ivas"" v ON v.""idIva""= p.""idIva""	
                                 WHERE p.""activo""=TRUE
@@ -300,13 +304,13 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             try
             {
                 var idEmpresa = Tools.getIdEmpresa(HttpContext);
-                string sql = @"SELECT p.""idProducto"" as""idDetallePrecioProducto"",""idProducto"",p.""nombre"" AS ""producto"",p.""codigo"" AS ""codigoProducto"",""precio"",i.codigo AS ""codigoIva"",i.""idIva"",i.""nombre"" AS ""nombreIva"",i.""valor"" as iva
+                string sql = @"SELECT p.""idProducto"" as""idDetallePrecioProducto"",""idProducto"",p.""nombre"" AS ""producto"",p.""codigo"" AS ""codigoProducto"",""precio"",i.codigo AS ""codigoIva"",i.""idIva"",i.""nombre"" AS ""nombreIva"",i.""valor"" as iva,i.""descripcion"" as ""tarifaPorcentaje""
                                 FROM productos p
                                 INNER JOIN ivas i ON i.""idIva"" = p.""idIva"" 
                                 WHERE p.""activo"" = true 
                                 AND p.""idEmpresa""=uuid(@idEmpresa)
                                 UNION ALL 
-                                SELECT ""idDetallePrecioProducto"",dp.""idProducto"",p.""nombre"" AS ""producto"",p.""codigo"" AS ""codigoProducto"",dp.""totalIva"" AS ""precio"",i.""codigo"" AS ""codigoIva"",i.""idIva"",i.""nombre"" AS ""nombreIva"",i.""valor"" as iva
+                                SELECT ""idDetallePrecioProducto"",dp.""idProducto"",p.""nombre"" AS ""producto"",p.""codigo"" AS ""codigoProducto"",dp.""totalIva"" AS ""precio"",i.""codigo"" AS ""codigoIva"",i.""idIva"",i.""nombre"" AS ""nombreIva"",i.""valor"" as iva,i.""descripcion"" as ""tarifaPorcentaje""
                                 FROM ""detallePrecioProductos"" dp
                                 INNER JOIN ""productos"" p ON dp.""idProducto"" = p.""idProducto"" 
                                 INNER JOIN ""ivas"" i ON i.""idIva"" = dp.""idIva""  
