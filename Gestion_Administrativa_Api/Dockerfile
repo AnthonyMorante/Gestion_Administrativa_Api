@@ -27,10 +27,10 @@ RUN dotnet publish -c Release -o out
 
 FROM base as final
 WORKDIR /App
-COPY --from=build-env /App/out .
+#COPY --from=build-env /App/out .
 COPY Rotativa ./Rotativa
 ENV TZ="America/Bogota"
-ENV DOTNET_System_Drawing_EnableUnixSupport=true
+#ENV DOTNET_System_Drawing_EnableUnixSupport=true
 RUN chmod -R 777 ./Rotativa
 RUN ls .
 ENTRYPOINT ["dotnet", "Gestion_Administrativa_Api.dll"]
