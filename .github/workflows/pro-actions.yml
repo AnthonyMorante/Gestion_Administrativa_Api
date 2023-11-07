@@ -40,7 +40,7 @@ jobs:
       with:
         context: ./Gestion_Administrativa_Api
         push: true
-        tags: registry.digitalocean.com/intuitosa/gestion-administrativa-api:${{ github.sha }}, registry.digitalocean.com/intuitosa/gestion-administrativa-api:latest-pro
+        tags: registry.digitalocean.com/geafe/gestion-administrativa-api:${{ github.sha }}, registry.digitalocean.com/geafe/gestion-administrativa-api:latest-pro
     - name: Image digest
       if: ${{ github.event_name == 'push' }}
       run: echo ${{ steps.docker_build.outputs.digest }}
