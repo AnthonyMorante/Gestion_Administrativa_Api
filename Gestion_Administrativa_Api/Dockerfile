@@ -1,28 +1,26 @@
-FROM mcr.microsoft.com/dotnet/aspnet:7.0-jammy AS base
+FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS base
 WORKDIR /App
 
 EXPOSE 80
 EXPOSE 443
 
-# Update the base image to include tzdata
-RUN apt-get update && apt-get install -y tzdata
-
 # For Rotativa SDK
 RUN apt-get update && apt-get install -y --no-install-recommends apt-utils fontconfig libfreetype6 libjpeg-turbo8 libpng16-16 libx11-6 libxcb1 libxext6 libxrender1 xfonts-75dpi xfonts-base libgdiplus libc6-dev
 
-FROM mcr.microsoft.com/dotnet/sdk:7.0-jammy AS build-env
+FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build-env
 WORKDIR /App
 
 # Copy everything
 COPY . ./
 
+
 # Restore as distinct layers
 RUN dotnet restore
-
 # Build and publish a release
 RUN dotnet publish -c Release -o out
 
-FROM build-env as final
+
+FROM base as final
 WORKDIR /App
 COPY --from=build-env /App/out .
 COPY Rotativa ./Rotativa
