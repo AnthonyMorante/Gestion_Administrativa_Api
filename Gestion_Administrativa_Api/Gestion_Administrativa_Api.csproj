@@ -12,7 +12,6 @@
     <Content Include="Rotativa\Linux\libwkhtmltox.so" />
     <Content Include="Rotativa\Linux\wkhtmltopdf" />
     <Content Include="Rotativa\Windows\wkhtmltopdf.exe" />
-    <Content Include="Rotativa\wkhtmltopdf.exe" />
   </ItemGroup>
 
   <ItemGroup>
