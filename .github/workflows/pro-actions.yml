@@ -2,9 +2,9 @@ name: pro-actions
 
 on:
   push:
-    branches: [ "Restructuracion" ]
+    branches: [ "master" ]
   pull_request:
-    branches: [ "Restructuracion" ]
+    branches: [ "master" ]
 
 jobs:
   build:
