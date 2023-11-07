@@ -28,7 +28,7 @@ jobs:
     - name: Test
       run: dotnet test --no-build --verbosity normal
     - name: ls dir
-      run: ls ./api-core-firma/bin
+      run: ls ./Gestion_Administrativa_Api/bin
     - uses: docker/login-action@v2.1.0
       if: ${{ github.event_name == 'push' }}
       with:
@@ -42,7 +42,7 @@ jobs:
       env:
         ASPNETCORE_ENVIRONMENT: Test
       with:
-        context: ./api-core-firma
+        context: ./Gestion_Administrativa_Api
         push: true
         tags: registry.digitalocean.com/intuitosa/gestion_administrativa_api:${{ github.sha }}, registry.digitalocean.com/intuitosa/gestion_administrativa_api:latest-pro
     - name: Image digest
