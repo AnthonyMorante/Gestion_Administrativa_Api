@@ -1,9 +1,8 @@
-FROM mcr.microsoft.com/dotnet/aspnet:7.0-jammy  AS base
+FROM mcr.microsoft.com/dotnet/aspnet:7.0-jammy AS base
 WORKDIR /App
 
 EXPOSE 80
 EXPOSE 443
-
 
 # Update the base image to include tzdata
 RUN apt-get update && apt-get install -y tzdata
@@ -14,18 +13,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends apt-utils fontc
 FROM mcr.microsoft.com/dotnet/sdk:7.0-jammy AS build-env
 WORKDIR /App
 
-
 # Copy everything
 COPY . ./
 
 # Restore as distinct layers
 RUN dotnet restore
+
 # Build and publish a release
 RUN dotnet publish -c Release -o out
 
-
-
-FROM base as final
+FROM build-env as final
 WORKDIR /App
 COPY --from=build-env /App/out .
 COPY Rotativa ./Rotativa
