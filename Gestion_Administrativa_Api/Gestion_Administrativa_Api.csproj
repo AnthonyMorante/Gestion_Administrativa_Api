@@ -9,6 +9,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Include="Rotativa\Linux\libwkhtmltox.so" />
+    <Content Include="Rotativa\Linux\wkhtmltopdf" />
+    <Content Include="Rotativa\Windows\wkhtmltopdf.exe" />
+    <Content Include="Rotativa\wkhtmltopdf.exe" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AutoMapper" Version="12.0.1" />
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
     <PackageReference Include="Dapper" Version="2.1.11" />
