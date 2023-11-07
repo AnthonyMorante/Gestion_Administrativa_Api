@@ -25,6 +25,8 @@ public partial class _context : DbContext
 
     public virtual DbSet<DetallePrecioProductos> DetallePrecioProductos { get; set; }
 
+    public virtual DbSet<DetalleProformas> DetalleProformas { get; set; }
+
     public virtual DbSet<DocumentosEmitir> DocumentosEmitir { get; set; }
 
     public virtual DbSet<Empleados> Empleados { get; set; }
@@ -45,6 +47,8 @@ public partial class _context : DbContext
 
     public virtual DbSet<Productos> Productos { get; set; }
 
+    public virtual DbSet<Proformas> Proformas { get; set; }
+
     public virtual DbSet<Proveedores> Proveedores { get; set; }
 
     public virtual DbSet<Provincias> Provincias { get; set; }
@@ -52,6 +56,8 @@ public partial class _context : DbContext
     public virtual DbSet<PuntoEmisiones> PuntoEmisiones { get; set; }
 
     public virtual DbSet<Secuenciales> Secuenciales { get; set; }
+
+    public virtual DbSet<SecuencialesProformas> SecuencialesProformas { get; set; }
 
     public virtual DbSet<TiempoFormaPagos> TiempoFormaPagos { get; set; }
 
@@ -71,7 +77,8 @@ public partial class _context : DbContext
 
     public virtual DbSet<Usuarios> Usuarios { get; set; }
 
-    
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        => optionsBuilder.UseNpgsql("name=cn");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -167,6 +174,7 @@ public partial class _context : DbContext
             entity.Property(e => e.Descuento)
                 .HasPrecision(8, 2)
                 .HasColumnName("descuento");
+            entity.Property(e => e.IdFactura).HasColumnName("idFactura");
             entity.Property(e => e.IdIva).HasColumnName("idIva");
             entity.Property(e => e.IdProducto).HasColumnName("idProducto");
             entity.Property(e => e.Porcentaje)
@@ -184,6 +192,11 @@ public partial class _context : DbContext
             entity.Property(e => e.ValorPorcentaje)
                 .HasPrecision(8, 2)
                 .HasColumnName("valorPorcentaje");
+
+            entity.HasOne(d => d.IdFacturaNavigation).WithMany(p => p.DetalleFacturas)
+                .HasForeignKey(d => d.IdFactura)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("detalleFacturas_idFactura_fkey");
         });
 
         modelBuilder.Entity<DetalleFormaPagos>(entity =>
@@ -251,6 +264,46 @@ public partial class _context : DbContext
             entity.HasOne(d => d.IdProductoNavigation).WithMany(p => p.DetallePrecioProductos)
                 .HasForeignKey(d => d.IdProducto)
                 .HasConstraintName("detallePrecioProductos_idProducto_fkey");
+        });
+
+        modelBuilder.Entity<DetalleProformas>(entity =>
+        {
+            entity.HasKey(e => e.IdDetalleProforma).HasName("detalleProformas_pkey");
+
+            entity.ToTable("detalleProformas");
+
+            entity.Property(e => e.IdDetalleProforma)
+                .HasDefaultValueSql("gen_random_uuid()")
+                .HasColumnName("idDetalleProforma");
+            entity.Property(e => e.Cantidad)
+                .HasPrecision(8, 2)
+                .HasColumnName("cantidad");
+            entity.Property(e => e.Descuento)
+                .HasPrecision(8, 2)
+                .HasColumnName("descuento");
+            entity.Property(e => e.IdIva).HasColumnName("idIva");
+            entity.Property(e => e.IdProducto).HasColumnName("idProducto");
+            entity.Property(e => e.IdProforma).HasColumnName("idProforma");
+            entity.Property(e => e.Porcentaje)
+                .HasPrecision(8, 2)
+                .HasColumnName("porcentaje");
+            entity.Property(e => e.Precio)
+                .HasPrecision(8, 2)
+                .HasColumnName("precio");
+            entity.Property(e => e.Subtotal)
+                .HasPrecision(8, 2)
+                .HasColumnName("subtotal");
+            entity.Property(e => e.Total)
+                .HasPrecision(8, 2)
+                .HasColumnName("total");
+            entity.Property(e => e.ValorPorcentaje)
+                .HasPrecision(8, 2)
+                .HasColumnName("valorPorcentaje");
+
+            entity.HasOne(d => d.IdProformaNavigation).WithMany(p => p.DetalleProformas)
+                .HasForeignKey(d => d.IdProforma)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("idProforma");
         });
 
         modelBuilder.Entity<DocumentosEmitir>(entity =>
@@ -428,6 +481,9 @@ public partial class _context : DbContext
                 .HasDefaultValueSql("false")
                 .HasColumnName("agenteRetencion");
             entity.Property(e => e.Ambiente).HasColumnName("ambiente");
+            entity.Property(e => e.Cambio)
+                .HasPrecision(8, 2)
+                .HasColumnName("cambio");
             entity.Property(e => e.ClaveAcceso)
                 .HasMaxLength(50)
                 .HasColumnName("claveAcceso");
@@ -475,6 +531,9 @@ public partial class _context : DbContext
             entity.Property(e => e.IdEstablecimiento).HasColumnName("idEstablecimiento");
             entity.Property(e => e.IdPuntoEmision).HasColumnName("idPuntoEmision");
             entity.Property(e => e.IdTipoEstadoDocumento).HasColumnName("idTipoEstadoDocumento");
+            entity.Property(e => e.IdTipoEstadoSri)
+                .ValueGeneratedOnAdd()
+                .HasColumnName("idTipoEstadoSri");
             entity.Property(e => e.IdUsuario).HasColumnName("idUsuario");
             entity.Property(e => e.Irbpnr)
                 .HasPrecision(8, 2)
@@ -485,6 +544,7 @@ public partial class _context : DbContext
             entity.Property(e => e.Iva12)
                 .HasPrecision(8, 2)
                 .HasColumnName("iva12");
+            entity.Property(e => e.Mensaje).HasColumnName("mensaje");
             entity.Property(e => e.Moneda)
                 .HasMaxLength(10)
                 .HasColumnName("moneda");
@@ -514,6 +574,9 @@ public partial class _context : DbContext
             entity.Property(e => e.Ruta)
                 .HasMaxLength(1000)
                 .HasColumnName("ruta");
+            entity.Property(e => e.Saldo)
+                .HasPrecision(8, 2)
+                .HasColumnName("saldo");
             entity.Property(e => e.Secuencial).HasColumnName("secuencial");
             entity.Property(e => e.Subtotal0)
                 .HasPrecision(8, 2)
@@ -532,6 +595,9 @@ public partial class _context : DbContext
             entity.Property(e => e.TotalSinImpuesto)
                 .HasPrecision(8, 2)
                 .HasColumnName("totalSinImpuesto");
+            entity.Property(e => e.ValorRecibido)
+                .HasPrecision(8, 2)
+                .HasColumnName("valorRecibido");
             entity.Property(e => e.VersionXml)
                 .HasMaxLength(10)
                 .HasColumnName("versionXml");
@@ -540,6 +606,10 @@ public partial class _context : DbContext
                 .HasForeignKey(d => d.IdTipoEstadoDocumento)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("facturas_idTipoEstadoDocumento_fkey");
+
+            entity.HasOne(d => d.IdTipoEstadoSriNavigation).WithMany(p => p.Facturas)
+                .HasForeignKey(d => d.IdTipoEstadoSri)
+                .HasConstraintName("facturas_idTipoEstadoSri_fkey");
 
             entity.HasOne(d => d.IdUsuarioNavigation).WithMany(p => p.Facturas)
                 .HasForeignKey(d => d.IdUsuario)
@@ -702,6 +772,74 @@ public partial class _context : DbContext
                 .HasConstraintName("productos_idIva_fkey");
         });
 
+        modelBuilder.Entity<Proformas>(entity =>
+        {
+            entity.HasKey(e => e.IdProforma).HasName("proformas_pkey");
+
+            entity.ToTable("proformas");
+
+            entity.Property(e => e.IdProforma)
+                .HasDefaultValueSql("gen_random_uuid()")
+                .HasColumnName("idProforma");
+            entity.Property(e => e.Ambiente).HasColumnName("ambiente");
+            entity.Property(e => e.Establecimiento).HasColumnName("establecimiento");
+            entity.Property(e => e.FechaRegistro)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("fechaRegistro");
+            entity.Property(e => e.IdEstablecimiento).HasColumnName("idEstablecimiento");
+            entity.Property(e => e.IdPuntoEmision).HasColumnName("idPuntoEmision");
+            entity.Property(e => e.IdUsuario).HasColumnName("idUsuario");
+            entity.Property(e => e.Moneda)
+                .HasMaxLength(10)
+                .HasColumnName("moneda");
+            entity.Property(e => e.PuntoEmision).HasColumnName("puntoEmision");
+            entity.Property(e => e.ReceptorCorreo)
+                .HasMaxLength(400)
+                .HasColumnName("receptorCorreo");
+            entity.Property(e => e.ReceptorDireccion)
+                .HasMaxLength(500)
+                .HasColumnName("receptorDireccion");
+            entity.Property(e => e.ReceptorRazonSocial)
+                .HasMaxLength(500)
+                .HasColumnName("receptorRazonSocial");
+            entity.Property(e => e.ReceptorRuc)
+                .HasMaxLength(20)
+                .HasColumnName("receptorRuc");
+            entity.Property(e => e.ReceptorTelefono)
+                .HasMaxLength(30)
+                .HasColumnName("receptorTelefono");
+            entity.Property(e => e.ReceptorTipoIdentificacion).HasColumnName("receptorTipoIdentificacion");
+            entity.Property(e => e.Secuencial).HasColumnName("secuencial");
+            entity.Property(e => e.Subtotal12)
+                .HasPrecision(8, 2)
+                .HasColumnName("subtotal12");
+            entity.Property(e => e.TotalDescuento)
+                .HasPrecision(8, 2)
+                .HasColumnName("totalDescuento");
+            entity.Property(e => e.TotalImporte)
+                .HasPrecision(8, 2)
+                .HasColumnName("totalImporte");
+            entity.Property(e => e.TotalSinImpuesto)
+                .HasPrecision(8, 2)
+                .HasColumnName("totalSinImpuesto");
+
+            entity.HasOne(d => d.IdEstablecimientoNavigation).WithMany(p => p.Proformas)
+                .HasForeignKey(d => d.IdEstablecimiento)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("proformas_idEstablecimiento_fkey");
+
+            entity.HasOne(d => d.IdPuntoEmisionNavigation).WithMany(p => p.Proformas)
+                .HasForeignKey(d => d.IdPuntoEmision)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("proformas_idPuntoEmision_fkey");
+
+            entity.HasOne(d => d.IdUsuarioNavigation).WithMany(p => p.Proformas)
+                .HasForeignKey(d => d.IdUsuario)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("proformas_idUsuario_fkey");
+        });
+
         modelBuilder.Entity<Proveedores>(entity =>
         {
             entity.HasKey(e => e.IdProveedor).HasName("proveedores_pkey");
@@ -840,6 +978,35 @@ public partial class _context : DbContext
             entity.HasOne(d => d.IdTipoDocumentoNavigation).WithMany(p => p.Secuenciales)
                 .HasForeignKey(d => d.IdTipoDocumento)
                 .HasConstraintName("secuenciales_idTipoDocumento_fkey");
+        });
+
+        modelBuilder.Entity<SecuencialesProformas>(entity =>
+        {
+            entity.HasKey(e => e.IdSecuencialesProforma).HasName("secuencialesProformas_pkey");
+
+            entity.ToTable("secuencialesProformas");
+
+            entity.Property(e => e.IdSecuencialesProforma)
+                .HasDefaultValueSql("gen_random_uuid()")
+                .HasColumnName("idSecuencialesProforma");
+            entity.Property(e => e.Activo)
+                .HasDefaultValueSql("true")
+                .HasColumnName("activo");
+            entity.Property(e => e.FechaRegistro)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("fechaRegistro");
+            entity.Property(e => e.IdEmpresa).HasColumnName("idEmpresa");
+            entity.Property(e => e.IdTipoDocumento).HasColumnName("idTipoDocumento");
+            entity.Property(e => e.Nombre).HasColumnName("nombre");
+
+            entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.SecuencialesProformas)
+                .HasForeignKey(d => d.IdEmpresa)
+                .HasConstraintName("secuencialesProformas_idEmpresa_fkey");
+
+            entity.HasOne(d => d.IdTipoDocumentoNavigation).WithMany(p => p.SecuencialesProformas)
+                .HasForeignKey(d => d.IdTipoDocumento)
+                .HasConstraintName("secuencialesProformas_idTipoDocumento_fkey");
         });
 
         modelBuilder.Entity<TiempoFormaPagos>(entity =>

@@ -7,6 +7,7 @@ using Gestion_Administrativa_Api.Interfaces.Sri;
 using Gestion_Administrativa_Api.Interfaces.Utilidades;
 using Gestion_Administrativa_Api.Models;
 using Gestion_Administrativa_Api.Repository;
+using Gestion_Administrativa_Api.Utilities;
 using IdentityServer4.Models;
 using IdentityServer4.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -25,7 +26,7 @@ using static Gestion_Administrativa_Api.Repository.IUserRepository;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
+Tools.Initialize(builder.Configuration, builder.Environment);
 SigningCredentials CreateSigningCredential()
 {
     var credentials = new SigningCredentials(GetSecurityKey(), SecurityAlgorithms.RsaSha256);
@@ -41,14 +42,11 @@ SecurityKey GetSecurityKey()
     return new RsaSecurityKey(GetRSACryptoServiceProvider());
 }
 
-
-
 IConfiguration config = new ConfigurationBuilder()
       .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
       .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json", optional: true, reloadOnChange: true)
       .AddEnvironmentVariables()
       .Build();
-
 
 builder.Services.AddDbContext<_context>(options =>
 options.UseNpgsql(config.GetConnectionString("cn")));
@@ -83,8 +81,6 @@ IMapper mapper = mapperConfig.CreateMapper();
 builder.Services.AddSingleton(mapper);
 
 
-
-
 builder.Services.AddControllers().AddJsonOptions(x =>
                 x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
@@ -101,7 +97,6 @@ builder.Services.AddCors(options =>
     options.AddPolicy("cors", builder =>
     {
         builder
-
              .AllowAnyOrigin()
              .AllowAnyMethod()
              .AllowAnyHeader();
@@ -120,7 +115,7 @@ builder.Services.AddAuthentication(options =>
 {
     options.Authority = config.GetConnectionString("IdentityServerAuthentication");
     options.RequireHttpsMetadata = false;
-    options.JwtValidationClockSkew = TimeSpan.Zero;
+    options.JwtValidationClockSkew = TimeSpan.FromHours(5);
 });
 
 
@@ -148,14 +143,13 @@ builder.Services.AddTransient<IUtilidades, UtilidadesI>();
 
 
 
+
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddWkhtmltopdf();
 var app = builder.Build();
-string wwwroot = app.Environment.WebRootPath;
-RotativaConfiguration.Setup(wwwroot,"Rotativa/Windows");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -171,4 +165,7 @@ app.UseAuthorization();
 app.UseIdentityServer();
 app.MapControllers();
 app.UseCors("cors");
+string wwwroot = app.Environment.WebRootPath;
+RotativaConfiguration.Setup(wwwroot, "Rotativa/Windows");
+//RotativaConfiguration.Setup(app.Environment.WebRootPath);
 app.Run();

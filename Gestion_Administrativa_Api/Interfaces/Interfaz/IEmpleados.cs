@@ -74,7 +74,8 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
             {
 
                 var cliente = _mapper.Map<Empleados>(_clientes);
-
+                cliente.Activo = true;
+                cliente.FechaRegistro = DateTime.Now;
                 var repetido = await comprobarRepetido(cliente);
 
                 if (repetido == true)
@@ -112,6 +113,9 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
 
 
                 var consulta = await _context.Empleados.FindAsync(_clientes.IdEmpleado);
+                _clientes.IdEmpresa = consulta.IdEmpresa;
+                _clientes.FechaRegistro = consulta.FechaRegistro;
+                _clientes.Activo = consulta.Activo;
                 var map = _mapper.Map(_clientes, consulta);
                 _mapper.Map(_clientes, consulta);
                 _context.Update(consulta);

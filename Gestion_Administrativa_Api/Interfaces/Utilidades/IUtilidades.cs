@@ -1,7 +1,9 @@
 ﻿using FirmaXadesNetCore;
 using FirmaXadesNetCore.Crypto;
 using FirmaXadesNetCore.Signature.Parameters;
+using Gestion_Administrativa_Api.Dtos.Interfaz;
 using Gestion_Administrativa_Api.Models;
+using Gestion_Administrativa_Api.Utilities;
 using IdentityServer4.Models;
 using System.Net;
 using System.Net.Mail;
@@ -16,8 +18,8 @@ namespace Gestion_Administrativa_Api.Interfaces.Utilidades
     {
         Task<string> modulo11(string claveAcceso);
         Task<string> claveAcceso(Facturas? _factura);
-        Task<bool> firmar(string claveAcceso, string codigo, string rutaFirma, XDocument documento);
-        Task<object?> envioXmlSRI(string? claveAcceso, string? documentoProcesado);
+        Task<bool> firmar(string claveAcceso, string codigo, string rutaFirma, XDocument documento, Guid idEmpresa);
+        Task<object?> envioXmlSRI(string? claveAcceso, string? documentoProcesado,string ruta);
         Task<bool> envioCorreo(string email, byte[] archivo, string nombreArchivo);
     }
 
@@ -143,7 +145,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Utilidades
 
 
 
-        public async Task<bool> firmar(string claveAcceso, string codigo, string rutaFirma, XDocument documento)
+        public async Task<bool> firmar(string claveAcceso, string codigo, string rutaFirma, XDocument documento,Guid idEmpresa)
         {
             try
             {
@@ -166,7 +168,8 @@ namespace Gestion_Administrativa_Api.Interfaces.Utilidades
                     }
                     memoryStream.Position = 0;
                     FirmaXadesNetCore.Signature.SignatureDocument docFirmado = xadesService.Sign(memoryStream, parametros);
-                    docFirmado.Save($"{_configuration["Pc:disco"]}\\Facturacion\\XmlFirmados\\{claveAcceso}.xml");
+                    var ruta = $"{Tools.rootPath}/Facturacion/XML_FIRMADOS/{idEmpresa}/{claveAcceso}.xml";
+                    docFirmado.Save(ruta);
                 }
 
                 return true;
@@ -219,11 +222,11 @@ namespace Gestion_Administrativa_Api.Interfaces.Utilidades
 
 
 
-            public async Task<object?> envioXmlSRI(string? claveAcceso, string? documentoProcesado)
+            public async Task<object?> envioXmlSRI(string? claveAcceso, string? documentoProcesado,string ruta)
         {
 
-
-            var RutaFirmados = $"{_configuration["Pc:disco"]}\\Facturacion\\XmlFirmados\\{claveAcceso}.xml";
+            
+            var RutaFirmados = $"{Tools.rootPath}{ruta}";
 
             StreamReader stream = new StreamReader(RutaFirmados);
             string linea = stream.ReadToEnd();

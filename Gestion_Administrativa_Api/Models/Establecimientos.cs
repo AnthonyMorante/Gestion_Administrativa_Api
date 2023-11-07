@@ -22,4 +22,6 @@ public partial class Establecimientos
     public string? Direccion { get; set; }
 
     public virtual Empresas? IdEmpresaNavigation { get; set; }
+
+    public virtual ICollection<Proformas> Proformas { get; set; } = new List<Proformas>();
 }

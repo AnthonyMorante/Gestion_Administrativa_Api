@@ -24,4 +24,8 @@ public partial class DetalleFacturas
     public decimal? Subtotal { get; set; }
 
     public decimal? Total { get; set; }
+
+    public Guid IdFactura { get; set; }
+
+    public virtual Facturas IdFacturaNavigation { get; set; } = null!;
 }
