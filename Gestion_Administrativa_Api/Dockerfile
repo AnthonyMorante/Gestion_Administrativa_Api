@@ -25,7 +25,6 @@ RUN dotnet publish -c Release -o out
 
 
 
-
 FROM base as final
 WORKDIR /App
 COPY --from=build-env /App/out .
