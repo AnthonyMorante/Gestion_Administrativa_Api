@@ -1,3 +1,7 @@
+# This workflow will build a .NET project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
+
+
 name: pro-actions
 
 on:
@@ -16,15 +20,15 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
-          dotnet-version: 6.0.x
+        dotnet-version: 6.0.x
     - name: Restore dependencies
       run: dotnet restore
-    - name: Build
+    - name: Test
       run: dotnet build --no-restore
-    - name: Production
-      run: dotnet test --no-build --verbosity normal    
+    - name: Test
+      run: dotnet test --no-build --verbosity normal
     - name: ls dir
-      run: ls ./Gestion_Administrativa_Api/bin
+      run: ls ./api-core-firma/bin
     - uses: docker/login-action@v2.1.0
       if: ${{ github.event_name == 'push' }}
       with:
@@ -36,11 +40,11 @@ jobs:
     - uses: docker/build-push-action@v3.2.0
       if: ${{ github.event_name == 'push' }}
       env:
-        ASPNETCORE_ENVIRONMENT: Production
+        ASPNETCORE_ENVIRONMENT: Test
       with:
-        context: ./Gestion_Administrativa_Api
+        context: ./api-core-firma
         push: true
-        tags: registry.digitalocean.com/geafe/gestion-administrativa-api:${{ github.sha }}, registry.digitalocean.com/geafe/gestion-administrativa-api:latest-pro
+        tags: registry.digitalocean.com/intuitosa/gestion_administrativa_api:${{ github.sha }}, registry.digitalocean.com/intuitosa/gestion_administrativa_api:latest-pro
     - name: Image digest
       if: ${{ github.event_name == 'push' }}
       run: echo ${{ steps.docker_build.outputs.digest }}
