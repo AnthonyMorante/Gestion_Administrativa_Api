@@ -22,7 +22,7 @@ RUN dotnet publish -c Release -o out
 FROM base as final
 WORKDIR /App
 COPY --from=build-env /App/out .
-COPY Rotativa ./wwwroot/Rotativa
+COPY Rotativa wwwroot/Rotativa
 ENV TZ="America/Bogota"
 ENV DOTNET_System_Drawing_EnableUnixSupport=true
 RUN chmod -R 777 ./Rotativa
