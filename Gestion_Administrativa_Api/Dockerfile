@@ -13,6 +13,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends apt-utils fontc
 
 FROM mcr.microsoft.com/dotnet/sdk:7.0-jammy AS build-env
 WORKDIR /App
+EXPOSE 80
 
 # Copy everything
 COPY . ./
