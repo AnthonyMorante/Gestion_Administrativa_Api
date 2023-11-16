@@ -84,6 +84,26 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
         }
 
         [HttpGet]
+        public async Task<IActionResult> listarPrecios()
+        {
+            try
+            {
+                var idEmpresa = new Guid(Tools.getIdEmpresa(HttpContext));
+                string sql = @"SELECT * FROM ""detallePrecioProductos""
+                                WHERE ""idProducto"" in(
+                                SELECT ""idProducto"" FROM ""productos"" 
+                                WHERE ""idEmpresa""=uuid(@idEmpresa)
+                                )";
+                return Ok(await _dapper.QueryAsync(sql, new { idEmpresa }));
+            }
+            catch (Exception ex)
+            {
+
+                return Tools.handleError(ex);
+            }
+        }
+
+        [HttpGet]
         [Route("{idProducto}")]
         public async Task<IActionResult> activar(Guid idProducto)
         {
