@@ -33,6 +33,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             {
                 _producto.IdEmpresa = new Guid(Tools.getIdEmpresa(HttpContext));
                 var producto = await _context.Productos.AsNoTracking().Where(x => x.IdProducto == _producto.IdProducto).FirstOrDefaultAsync();
+                if ((await _context.Productos.AsNoTracking().Where(x => x.Codigo == _producto.Codigo && x.IdProducto != _producto.IdProducto).CountAsync() > 0)) throw new Exception("Ya existe un producto con el mismo código.");
                 if (producto != null)
                 {
                     _producto.Activo = producto.Activo;
