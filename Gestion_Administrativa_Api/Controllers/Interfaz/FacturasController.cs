@@ -283,7 +283,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             {
                 var idEmpresa = Tools.getIdEmpresa(HttpContext);
                 string sql = @"SELECT p.""idProducto"", p.codigo, p.nombre, p.descripcion, p.activo,
-                                TRUNC((dt.""totalIva""+total)/ (1+i.""valor""),2) AS ""precio"",
+                                ROUND((dt.""totalIva""+total)/ (1+i.""valor""),2) AS ""precio"",
                                 p.""fechaRegistro"", dt.""idIva"", ""idEmpresa"", ""activoProducto"", dt.""totalIva""+dt.total AS ""totalIva"", cantidad,
                                 i.valor AS ""iva"",i.nombre AS ""nombreIva"" ,i.""descripcion"" as ""tarifaPorcentaje""
                                 FROM productos p
@@ -312,7 +312,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             {
                 var idEmpresa = Tools.getIdEmpresa(HttpContext);
                 string sql = @" SELECT ""idDetallePrecioProducto"",dp.""idProducto"",p.""nombre"" AS ""producto"",
-                                p.""codigo"" AS ""codigoProducto"",TRUNC((dp.""totalIva""+total)/ (1+i.""valor""),2) AS ""precio"",
+                                p.""codigo"" AS ""codigoProducto"",ROUND((dp.""totalIva""+total)/ (1+i.""valor""),2) AS ""precio"",
                                 i.""codigo"" AS ""codigoIva"",
                                 i.""idIva"",i.""nombre"" AS ""nombreIva"",i.""valor"" as iva,i.""descripcion"" as ""tarifaPorcentaje""
                                 FROM ""detallePrecioProductos"" dp
