@@ -399,7 +399,6 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                         var content = new StringContent(xml, Encoding.ASCII, "text/xml");
                         var httpClient = new HttpClient();
                         var peticion = await httpClient.PostAsync(Tools.config["SRI:urlEstado"], content);
-                        //var peticionTask = _httpClient.PostAsync(_configuration["SRI:urlEnvioComprobantes"], content);
                         peticion.EnsureSuccessStatusCode();
                         var consulta = await peticion.Content.ReadAsStringAsync();
                         foreach (var estado in listaEstados)
