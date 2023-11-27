@@ -430,7 +430,7 @@ namespace Gestion_Administrativa_Api.Utilities
             var recordsTotal = await _dapper.ExecuteScalarAsync<int>(sql, parameters);
             //Total Filtrado
             sql = $@" SELECT COUNT(*) FROM (
-                            SELECT ROW_NUMBER() over(order by UPPER(REPLACE(regexp_replace(CAST({orderBy} AS varchar),'\t|\n|\r|\s',''),' ','')) {orderDirection}) as row,* from(
+                            SELECT ROW_NUMBER() over(order by UPPER(REPLACE(regexp_replace(CAST(""{orderBy}"" AS varchar),'\t|\n|\r|\s',''),' ','')) {orderDirection}) as row,* from(
                             {_dataParams.query}
                             ) as t_t_t_jclc {filtro}
                             ) as t_t_t_jclc_tf
