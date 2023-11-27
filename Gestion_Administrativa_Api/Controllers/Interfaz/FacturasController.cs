@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
-using System.Linq;
+using System.Text;
 using static Gestion_Administrativa_Api.Documents_Models.Factura.factura_V100;
 
 namespace Gestion_Administrativa_Api.Controllers.Interfaz
@@ -71,8 +71,8 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                 string sql = @" SELECT ""nombre"",""idTipoDocumento"" FROM secuenciales
                                 WHERE ""activo""= TRUE
                                 AND ""idEmpresa""=uuid(@idEmpresa)
-                                UNION ALL 
-                                SELECT nombre,""idTipoDocumento"" FROM ""secuencialesProformas"" 
+                                UNION ALL
+                                SELECT nombre,""idTipoDocumento"" FROM ""secuencialesProformas""
                                 WHERE ""activo""= TRUE
                                 AND ""idEmpresa""=uuid(@idEmpresa)
                                 ";
@@ -113,22 +113,23 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             var empresa = await _context.Clientes.AsNoTracking().Where(x => x.IdEmpresa == _facturaDto.idEmpresa).FirstOrDefaultAsync();
             string sql = @"SELECT * FROM ""clientes"" WHERE ""identificacion""=@identificacion AND ""idEmpresa""=uuid(@idEmpresa)";
             string ciudadDefecto = "Pelileo";
-            var cliente = await _dapper.QueryFirstOrDefaultAsync<Clientes>(sql,_facturaDto);
-            if (cliente == null){
-                cliente= new Clientes();
-                sql = $@"SELECT ""idCiudad"" 
+            var cliente = await _dapper.QueryFirstOrDefaultAsync<Clientes>(sql, _facturaDto);
+            if (cliente == null)
+            {
+                cliente = new Clientes();
+                sql = $@"SELECT ""idCiudad""
                         FROM ""ciudades""
                         WHERE upper(""nombre"") LIKE '%{ciudadDefecto.ToUpper()}%'
-                        AND ""activo""=TRUE  
+                        AND ""activo""=TRUE
                         LIMIT 1";
                 cliente.IdCiudad = await _dapper.ExecuteScalarAsync<Guid>(sql);
                 _facturaDto.idCiudad = Tools.toGuid(cliente.IdCiudad);
                 cliente.Activo = true;
-                cliente.IdTipoIdentificacion=_facturaDto.idTipoIdenticacion;
+                cliente.IdTipoIdentificacion = _facturaDto.idTipoIdenticacion;
                 cliente.RazonSocial = _facturaDto.razonSocial;
                 cliente.FechaRegistro = DateTime.Now;
                 cliente.Direccion = _facturaDto.direccion;
-                cliente.Identificacion= _facturaDto.identificacion;
+                cliente.Identificacion = _facturaDto.identificacion;
                 cliente.Telefono = _facturaDto.telefono;
                 cliente.Email = _facturaDto.email;
                 cliente.IdEmpresa = _facturaDto.idEmpresa;
@@ -136,7 +137,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             }
             else
             {
-                cliente=await _context.Clientes.Where(x=>x.IdEmpresa==_facturaDto.idEmpresa && x.Identificacion==_facturaDto.identificacion).FirstOrDefaultAsync();
+                cliente = await _context.Clientes.Where(x => x.IdEmpresa == _facturaDto.idEmpresa && x.Identificacion == _facturaDto.identificacion).FirstOrDefaultAsync();
                 cliente.RazonSocial = _facturaDto.razonSocial;
                 cliente.Direccion = _facturaDto.direccion;
                 cliente.Telefono = _facturaDto.telefono;
@@ -147,19 +148,19 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
 
             await _context.SaveChangesAsync();
             _facturaDto.idCliente = cliente.IdCliente;
-            _facturaDto.idDocumentoEmitir=(await _context.DocumentosEmitir.AsNoTracking().Where(x=>x.IdTipoDocumento==_facturaDto.idTipoDocumento).FirstOrDefaultAsync()).IdDocumentoEmitir;
-            sql = @"SELECT ""nombre"" 
-                        FROM ""establecimientos"" 
+            _facturaDto.idDocumentoEmitir = (await _context.DocumentosEmitir.AsNoTracking().Where(x => x.IdTipoDocumento == _facturaDto.idTipoDocumento).FirstOrDefaultAsync()).IdDocumentoEmitir;
+            sql = @"SELECT ""nombre""
+                        FROM ""establecimientos""
                         WHERE ""idEstablecimiento""=uuid(@idEstablecimiento)
                         ";
             _facturaDto.establecimiento = Convert.ToInt32(await _dapper.ExecuteScalarAsync<string>(sql, _facturaDto)).ToString("D3");
-            sql = @"SELECT ""nombre"" 
-                    FROM ""puntoEmisiones""  
+            sql = @"SELECT ""nombre""
+                    FROM ""puntoEmisiones""
                     WHERE ""idPuntoEmision""=uuid(@idPuntoEmision)
                     ";
             _facturaDto.puntoEmision = Convert.ToInt32(await _dapper.ExecuteScalarAsync<string>(sql, _facturaDto)).ToString("D3");
-            sql = @"SELECT ""nombre"" 
-                    FROM ""secuenciales"" 
+            sql = @"SELECT ""nombre""
+                    FROM ""secuenciales""
                     WHERE ""idEmpresa""=uuid(@idEmpresa)
                     ";
             _facturaDto.secuencial = Convert.ToInt32(await _dapper.ExecuteScalarAsync<string>(sql, _facturaDto)).ToString("D9");
@@ -168,11 +169,9 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             sql = @"SELECT codigo FROM clientes c
                    INNER JOIN ""tipoIdentificaciones"" ti ON ti.""idTipoIdentificacion""=c.""idTipoIdentificacion""
                    WHERE ""idCliente""=uuid(@idCliente);";
-            _facturaDto.codigoTipoIdentificacion=await _dapper.ExecuteScalarAsync<int>(sql, _facturaDto);
+            _facturaDto.codigoTipoIdentificacion = await _dapper.ExecuteScalarAsync<int>(sql, _facturaDto);
             return _facturaDto;
-        } 
-
-
+        }
 
         [AllowAnonymous]
         [HttpGet]
@@ -234,7 +233,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                 string sql = @"SELECT * FROM ""establecimientos""
                                 WHERE ""idEmpresa""=uuid(@idEmpresa)
                                 ORDER BY NOT predeterminado;
-                                
+
                             ";
                 return Ok(await _dapper.QueryAsync(sql, new { idEmpresa }));
             }
@@ -243,12 +242,13 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                 return Problem(ex.Message);
             }
         }
+
         [HttpGet]
         public async Task<IActionResult> formaPagos()
         {
             try
             {
-                string sql = @"SELECT * FROM ""formaPagos"" 
+                string sql = @"SELECT * FROM ""formaPagos""
                                WHERE ""activo""=true
                                ORDER BY codigo;
                             ";
@@ -259,6 +259,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                 return Problem(ex.Message);
             }
         }
+
         [HttpGet]
         public async Task<IActionResult> tiempoFormaPagos()
         {
@@ -274,7 +275,6 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                 return Problem(ex.Message);
             }
         }
-        
 
         [HttpGet]
         public async Task<IActionResult> listaProductos()
@@ -282,12 +282,20 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             try
             {
                 var idEmpresa = Tools.getIdEmpresa(HttpContext);
-                string sql = @"SELECT p.*,v.valor AS ""iva"",v.nombre AS ""nombreIva"" ,v.""descripcion"" as ""tarifaPorcentaje""
-                                FROM ""productos"" p
-                                INNER JOIN ""ivas"" v ON v.""idIva""= p.""idIva""	
+                string sql = @"SELECT p.""idProducto"", p.codigo, p.nombre, p.descripcion, p.activo,
+                                TRUNC((dt.""totalIva""+total)/ (1+i.""valor""),2) AS ""precio"",
+                                p.""fechaRegistro"", dt.""idIva"", ""idEmpresa"", ""activoProducto"", dt.""totalIva""+dt.total AS ""totalIva"", cantidad,
+                                i.valor AS ""iva"",i.nombre AS ""nombreIva"" ,i.""descripcion"" as ""tarifaPorcentaje""
+                                FROM productos p
+                                INNER JOIN ""detallePrecioProductos"" dt ON dt.""idProducto"" =p.""idProducto""
+                                INNER JOIN ""ivas"" i ON i.""idIva"" = dt.""idIva""
+                                AND dt.""idDetallePrecioProducto"" in(SELECT ""idDetallePrecioProducto"" FROM ""detallePrecioProductos"" dpp
+                                WHERE dpp.""idProducto""=dt.""idProducto""
+                                ORDER BY dpp.""fechaRegistro"" ASC
+                                LIMIT 1)
                                 WHERE p.""activo""=TRUE
-                                AND ""idEmpresa""=uuid(@idEmpresa)
-                                ORDER BY ""nombre""; 
+                                AND p.""idEmpresa""=uuid(@idEmpresa)
+                                ORDER BY UPPER(REPLACE(regexp_replace(CAST(p.""nombre"" AS varchar),'\t|\n|\r|\s',''),' ',''));
                             ";
                 return Ok(await _dapper.QueryAsync(sql, new { idEmpresa }));
             }
@@ -297,23 +305,19 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             }
         }
 
-
         [HttpGet]
         public async Task<IActionResult> listaPreciosProductos()
         {
             try
             {
                 var idEmpresa = Tools.getIdEmpresa(HttpContext);
-                string sql = @"SELECT p.""idProducto"" as""idDetallePrecioProducto"",""idProducto"",p.""nombre"" AS ""producto"",p.""codigo"" AS ""codigoProducto"",""precio"",i.codigo AS ""codigoIva"",i.""idIva"",i.""nombre"" AS ""nombreIva"",i.""valor"" as iva,i.""descripcion"" as ""tarifaPorcentaje""
-                                FROM productos p
-                                INNER JOIN ivas i ON i.""idIva"" = p.""idIva"" 
-                                WHERE p.""activo"" = true 
-                                AND p.""idEmpresa""=uuid(@idEmpresa)
-                                UNION ALL 
-                                SELECT ""idDetallePrecioProducto"",dp.""idProducto"",p.""nombre"" AS ""producto"",p.""codigo"" AS ""codigoProducto"",dp.""totalIva"" AS ""precio"",i.""codigo"" AS ""codigoIva"",i.""idIva"",i.""nombre"" AS ""nombreIva"",i.""valor"" as iva,i.""descripcion"" as ""tarifaPorcentaje""
+                string sql = @" SELECT ""idDetallePrecioProducto"",dp.""idProducto"",p.""nombre"" AS ""producto"",
+                                p.""codigo"" AS ""codigoProducto"",TRUNC((dp.""totalIva""+total)/ (1+i.""valor""),2) AS ""precio"",
+                                i.""codigo"" AS ""codigoIva"",
+                                i.""idIva"",i.""nombre"" AS ""nombreIva"",i.""valor"" as iva,i.""descripcion"" as ""tarifaPorcentaje""
                                 FROM ""detallePrecioProductos"" dp
-                                INNER JOIN ""productos"" p ON dp.""idProducto"" = p.""idProducto"" 
-                                INNER JOIN ""ivas"" i ON i.""idIva"" = dp.""idIva""  
+                                INNER JOIN ""productos"" p ON dp.""idProducto"" = p.""idProducto""
+                                INNER JOIN ""ivas"" i ON i.""idIva"" = dp.""idIva""
                                 WHERE p.""activo"" =TRUE AND dp.""activo""=true
                                 AND p.""idEmpresa""=uuid(@idEmpresa)
 
@@ -325,27 +329,102 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                 return Problem(ex.Message);
             }
         }
+
         [HttpGet]
         [Route("{identificacion}")]
         public async Task<IActionResult> buscarCliente(string identificacion)
         {
             try
             {
-                var idEmpresa= Tools.getIdEmpresa(HttpContext);
+                var idEmpresa = Tools.getIdEmpresa(HttpContext);
                 string sql = @"SELECT * FROM ""clientes""
                             WHERE ""identificacion""=@identificacion
                             AND ""idEmpresa""=uuid(@idEmpresa);
                             ";
-                return Ok(await _dapper.QueryFirstOrDefaultAsync(sql, new { idEmpresa,identificacion }));
+                return Ok(await _dapper.QueryFirstOrDefaultAsync(sql, new { idEmpresa, identificacion }));
             }
             catch (Exception ex)
             {
-
                 return Problem(ex.Message);
             }
         }
-        
 
-
+        [HttpGet]
+        public async Task<IActionResult> verificarEstados()
+        {
+            try
+            {
+                var idEmpresa = Tools.getIdEmpresa(HttpContext);
+                string sql = @"SELECT ""claveAcceso""
+                              FROM facturas f
+                              INNER JOIN establecimientos e ON e.""idEstablecimiento"" = f.""idEstablecimiento""
+                              WHERE ""idTipoEstadoSri"" IN (1,6)
+                              AND ""idEmpresa""=uuid(@idEmpresa)
+                            ;
+                            ";
+                var lista = await _dapper.QueryAsync<string>(sql, new { idEmpresa });
+                if (lista.Count() == 0) return Ok("empty");
+                var listaEstados = new List<dynamic>();
+                listaEstados.Add(new
+                {
+                    estado = "<estado>NO AUTORIZADO</estado>",
+                    codigo = 3
+                });
+                listaEstados.Add(new
+                {
+                    estado = "<estado>AUTORIZADO</estado>",
+                    codigo = 2
+                });                
+                listaEstados.Add(new
+                {
+                    estado = "<numeroComprobantes>0</numeroComprobantes>",
+                    codigo = 0
+                });
+                string sqlA = "";
+                foreach (var claveAcceso in lista)
+                {
+                    var xml = $@"
+                                    <soapenv:Envelope xmlns:soapenv=""http://schemas.xmlsoap.org/soap/envelope/"" xmlns:ec=""http://ec.gob.sri.ws.autorizacion"">
+                                       <soapenv:Header/>
+                                       <soapenv:Body>
+                                          <ec:autorizacionComprobante>
+                                             <!--Optional:-->
+                                             <claveAccesoComprobante>{claveAcceso}</claveAccesoComprobante>
+                                          </ec:autorizacionComprobante>
+                                       </soapenv:Body>
+                                    </soapenv:Envelope>
+                                    ";
+                    try
+                    {
+                        var content = new StringContent(xml, Encoding.ASCII, "text/xml");
+                        var httpClient = new HttpClient();
+                        var peticion = await httpClient.PostAsync(Tools.config["SRI:urlEstado"], content);
+                        //var peticionTask = _httpClient.PostAsync(_configuration["SRI:urlEnvioComprobantes"], content);
+                        peticion.EnsureSuccessStatusCode();
+                        var consulta = await peticion.Content.ReadAsStringAsync();
+                        foreach (var estado in listaEstados)
+                        {
+                            if (consulta.Contains(estado.estado))
+                            {
+                                sqlA += $@"UPDATE facturas SET ""idTipoEstadoSri""={estado.codigo}
+                                    WHERE ""claveAcceso"" = '{claveAcceso}';
+                                    ";
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        await Console.Out.WriteLineAsync(ex.Message);
+                        continue;
+                    }
+                }
+                if (sqlA != "") await _dapper.ExecuteAsync(sqlA);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
+        }
     }
 }
