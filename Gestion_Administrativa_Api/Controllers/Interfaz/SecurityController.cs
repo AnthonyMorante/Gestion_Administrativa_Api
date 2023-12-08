@@ -8,21 +8,8 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
     [ApiController]
     public class SecurityController : ControllerBase
     {
-        [AllowAnonymous]
+        [Authorize]
         [HttpGet]
-        public IActionResult validateToken()
-        {
-            try
-            {
-                if (!User.IsAuthenticated()) throw new Exception("La sesión ha caducado");
-                return Ok();
-
-            }
-            catch (Exception ex)
-            {
-                return Unauthorized(ex.Message);
-            }
-
-        }
+        public IActionResult validateToken() => Ok();
     }
 }
