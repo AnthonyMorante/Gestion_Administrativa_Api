@@ -52,7 +52,7 @@ builder.Services.AddDbContext<_context>(options =>
 options.UseNpgsql(config.GetConnectionString("cn")));
 
 
-builder.Services.AddTransient<IDbConnection>(db => new NpgsqlConnection(
+builder.Services.AddScoped<IDbConnection>(db => new NpgsqlConnection(
 config.GetConnectionString("cn")));
 
 
@@ -148,7 +148,7 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-//builder.Services.AddWkhtmltopdf();
+builder.Services.AddWkhtmltopdf();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
