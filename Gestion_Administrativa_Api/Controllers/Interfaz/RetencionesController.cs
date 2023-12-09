@@ -14,13 +14,13 @@ namespace Gestion_Administrativa_Api.Controllers
     {
 
 
-        private readonly IFacturas _IFacturas;
+        private readonly IRetenciones _IRetenciones;
         private readonly IDbConnection _dapper;
         private readonly _context _context;
 
-        public RetencionesController(IFacturas IFacturas, IDbConnection db, _context context)
+        public RetencionesController(IRetenciones IRetenciones, IDbConnection db, _context context)
         {
-            _IFacturas = IFacturas;
+            _IRetenciones = IRetenciones;
             _dapper = db;
             _context = context;
         }
