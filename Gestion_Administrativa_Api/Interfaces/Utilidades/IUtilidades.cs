@@ -19,7 +19,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Utilidades
         Task<string> modulo11(string claveAcceso);
         Task<string> claveAcceso(Facturas? _factura);
         Task<bool> firmar(string claveAcceso, string codigo, string rutaFirma, XDocument documento, Guid idEmpresa);
-        Task<object?> envioXmlSRI(string? claveAcceso, string? documentoProcesado,string ruta);
+        Task<object?> envioXmlSRI(string? claveAcceso, string? documentoProcesado, string ruta);
         Task<bool> envioCorreo(string email, byte[] archivo, string nombreArchivo);
     }
 
@@ -145,7 +145,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Utilidades
 
 
 
-        public async Task<bool> firmar(string claveAcceso, string codigo, string rutaFirma, XDocument documento,Guid idEmpresa)
+        public async Task<bool> firmar(string claveAcceso, string codigo, string rutaFirma, XDocument documento, Guid idEmpresa)
         {
             try
             {
@@ -187,13 +187,13 @@ namespace Gestion_Administrativa_Api.Interfaces.Utilidades
         public async Task<bool> envioCorreo(string email, byte[] archivo, string nombreArchivo)
         {
 
-           
+
 
             try
             {
 
                 MailMessage correo = new MailMessage();
-                correo.Attachments.Add((new Attachment(new MemoryStream(archivo), nombreArchivo+".pdf")));
+                correo.Attachments.Add((new Attachment(new MemoryStream(archivo), nombreArchivo + ".pdf")));
                 correo.From = new MailAddress(_configuration["EnvioCorreo:Email"]);
                 correo.To.Add(email);
                 correo.Subject = "Mega Aceros - Documento Emitido";
@@ -222,12 +222,11 @@ namespace Gestion_Administrativa_Api.Interfaces.Utilidades
 
 
 
-            public async Task<object?> envioXmlSRI(string? claveAcceso, string? documentoProcesado,string ruta)
+        public async Task<object?> envioXmlSRI(string? claveAcceso, string? documentoProcesado, string ruta)
         {
 
-            
-            var RutaFirmados = $"{Tools.rootPath}{ruta}";
 
+            var RutaFirmados = $"{Tools.rootPath}{ruta}";
             StreamReader stream = new StreamReader(RutaFirmados);
             string linea = stream.ReadToEnd();
             var xmlByte = Encoding.UTF8.GetBytes(linea);
