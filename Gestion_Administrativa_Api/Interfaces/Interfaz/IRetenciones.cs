@@ -33,8 +33,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
         {
             try
             {
-
-
+                
                 return "retenciones";
 
             }
