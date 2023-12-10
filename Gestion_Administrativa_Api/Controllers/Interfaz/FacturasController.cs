@@ -521,20 +521,18 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                                     ";
                                 if (estado.codigo==2)
                                 {
-                                    
-                                    sql = @"SELECT ""correoEnviado""  FROM facturas 
-                                            WHERE ""claveAcceso"" =@claveAcceso";
-                                    if(!(await _dapper.ExecuteScalarAsync<bool>(sql, new { claveAcceso })))
+                                    string sqlE = @"SELECT ""correoEnviado"" FROM facturas WHERE ""claveAcceso""=@claveAcceso";
+                                    if(!(await _dapper.ExecuteScalarAsync<bool>(sqlE, new { claveAcceso })))
                                     {
                                         try
                                         {
-                                            sql+= @"SELECT ""receptorCorreo""  FROM facturas 
+                                            sqlE= @"SELECT ""receptorCorreo""  FROM facturas 
                                             WHERE ""claveAcceso"" =@claveAcceso";
-                                            var email = await _dapper.ExecuteScalarAsync<string>(sql, new { claveAcceso });
+                                            var email = await _dapper.ExecuteScalarAsync<string>(sqlE, new { claveAcceso });
                                             var f100 = await _IFacturas._Factura_V1_0_0(claveAcceso);
                                             var ride = await _IFacturas.generaRide(ControllerContext, claveAcceso);
                                             await _IFacturas.enviarCorreo(email, ride, claveAcceso);
-                                            sql+= @"UPDATE facturas SET ""correoEnviado""=TRUE WHERE ""claveAcceso"" =@claveAcceso";
+                                            sqlA+= @"UPDATE facturas SET ""correoEnviado""=TRUE WHERE ""claveAcceso"" =@claveAcceso;";
                                         }
                                         catch (Exception ex)
                                         {
@@ -544,7 +542,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                                     }
                        
                                 }
-                                await _dapper.ExecuteAsync(sql, new { claveAcceso });
+                                await _dapper.ExecuteAsync(sqlA, new { claveAcceso });
                             }
                         }
                     }
