@@ -5,14 +5,15 @@ using Gestion_Administrativa_Api.Interfaces.Utilidades;
 using Gestion_Administrativa_Api.Models;
 using Gestion_Administrativa_Api.Utilities;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Rotativa.AspNetCore;
 using System.Data;
+using System.Drawing;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Serialization;
 using static Gestion_Administrativa_Api.Documents_Models.Factura.factura_V100;
+using NetBarcode;
 
 namespace Gestion_Administrativa_Api.Interfaces.Interfaz
 {
@@ -127,7 +128,13 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                     //var xmlSinFirma = await generarXml(factura.ClaveAcceso); if (xmlSinFirma == null) throw new Exception("Error al generar Documento");
                     //var xmlFirmado = await firmarXml(factura.ClaveAcceso, xmlSinFirma); if (xmlFirmado == null) throw new Exception("Error al firmar y guardar XML");
                     //var enviar = await enviarSri(factura.ClaveAcceso); if (enviar == false) throw new Exception("Error al enviar al SRI");
-                    await enviarSri(factura.ClaveAcceso);
+                    var enviadoSri=await enviarSri(factura.ClaveAcceso);
+                    if (enviadoSri == true)
+                    {
+                        string sql = @"UPDATE facturas SET ""idTipoEstadoSri""=6
+                                       WHERE ""claveAcceso"" = @claveAcceso;";
+                        await _dapper.ExecuteScalarAsync(sql,new { claveAcceso=factura.ClaveAcceso });
+                    }
                 }
 
                 return _factura_V1_0_0;
@@ -188,7 +195,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                                 INNER JOIN ""tipoDocumentos"" td ON td.""codigo"" = f.""tipoDocumento""
                                 WHERE f.""claveAcceso"" =@claveAcceso";
                 var factura = await _dapper.QueryFirstOrDefaultAsync<FacturaDto>(sql, new { claveAcceso });
-                sql= @"SELECT ""idFactura"" FROM facturas WHERE ""claveAcceso""=@claveAcceso";
+                sql = @"SELECT ""idFactura"" FROM facturas WHERE ""claveAcceso""=@claveAcceso";
                 var idFactura = await _dapper.ExecuteScalarAsync<Guid>(sql, new { claveAcceso });
                 sql = @"SELECT dfp.""idFormaPago"",
                         tfp.""idTiempoFormaPago"",
@@ -208,7 +215,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                         df.""porcentaje"" AS ""valorPorcentaje"",
                         df.total AS ""valor"",
                         i.descripcion  AS ""tarifaPorcentaje"",
-                        df.subtotal AS ""valorProductoSinIva""
+                        ROUND(df.subtotal/df.cantidad,2) AS ""valorProductoSinIva""
                         FROM ""detalleFacturas"" df
                         INNER JOIN  productos p ON p.""idProducto"" = df.""idProducto""
                         INNER JOIN ivas i ON i.""idIva"" = df.""idIva""
@@ -298,7 +305,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                 var documento = await generarXml(claveAcceso);
                 var consultaFactura = await _Facturas(claveAcceso);
                 if (consultaFactura == null) return null;
-                string sql = @"SELECT i.codigo,i.ruta FROM Facturas f 
+                string sql = @"SELECT i.codigo,i.ruta FROM Facturas f
                               INNER JOIN ""usuarioEmpresas"" ue ON ue.""idUsuario""=f.""idUsuario""
                               INNER JOIN ""empresas"" e ON e.""idEmpresa""=ue.""idEmpresa""
                               INNER JOIN ""informacionFirmas"" i ON i.""identificacion""=e.""identificacion""
@@ -320,11 +327,8 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
         {
             try
             {
-                var facturaDto = await _FacturaDto(claveAcceso);
-                var xml = await generarXml(claveAcceso);
                 var xmlFirmado = await firmarXml(claveAcceso);
-                var enviar = await _IUtilidades.envioXmlSRI(xmlFirmado);
-                return true;
+                return await _IUtilidades.envioXmlSRI(xmlFirmado);
             }
             catch (Exception ex)
             {
@@ -333,12 +337,27 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
             }
         }
 
+        public string getBarcode(string claveAcceso)
+        {
+            try
+            {
+                var bar = new Barcode(claveAcceso);
+                return bar.GetBase64Image();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return "";
+            }
+        }
+
         public async Task<byte[]> generaRide(ActionContext ac, string claveAcesso)
         {
             try
             {
                 var factura_V1_0_0 = await _Factura_V1_0_0(claveAcesso);
-                var pdf = new ViewAsPdf("~/Views/Factura/FacturaV1_1_0.cshtml", factura_V1_0_0);
+                var barCode = getBarcode(claveAcesso);
+                var pdf = new ViewAsPdf("~/Views/Factura/FacturaV1_1_0.cshtml", new { factura_V1_0_0, barCode });
                 return await pdf.BuildFile(ac);
                 //var envairRide = await _IUtilidades.envioCorreo(email, pdfBytes, factura_V1_0_0.infoTributaria.claveAcceso);
                 //string base64 = Convert.ToBase64String(pdfBytes);

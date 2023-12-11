@@ -24,7 +24,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Utilidades
 
         Task<SignatureDocument> firmar(string codigo, string rutaFirma, XDocument documento);
 
-        Task<object?> envioXmlSRI(XmlDocument? documentoFirmado);
+        Task<bool> envioXmlSRI(XmlDocument? documentoFirmado);
 
         Task<bool> envioCorreo(string email, byte[] archivo, string nombreArchivo);
     }
@@ -180,7 +180,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Utilidades
             }
         }
 
-        public async Task<object?> envioXmlSRI(XmlDocument documentoFirmado)
+        public async Task<bool> envioXmlSRI(XmlDocument documentoFirmado)
         {
             string linea = documentoFirmado.InnerXml;
             var xmlByte = Encoding.UTF8.GetBytes(linea);
@@ -199,16 +199,14 @@ namespace Gestion_Administrativa_Api.Interfaces.Utilidades
 
                 var content = new StringContent(xml, Encoding.ASCII, "text/xml");
                 var peticion = await _httpClient.PostAsync(_configuration["SRI:urlEnvioComprobantes"], content);
-                //var peticionTask = _httpClient.PostAsync(_configuration["SRI:urlEnvioComprobantes"], content);
                 peticion.EnsureSuccessStatusCode();
                 var consulta = await peticion.Content.ReadAsStringAsync();
-                //consulta += $"<ns2:validarComprobanteClaveAcceso xmlns:ns2=\"http://ec.gob.sri.ws.recepcion\">{claveAcceso}</ns2:validarComprobanteClaveAcceso>";
-                //consulta += $"<ns2:validarComprobanteDocumento xmlns:ns2=\"http://ec.gob.sri.ws.recepcion\">{documentoProcesado}</ns2:validarComprobanteDocumento>";
-                return consulta.ToString();
+                return consulta.Contains("<estado>RECIBIDA</estado>");
             }
             catch (Exception exc)
             {
-                return null;
+                await Console.Out.WriteLineAsync(exc.Message);
+                return false;
             }
         }
     }
