@@ -1,7 +1,6 @@
 using AutoMapper;
 using Gestion_Administrativa_Api.Auth;
 using Gestion_Administrativa_Api.AutoMapper;
-using Gestion_Administrativa_Api.Configuration;
 using Gestion_Administrativa_Api.Interfaces.Interfaz;
 using Gestion_Administrativa_Api.Interfaces.Sri;
 using Gestion_Administrativa_Api.Interfaces.Utilidades;
@@ -11,9 +10,7 @@ using Gestion_Administrativa_Api.Utilities;
 using IdentityServer4.Models;
 using IdentityServer4.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Npgsql;
 using Rotativa.AspNetCore;
@@ -51,16 +48,13 @@ IConfiguration config = new ConfigurationBuilder()
 builder.Services.AddDbContext<_context>(options =>
 options.UseNpgsql(config.GetConnectionString("cn")));
 
-
 builder.Services.AddScoped<IDbConnection>(db => new NpgsqlConnection(
 config.GetConnectionString("cn")));
-
 
 // Add services to the container.
 
 var identityResources = config.GetSection("IdentityServer:IdentityResources").Get<List<IdentityResource>>();
 var apiScopes = config.GetSection("IdentityServer:ApiScopes").Get<List<ApiScope>>();
-
 
 builder.Services.AddIdentityServer()
 
@@ -71,7 +65,6 @@ builder.Services.AddIdentityServer()
                 .AddResourceOwnerValidator<ResourceOwnerPasswordValidator>()
                 .AddSigningCredential(CreateSigningCredential());
 
-
 var mapperConfig = new MapperConfiguration(m =>
 {
     m.AddProfile(new MappingProfile());
@@ -80,21 +73,17 @@ var mapperConfig = new MapperConfiguration(m =>
 IMapper mapper = mapperConfig.CreateMapper();
 builder.Services.AddSingleton(mapper);
 
-
-
 builder.Services.AddControllers().AddJsonOptions(x =>
                 x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
-
-builder.Services.AddControllers(options =>
-{
-    options.Filters.Add(new ConsumesAttribute("application/json"));
-    options.Filters.Add(new ProducesAttribute("application/json"));
-});
+//builder.Services.AddControllers(options =>
+//{
+//    options.Filters.Add(new ConsumesAttribute("application/json"));
+//    options.Filters.Add(new ProducesAttribute("application/json"));
+//});
 
 builder.Services.AddCors(options =>
 {
-
     options.AddPolicy("cors", builder =>
     {
         builder
@@ -104,20 +93,16 @@ builder.Services.AddCors(options =>
     });
 });
 
-
 builder.Services.AddAuthentication(options =>
 {
-
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-
 }).AddIdentityServerAuthentication("Bearer", options =>
 {
     options.Authority = config.GetConnectionString("IdentityServerAuthentication");
     options.RequireHttpsMetadata = false;
     options.JwtValidationClockSkew = TimeSpan.FromHours(5);
 });
-
 
 builder.Services.AddScoped<IProfileService, ProfileService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -140,10 +125,6 @@ builder.Services.AddScoped<ITiempoFormaPagos, TiempoFormaPagosI>();
 builder.Services.AddScoped<IFacturas, FacturasI>();
 builder.Services.AddScoped<IUtilidades, UtilidadesI>();
 
-
-
-
-
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -163,7 +144,6 @@ if (app.Environment.IsProduction())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
 
 app.UseStaticFiles();
 app.UseHttpsRedirection();

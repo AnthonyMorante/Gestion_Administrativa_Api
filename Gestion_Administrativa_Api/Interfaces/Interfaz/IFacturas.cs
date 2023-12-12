@@ -95,6 +95,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                 factura.DetalleFormaPagos = detallePagos;
                 factura.InformacionAdicional = detalleAdicional;
                 factura.DetalleFacturas = detalle;
+                factura.FechaAutorizacion = null;
                 _context.Facturas.Add(factura);
                 //await _context.SaveChangesAsync();
                 //await _context.DetalleFacturas.AddRangeAsync(detalle);
@@ -317,7 +318,8 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
             try
             {
                 var xmlFirmado = await firmarXml(claveAcceso);
-                return await _IUtilidades.envioXmlSRI(xmlFirmado);
+                if (!await _IUtilidades.envioXmlSRI(xmlFirmado)) throw new Exception("Error al enviar al SRI");
+                return true;
             }
             catch (Exception ex)
             {

@@ -54,7 +54,11 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             try
             {
                 var idEmpresa = Guid.Parse(Tools.getIdEmpresa(HttpContext));
-                string sql = @"SELECT * FROM productos WHERE ""idEmpresa""=@idEmpresa::uuid AND activo=TRUE";
+                string sql = @"SELECT p.""idProducto"", p.codigo, p.nombre,p.cantidad
+                                FROM productos p
+                                WHERE p.""activo""=TRUE
+                                AND p.""idEmpresa""=uuid(@idEmpresa)
+                                ORDER BY UPPER(REPLACE(regexp_replace(CAST(p.""nombre"" AS varchar),'\t|\n|\r|\s',''),' ',''))";
                 return Ok(await _dapper.QueryAsync(sql, new { idEmpresa }));
             }
             catch (Exception ex)
@@ -114,7 +118,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             try
             {
                 var lote = await _context.Lotes.FindAsync(idLote);
-                if (lote == null) return Problem("No se ha encontrado el lote o ya ha sido eliminado");
+                if (lote == null) throw new Exception("No se ha encontrado el lote o ya ha sido eliminado");
                 var producto = await _context.Productos.FindAsync(lote.IdProducto);
                 producto!.Cantidad -= lote.Cantidad;
                 _context.Lotes.Remove(lote);

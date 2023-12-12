@@ -149,7 +149,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                                     var email = await _dapper.ExecuteScalarAsync<string>(sql, new { claveAcceso });
                                     var ride = await _IFacturas.generaRide(ControllerContext, claveAcceso);
                                     await _IFacturas.enviarCorreo(email, ride, claveAcceso);
-                                    sqlU += @"UPDATE facturas SET ""correoEnviado""=TRUE WHERE ""claveAcceso"" =@claveAcceso";
+                                    sqlU += @"UPDATE facturas SET ""correoEnviado""=TRUE,""fechaAutorizacion""=current_timestamp WHERE ""claveAcceso"" =@claveAcceso;";
                                 }
                                 catch (Exception ex)
                                 {
@@ -540,7 +540,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                                                 var email = await _dapper.ExecuteScalarAsync<string>(sqlE, new { claveAcceso });
                                                 var ride = await _IFacturas.generaRide(ControllerContext, claveAcceso);
                                                 await _IFacturas.enviarCorreo(email, ride, claveAcceso);
-                                                sqlA += @"UPDATE facturas SET ""correoEnviado""=TRUE WHERE ""claveAcceso"" =@claveAcceso;";
+                                                sqlA += @"UPDATE facturas SET ""correoEnviado""=TRUE,""fechaAutorizacion""=current_timestamp WHERE ""claveAcceso"" =@claveAcceso;";
                                             }
                                             catch (Exception ex)
                                             {
