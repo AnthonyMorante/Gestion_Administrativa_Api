@@ -461,7 +461,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                                 FROM facturas f
                                 INNER JOIN ""usuarioEmpresas"" ue ON ue.""idUsuario"" = f.""idUsuario""
                                 WHERE ""idTipoEstadoSri"" NOT IN(2,3,4,5)
-                                AND ""idEmpresa""= @idEmpresa";
+                                AND ""idEmpresa""= @idEmpresa::uuid";
                 if (await _dapper.ExecuteScalarAsync<int>(sql, new { idEmpresa }) == 0) return Ok("empty");
                 sql = @"SELECT ""claveAcceso""
                               FROM facturas f
