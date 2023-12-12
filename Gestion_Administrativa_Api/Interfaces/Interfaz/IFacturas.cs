@@ -14,12 +14,15 @@ using System.Xml.Linq;
 using System.Xml.Serialization;
 using static Gestion_Administrativa_Api.Documents_Models.Factura.factura_V100;
 using NetBarcode;
+using Microsoft.CodeAnalysis.FlowAnalysis.DataFlow;
+using System.Security.Cryptography.Xml;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace Gestion_Administrativa_Api.Interfaces.Interfaz
 {
     public interface IFacturas
     {
-        Task<dynamic> guardar(FacturaDto? _facturaDto);
+        Task<IActionResult> guardar(FacturaDto? _facturaDto);
 
         Task<byte[]> generaRide(ActionContext ac, string claveAcceso);
 
@@ -54,17 +57,16 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
             _dapper = dapper;
         }
 
-        public async Task<dynamic> guardar(FacturaDto? _facturaDto)
+        public async Task<IActionResult> guardar(FacturaDto? _facturaDto)
         {
+            var result = new ObjectResult("");
             try
             {
                 var consultaEmpresa = await _context.Empresas.FindAsync(_facturaDto.idEmpresa);
                 var consultaEstablecimiento = await _context.Establecimientos.FindAsync(_facturaDto.idEstablecimiento);
 
-                if (consultaEmpresa == null || consultaEstablecimiento == null)
-                {
-                    return "null";
-                }
+                if (consultaEmpresa == null) throw new Exception("No se ha encontrado la empresa");
+                if(consultaEstablecimiento == null) throw new Exception("No se ha encontrado el establecimiento");
 
                 var factura = _mapper.Map<Facturas>(_facturaDto);
                 var detalle = _mapper.Map<List<DetalleFacturas>>(_facturaDto.detalleFactura);
@@ -109,25 +111,10 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                             _context.Productos.Update(consultaProducto);
                         }
                     }
-
-                    //if (_facturaDto.formaPago.ToList().Count > 0)
-                    //{
-                    //    var formaPago = _mapper.Map<IEnumerable<DetalleFormaPagos>>(_facturaDto.formaPago);
-                    //    formaPago = formaPago.Select(x =>
-                    //    {
-                    //        x.IdFactura = factura.IdFactura;
-                    //        return x;
-                    //    }).ToList();
-                    //    await _context.DetalleFormaPagos.AddRangeAsync(formaPago);
-
-                    //}
                     var consultaSecuencial = await _context.Secuenciales.FirstOrDefaultAsync(x => x.IdEmpresa == consultaEmpresa.IdEmpresa && x.IdTipoDocumento == _facturaDto.idTipoDocumento);
                     consultaSecuencial.Nombre = consultaSecuencial.Nombre + 1;
                     _context.Secuenciales.Update(consultaSecuencial);
                     await _context.SaveChangesAsync();
-                    //var xmlSinFirma = await generarXml(factura.ClaveAcceso); if (xmlSinFirma == null) throw new Exception("Error al generar Documento");
-                    //var xmlFirmado = await firmarXml(factura.ClaveAcceso, xmlSinFirma); if (xmlFirmado == null) throw new Exception("Error al firmar y guardar XML");
-                    //var enviar = await enviarSri(factura.ClaveAcceso); if (enviar == false) throw new Exception("Error al enviar al SRI");
                     var enviadoSri=await enviarSri(factura.ClaveAcceso);
                     if (enviadoSri == true)
                     {
@@ -136,12 +123,14 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                         await _dapper.ExecuteScalarAsync(sql,new { claveAcceso=factura.ClaveAcceso });
                     }
                 }
-
-                return _factura_V1_0_0;
+                result.StatusCode = 200;
+                return result;
             }
             catch (Exception ex)
             {
-                throw;
+                result.StatusCode = 500;
+                result.Value = ex.Message;
+                return result;
             }
         }
 
@@ -359,9 +348,6 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                 var barCode = getBarcode(claveAcesso);
                 var pdf = new ViewAsPdf("~/Views/Factura/FacturaV1_1_0.cshtml", new { factura_V1_0_0, barCode });
                 return await pdf.BuildFile(ac);
-                //var envairRide = await _IUtilidades.envioCorreo(email, pdfBytes, factura_V1_0_0.infoTributaria.claveAcceso);
-                //string base64 = Convert.ToBase64String(pdfBytes);
-                //return pdfBytes;
             }
             catch (Exception ex)
             {
