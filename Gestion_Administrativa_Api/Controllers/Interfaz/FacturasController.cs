@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using Gestion_Administrativa_Api.Dtos.Interfaz;
 using Gestion_Administrativa_Api.Interfaces.Interfaz;
+using Gestion_Administrativa_Api.Interfaces.Utilidades;
 using Gestion_Administrativa_Api.Models;
 using Gestion_Administrativa_Api.Utilities;
 using Microsoft.AspNetCore.Authorization;
@@ -16,14 +17,16 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
     public class FacturasController : ControllerBase
     {
         private readonly IFacturas _IFacturas;
+        private readonly IUtilidades _IUtilidades;
         private readonly IDbConnection _dapper;
         private readonly _context _context;
 
-        public FacturasController(IFacturas IFacturas, IDbConnection db, _context context)
+        public FacturasController(IFacturas IFacturas, IDbConnection db, _context context,IUtilidades IUtilidades)
         {
             _IFacturas = IFacturas;
             _dapper = db;
             _context = context;
+            _IUtilidades=IUtilidades;
         }
 
         [HttpPost]
@@ -125,12 +128,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                         estado = "<numeroComprobantes>0</numeroComprobantes>",
                         codigo = 0
                     });
-                    var xml = await _IFacturas.firmarXml(claveAcceso);
-                    var content = new StringContent(xml.InnerXml, Encoding.ASCII, "text/xml");
-                    var httpClient = new HttpClient();
-                    var peticion = await httpClient.PostAsync(Tools.config["SRI:urlEstado"], content);
-                    peticion.EnsureSuccessStatusCode();
-                    var consulta = await peticion.Content.ReadAsStringAsync();
+                    var eestado = await _IUtilidades.verificarEstadoSRI(claveAcceso);
                     foreach (var estado in listaEstados)
                     {
                         string sqlU = $@"UPDATE facturas SET ""idTipoEstadoSri""={estado.codigo}
@@ -491,24 +489,9 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                 string sqlA = "";
                 foreach (var claveAcceso in lista)
                 {
-                    var xml = $@"
-                                    <soapenv:Envelope xmlns:soapenv=""http://schemas.xmlsoap.org/soap/envelope/"" xmlns:ec=""http://ec.gob.sri.ws.autorizacion"">
-                                       <soapenv:Header/>
-                                       <soapenv:Body>
-                                          <ec:autorizacionComprobante>
-                                             <!--Optional:-->
-                                             <claveAccesoComprobante>{claveAcceso}</claveAccesoComprobante>
-                                          </ec:autorizacionComprobante>
-                                       </soapenv:Body>
-                                    </soapenv:Envelope>
-                                    ";
                     try
                     {
-                        var content = new StringContent(xml, Encoding.ASCII, "text/xml");
-                        var httpClient = new HttpClient();
-                        var peticion = await httpClient.PostAsync(Tools.config["SRI:urlEstado"], content);
-                        peticion.EnsureSuccessStatusCode();
-                        var consulta = await peticion.Content.ReadAsStringAsync();
+                        var consulta = await _IUtilidades.verificarEstadoSRI(claveAcceso);
                         foreach (var estado in listaEstados)
                         {
                             if (consulta.Contains(estado.estado))

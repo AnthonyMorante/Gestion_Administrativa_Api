@@ -2,17 +2,15 @@
 using FirmaXadesNetCore.Crypto;
 using FirmaXadesNetCore.Signature;
 using FirmaXadesNetCore.Signature.Parameters;
-using Gestion_Administrativa_Api.Dtos.Interfaz;
 using Gestion_Administrativa_Api.Models;
 using Gestion_Administrativa_Api.Utilities;
-using IdentityServer4.Models;
-using Microsoft.AspNetCore.Mvc;
-using System.Net;
 using System.Net.Mail;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Xml;
 using System.Xml.Linq;
+using wsSriAutorizacion;
+using wsSriRecepcion;
 
 namespace Gestion_Administrativa_Api.Interfaces.Utilidades
 {
@@ -25,20 +23,13 @@ namespace Gestion_Administrativa_Api.Interfaces.Utilidades
         Task<SignatureDocument> firmar(string codigo, string rutaFirma, XDocument documento);
 
         Task<bool> envioXmlSRI(XmlDocument? documentoFirmado);
+        Task<string> verificarEstadoSRI(string claveAcceso);
 
         Task<bool> envioCorreo(string email, byte[] archivo, string nombreArchivo);
     }
 
     public class UtilidadesI : IUtilidades
     {
-        private readonly HttpClient _httpClient;
-        private readonly IConfiguration _configuration;
-
-        public UtilidadesI(HttpClient httpClient, IConfiguration configuratio)
-        {
-            _httpClient = httpClient;
-            _configuration = configuratio;
-        }
 
         public async Task<string> modulo11(string claveAcceso)
         {
@@ -88,12 +79,12 @@ namespace Gestion_Administrativa_Api.Interfaces.Utilidades
                 string fechaFormateada = _factura.FechaEmision?.ToString("ddMMyyyy");
                 string tipoDocumento = _factura.TipoDocumento.ToString().PadLeft(2, '0');
                 string ruc = _factura.EmisorRuc;
-                int ambiente = Convert.ToInt16(_configuration["SRI:ambiente"]);
+                int ambiente = Convert.ToInt16(Tools.config!["SRI:ambiente"]);
                 string establecimiento = _factura.Establecimiento.ToString().PadLeft(3, '0');
                 string puntoEmision = _factura.Establecimiento.ToString().PadLeft(3, '0');
                 string secuencial = _factura.Secuencial.ToString().PadLeft(9, '0');
                 int numeroRandom = this.numerosRandom();
-                int tipoEmision = Convert.ToInt16(_configuration["SRI:tipoEmision"]);
+                int tipoEmision = Convert.ToInt16(Tools.config["SRI:tipoEmision"]);
                 string claveAcceso = $"{fechaFormateada}{tipoDocumento}{ruc}{ambiente}{establecimiento}{puntoEmision}{secuencial}{numeroRandom}{tipoEmision}";
                 string claveAccesoVerificador = await modulo11(claveAcceso);
                 return claveAccesoVerificador;
@@ -159,7 +150,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Utilidades
             {
                 MailMessage correo = new MailMessage();
                 correo.Attachments.Add((new Attachment(new MemoryStream(archivo), nombreArchivo + ".pdf")));
-                correo.From = new MailAddress(_configuration["EnvioCorreo:Email"]);
+                correo.From = new MailAddress(Tools.config["EnvioCorreo:Email"]);
                 correo.To.Add(email);
                 correo.Subject = "Mega Aceros - Documento Emitido";
                 correo.IsBodyHtml = true;
@@ -168,7 +159,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Utilidades
                 smtp.Host = "smtp.gmail.com";
                 smtp.Port = 587;
                 smtp.EnableSsl = true;
-                smtp.Credentials = new System.Net.NetworkCredential(_configuration["EnvioCorreo:Email"], _configuration["EnvioCorreo:Clave"]);
+                smtp.Credentials = new System.Net.NetworkCredential(Tools.config["EnvioCorreo:Email"], Tools.config["EnvioCorreo:Clave"]);
 
                 smtp.Send(correo);
                 return true;
@@ -182,31 +173,32 @@ namespace Gestion_Administrativa_Api.Interfaces.Utilidades
 
         public async Task<bool> envioXmlSRI(XmlDocument documentoFirmado)
         {
-            string linea = documentoFirmado.InnerXml;
-            var xmlByte = Encoding.UTF8.GetBytes(linea);
             try
             {
-                string arraybyte = Convert.ToBase64String(xmlByte);
-                string xml = @$"<soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/' xmlns:ec='http://ec.gob.sri.ws.recepcion'>
-                                 <soapenv:Header/>
-                                 <soapenv:Body>
-                                 <ec:validarComprobante>
-                                 <xml>{arraybyte}</xml>
-                                 </ec:validarComprobante>
-                                 </soapenv:Body>
-                                 </soapenv:Envelope>
-                              ";
-
-                var content = new StringContent(xml, Encoding.ASCII, "text/xml");
-                var peticion = await _httpClient.PostAsync(_configuration["SRI:urlEnvioComprobantes"], content);
-                peticion.EnsureSuccessStatusCode();
-                var consulta = await peticion.Content.ReadAsStringAsync();
-                return consulta.Contains("<estado>RECIBIDA</estado>");
+                var xmlByte = Encoding.UTF8.GetBytes(documentoFirmado.InnerXml);
+                var response = await new RecepcionComprobantesOfflineClient().validarComprobanteAsync(xmlByte);
+                var estado=response.RespuestaRecepcionComprobante.estado;
+                return estado=="RECIBIDA";
             }
             catch (Exception exc)
             {
                 await Console.Out.WriteLineAsync(exc.Message);
                 return false;
+            }
+        }
+
+        public async Task<string> verificarEstadoSRI(string claveAcceso)
+        {
+            try
+            {
+                var response = await new AutorizacionComprobantesOfflineClient().autorizacionComprobanteLoteAsync(claveAcceso);
+                var autorizaciones=response.RespuestaAutorizacionLote.autorizaciones;
+                return autorizaciones[0].estado;
+
+            }
+            catch (Exception ex)
+            {
+                return ex.Message;
             }
         }
     }
