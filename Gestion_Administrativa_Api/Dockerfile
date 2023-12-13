@@ -1,6 +1,6 @@
 #See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
 
-FROM mcr.microsoft.com/dotnet/aspnet:7.0-jammy  AS base
+FROM mcr.microsoft.com/dotnet/aspnet:8.0-jammy  AS base
 WORKDIR /App
 
 
@@ -13,7 +13,7 @@ RUN apt-get update && apt-get install -y tzdata
 # For Rotativa SDK
 RUN apt-get update && apt-get install -y --no-install-recommends apt-utils fontconfig libfreetype6 libjpeg-turbo8 libpng16-16 libx11-6 libxcb1 libxext6 libxrender1 xfonts-75dpi xfonts-base libgdiplus libc6-dev
 
-FROM mcr.microsoft.com/dotnet/sdk:7.0-jammy AS build-env
+FROM mcr.microsoft.com/dotnet/sdk:8.0-jammy AS build-env
 WORKDIR /App
 
 # Copy everything
