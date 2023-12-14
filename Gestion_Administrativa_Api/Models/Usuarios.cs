@@ -17,6 +17,8 @@ public partial class Usuarios
 
     public virtual ICollection<Facturas> Facturas { get; set; } = new List<Facturas>();
 
+    public virtual ICollection<Lotes> Lotes { get; set; } = new List<Lotes>();
+
     public virtual ICollection<Proformas> Proformas { get; set; } = new List<Proformas>();
 
     public virtual ICollection<UsuarioEmpresas> UsuarioEmpresas { get; set; } = new List<UsuarioEmpresas>();

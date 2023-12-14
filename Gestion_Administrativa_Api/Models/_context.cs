@@ -33,6 +33,8 @@ public partial class _context : DbContext
 
     public virtual DbSet<Empresas> Empresas { get; set; }
 
+    public virtual DbSet<Errorlogs> Errorlogs { get; set; }
+
     public virtual DbSet<Establecimientos> Establecimientos { get; set; }
 
     public virtual DbSet<Facturas> Facturas { get; set; }
@@ -44,6 +46,8 @@ public partial class _context : DbContext
     public virtual DbSet<InformacionFirmas> InformacionFirmas { get; set; }
 
     public virtual DbSet<Ivas> Ivas { get; set; }
+
+    public virtual DbSet<Lotes> Lotes { get; set; }
 
     public virtual DbSet<Productos> Productos { get; set; }
 
@@ -82,17 +86,21 @@ public partial class _context : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.HasAnnotation("Npgsql:CollationDefinition:public.general_ci_ai", "und-u-ks-level1,und-u-ks-level1,icu,False");
+
         modelBuilder.Entity<Ciudades>(entity =>
         {
             entity.HasKey(e => e.IdCiudad).HasName("ciudades_pkey");
 
             entity.ToTable("ciudades");
 
+            entity.HasIndex(e => e.IdProvincia, "IX_ciudades_idProvincia");
+
             entity.Property(e => e.IdCiudad)
                 .HasDefaultValueSql("gen_random_uuid()")
                 .HasColumnName("idCiudad");
             entity.Property(e => e.Activo)
-                .HasDefaultValueSql("false")
+                .HasDefaultValue(false)
                 .HasColumnName("activo");
             entity.Property(e => e.FechaRegistro)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
@@ -114,11 +122,17 @@ public partial class _context : DbContext
 
             entity.ToTable("clientes");
 
+            entity.HasIndex(e => e.IdCiudad, "IX_clientes_idCiudad");
+
+            entity.HasIndex(e => e.IdEmpresa, "IX_clientes_idEmpresa");
+
+            entity.HasIndex(e => e.IdTipoIdentificacion, "IX_clientes_idTipoIdentificacion");
+
             entity.Property(e => e.IdCliente)
                 .HasDefaultValueSql("gen_random_uuid()")
                 .HasColumnName("idCliente");
             entity.Property(e => e.Activo)
-                .HasDefaultValueSql("true")
+                .HasDefaultValue(true)
                 .HasColumnName("activo");
             entity.Property(e => e.Direccion)
                 .HasMaxLength(500)
@@ -165,6 +179,8 @@ public partial class _context : DbContext
 
             entity.ToTable("detalleFacturas");
 
+            entity.HasIndex(e => e.IdFactura, "IX_detalleFacturas_idFactura");
+
             entity.Property(e => e.IdDetalleFactura)
                 .HasDefaultValueSql("gen_random_uuid()")
                 .HasColumnName("idDetalleFactura");
@@ -205,6 +221,10 @@ public partial class _context : DbContext
 
             entity.ToTable("detalleFormaPagos");
 
+            entity.HasIndex(e => e.IdFactura, "IX_detalleFormaPagos_idFactura");
+
+            entity.HasIndex(e => e.IdTiempoFormaPago, "IX_detalleFormaPagos_idTiempoFormaPago");
+
             entity.Property(e => e.IdDetalleFormaPago)
                 .HasDefaultValueSql("gen_random_uuid()")
                 .HasColumnName("idDetalleFormaPago");
@@ -235,11 +255,15 @@ public partial class _context : DbContext
 
             entity.ToTable("detallePrecioProductos");
 
+            entity.HasIndex(e => e.IdIva, "IX_detallePrecioProductos_idIva");
+
+            entity.HasIndex(e => e.IdProducto, "IX_detallePrecioProductos_idProducto");
+
             entity.Property(e => e.IdDetallePrecioProducto)
                 .HasDefaultValueSql("gen_random_uuid()")
                 .HasColumnName("idDetallePrecioProducto");
             entity.Property(e => e.Activo)
-                .HasDefaultValueSql("true")
+                .HasDefaultValue(true)
                 .HasColumnName("activo");
             entity.Property(e => e.FechaRegistro)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
@@ -271,6 +295,8 @@ public partial class _context : DbContext
             entity.HasKey(e => e.IdDetalleProforma).HasName("detalleProformas_pkey");
 
             entity.ToTable("detalleProformas");
+
+            entity.HasIndex(e => e.IdProforma, "IX_detalleProformas_idProforma");
 
             entity.Property(e => e.IdDetalleProforma)
                 .HasDefaultValueSql("gen_random_uuid()")
@@ -312,11 +338,13 @@ public partial class _context : DbContext
 
             entity.ToTable("documentosEmitir");
 
+            entity.HasIndex(e => e.IdTipoDocumento, "IX_documentosEmitir_idTipoDocumento");
+
             entity.Property(e => e.IdDocumentoEmitir)
                 .HasDefaultValueSql("gen_random_uuid()")
                 .HasColumnName("idDocumentoEmitir");
             entity.Property(e => e.Activo)
-                .HasDefaultValueSql("false")
+                .HasDefaultValue(false)
                 .HasColumnName("activo");
             entity.Property(e => e.FechaRegistro)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
@@ -338,11 +366,17 @@ public partial class _context : DbContext
 
             entity.ToTable("empleados");
 
+            entity.HasIndex(e => e.IdCiudad, "IX_empleados_idCiudad");
+
+            entity.HasIndex(e => e.IdEmpresa, "IX_empleados_idEmpresa");
+
+            entity.HasIndex(e => e.IdTipoIdentificacion, "IX_empleados_idTipoIdentificacion");
+
             entity.Property(e => e.IdEmpleado)
                 .HasDefaultValueSql("gen_random_uuid()")
                 .HasColumnName("idEmpleado");
             entity.Property(e => e.Activo)
-                .HasDefaultValueSql("true")
+                .HasDefaultValue(true)
                 .HasColumnName("activo");
             entity.Property(e => e.Direccion)
                 .HasMaxLength(500)
@@ -389,11 +423,15 @@ public partial class _context : DbContext
 
             entity.ToTable("empresas");
 
+            entity.HasIndex(e => e.IdInformacionFirma, "IX_empresas_idInformacionFirma");
+
+            entity.HasIndex(e => e.IdTipoNegocio, "IX_empresas_idTipoNegocio");
+
             entity.Property(e => e.IdEmpresa)
                 .HasDefaultValueSql("gen_random_uuid()")
                 .HasColumnName("idEmpresa");
             entity.Property(e => e.Activo)
-                .HasDefaultValueSql("true")
+                .HasDefaultValue(true)
                 .HasColumnName("activo");
             entity.Property(e => e.AgenteRetencion).HasColumnName("agenteRetencion");
             entity.Property(e => e.DireccionMatriz)
@@ -435,17 +473,30 @@ public partial class _context : DbContext
                 .HasConstraintName("empresas_TipoNegocios");
         });
 
+        modelBuilder.Entity<Errorlogs>(entity =>
+        {
+            entity.HasKey(e => e.Iderror).HasName("errorlogs_pkey");
+
+            entity.ToTable("errorlogs");
+
+            entity.Property(e => e.Iderror).HasColumnName("iderror");
+            entity.Property(e => e.Error).HasColumnName("error");
+            entity.Property(e => e.Fecharegistro).HasColumnName("fecharegistro");
+        });
+
         modelBuilder.Entity<Establecimientos>(entity =>
         {
             entity.HasKey(e => e.IdEstablecimiento).HasName("establecimientos_pkey");
 
             entity.ToTable("establecimientos");
 
+            entity.HasIndex(e => e.IdEmpresa, "IX_establecimientos_idEmpresa");
+
             entity.Property(e => e.IdEstablecimiento)
                 .HasDefaultValueSql("gen_random_uuid()")
                 .HasColumnName("idEstablecimiento");
             entity.Property(e => e.Activo)
-                .HasDefaultValueSql("true")
+                .HasDefaultValue(true)
                 .HasColumnName("activo");
             entity.Property(e => e.Descripcion)
                 .HasMaxLength(500)
@@ -460,7 +511,7 @@ public partial class _context : DbContext
             entity.Property(e => e.IdEmpresa).HasColumnName("idEmpresa");
             entity.Property(e => e.Nombre).HasColumnName("nombre");
             entity.Property(e => e.Predeterminado)
-                .HasDefaultValueSql("false")
+                .HasDefaultValue(false)
                 .HasColumnName("predeterminado");
 
             entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.Establecimientos)
@@ -474,11 +525,17 @@ public partial class _context : DbContext
 
             entity.ToTable("facturas");
 
+            entity.HasIndex(e => e.IdTipoEstadoDocumento, "IX_facturas_idTipoEstadoDocumento");
+
+            entity.HasIndex(e => e.IdTipoEstadoSri, "IX_facturas_idTipoEstadoSri");
+
+            entity.HasIndex(e => e.IdUsuario, "IX_facturas_idUsuario");
+
             entity.Property(e => e.IdFactura)
                 .HasDefaultValueSql("gen_random_uuid()")
                 .HasColumnName("idFactura");
             entity.Property(e => e.AgenteRetencion)
-                .HasDefaultValueSql("false")
+                .HasDefaultValue(false)
                 .HasColumnName("agenteRetencion");
             entity.Property(e => e.Ambiente).HasColumnName("ambiente");
             entity.Property(e => e.Cambio)
@@ -492,8 +549,11 @@ public partial class _context : DbContext
                 .HasMaxLength(20)
                 .HasColumnName("contribuyenteEspecial");
             entity.Property(e => e.ContribuyenteRimpe)
-                .HasDefaultValueSql("false")
+                .HasDefaultValue(false)
                 .HasColumnName("contribuyenteRimpe");
+            entity.Property(e => e.CorreoEnviado)
+                .HasDefaultValue(false)
+                .HasColumnName("correoEnviado");
             entity.Property(e => e.DireccionEstablecimiento)
                 .HasMaxLength(300)
                 .HasColumnName("direccionEstablecimiento");
@@ -627,7 +687,7 @@ public partial class _context : DbContext
                 .HasDefaultValueSql("gen_random_uuid()")
                 .HasColumnName("idFormaPago");
             entity.Property(e => e.Activo)
-                .HasDefaultValueSql("true")
+                .HasDefaultValue(true)
                 .HasColumnName("activo");
             entity.Property(e => e.Codigo).HasColumnName("codigo");
             entity.Property(e => e.Descripcion)
@@ -647,6 +707,8 @@ public partial class _context : DbContext
             entity.HasKey(e => e.IdInformacionAdicional).HasName("informacionAdicional_pkey");
 
             entity.ToTable("informacionAdicional");
+
+            entity.HasIndex(e => e.IdFactura, "IX_informacionAdicional_idFactura");
 
             entity.Property(e => e.IdInformacionAdicional)
                 .HasDefaultValueSql("gen_random_uuid()")
@@ -675,7 +737,7 @@ public partial class _context : DbContext
                 .HasDefaultValueSql("gen_random_uuid()")
                 .HasColumnName("idInformacionFirma");
             entity.Property(e => e.Activo)
-                .HasDefaultValueSql("true")
+                .HasDefaultValue(true)
                 .HasColumnName("activo");
             entity.Property(e => e.Codigo)
                 .HasMaxLength(500)
@@ -705,7 +767,7 @@ public partial class _context : DbContext
                 .HasDefaultValueSql("gen_random_uuid()")
                 .HasColumnName("idIva");
             entity.Property(e => e.Activo)
-                .HasDefaultValueSql("true")
+                .HasDefaultValue(true)
                 .HasColumnName("activo");
             entity.Property(e => e.Codigo).HasColumnName("codigo");
             entity.Property(e => e.Descripcion)
@@ -723,20 +785,50 @@ public partial class _context : DbContext
                 .HasColumnName("valor");
         });
 
+        modelBuilder.Entity<Lotes>(entity =>
+        {
+            entity.HasKey(e => e.IdLote).HasName("lotes_pkey");
+
+            entity.ToTable("lotes");
+
+            entity.Property(e => e.IdLote).HasColumnName("idLote");
+            entity.Property(e => e.Cantidad)
+                .HasPrecision(8, 2)
+                .HasColumnName("cantidad");
+            entity.Property(e => e.FechaRegistro)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("fechaRegistro");
+            entity.Property(e => e.IdProducto).HasColumnName("idProducto");
+            entity.Property(e => e.IdUsuario).HasColumnName("idUsuario");
+
+            entity.HasOne(d => d.IdProductoNavigation).WithMany(p => p.Lotes)
+                .HasForeignKey(d => d.IdProducto)
+                .HasConstraintName("lotes_idProducto_fkey");
+
+            entity.HasOne(d => d.IdUsuarioNavigation).WithMany(p => p.Lotes)
+                .HasForeignKey(d => d.IdUsuario)
+                .HasConstraintName("lotes_idUsuario_fkey");
+        });
+
         modelBuilder.Entity<Productos>(entity =>
         {
             entity.HasKey(e => e.IdProducto).HasName("productos_pkey");
 
             entity.ToTable("productos");
 
+            entity.HasIndex(e => e.IdEmpresa, "IX_productos_idEmpresa");
+
+            entity.HasIndex(e => e.IdIva, "IX_productos_idIva");
+
             entity.Property(e => e.IdProducto)
                 .HasDefaultValueSql("gen_random_uuid()")
                 .HasColumnName("idProducto");
             entity.Property(e => e.Activo)
-                .HasDefaultValueSql("true")
+                .HasDefaultValue(true)
                 .HasColumnName("activo");
             entity.Property(e => e.ActivoProducto)
-                .HasDefaultValueSql("true")
+                .HasDefaultValue(true)
                 .HasColumnName("activoProducto");
             entity.Property(e => e.Cantidad)
                 .HasPrecision(8, 2)
@@ -777,6 +869,12 @@ public partial class _context : DbContext
             entity.HasKey(e => e.IdProforma).HasName("proformas_pkey");
 
             entity.ToTable("proformas");
+
+            entity.HasIndex(e => e.IdEstablecimiento, "IX_proformas_idEstablecimiento");
+
+            entity.HasIndex(e => e.IdPuntoEmision, "IX_proformas_idPuntoEmision");
+
+            entity.HasIndex(e => e.IdUsuario, "IX_proformas_idUsuario");
 
             entity.Property(e => e.IdProforma)
                 .HasDefaultValueSql("gen_random_uuid()")
@@ -846,11 +944,17 @@ public partial class _context : DbContext
 
             entity.ToTable("proveedores");
 
+            entity.HasIndex(e => e.IdCiudad, "IX_proveedores_idCiudad");
+
+            entity.HasIndex(e => e.IdEmpresa, "IX_proveedores_idEmpresa");
+
+            entity.HasIndex(e => e.IdTipoIdentificacion, "IX_proveedores_idTipoIdentificacion");
+
             entity.Property(e => e.IdProveedor)
                 .HasDefaultValueSql("gen_random_uuid()")
                 .HasColumnName("idProveedor");
             entity.Property(e => e.Activo)
-                .HasDefaultValueSql("true")
+                .HasDefaultValue(true)
                 .HasColumnName("activo");
             entity.Property(e => e.Direccion)
                 .HasMaxLength(500)
@@ -907,7 +1011,7 @@ public partial class _context : DbContext
                 .HasDefaultValueSql("gen_random_uuid()")
                 .HasColumnName("idProvincia");
             entity.Property(e => e.Activo)
-                .HasDefaultValueSql("false")
+                .HasDefaultValue(false)
                 .HasColumnName("activo");
             entity.Property(e => e.FechaRegistro)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
@@ -924,11 +1028,13 @@ public partial class _context : DbContext
 
             entity.ToTable("puntoEmisiones");
 
+            entity.HasIndex(e => e.IdEmpresa, "IX_puntoEmisiones_idEmpresa");
+
             entity.Property(e => e.IdPuntoEmision)
                 .HasDefaultValueSql("gen_random_uuid()")
                 .HasColumnName("idPuntoEmision");
             entity.Property(e => e.Activo)
-                .HasDefaultValueSql("true")
+                .HasDefaultValue(true)
                 .HasColumnName("activo");
             entity.Property(e => e.Descripcion)
                 .HasMaxLength(500)
@@ -943,7 +1049,7 @@ public partial class _context : DbContext
             entity.Property(e => e.IdEmpresa).HasColumnName("idEmpresa");
             entity.Property(e => e.Nombre).HasColumnName("nombre");
             entity.Property(e => e.Predeterminado)
-                .HasDefaultValueSql("false")
+                .HasDefaultValue(false)
                 .HasColumnName("predeterminado");
 
             entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.PuntoEmisiones)
@@ -957,11 +1063,15 @@ public partial class _context : DbContext
 
             entity.ToTable("secuenciales");
 
+            entity.HasIndex(e => e.IdEmpresa, "IX_secuenciales_idEmpresa");
+
+            entity.HasIndex(e => e.IdTipoDocumento, "IX_secuenciales_idTipoDocumento");
+
             entity.Property(e => e.IdSecuencial)
                 .HasDefaultValueSql("gen_random_uuid()")
                 .HasColumnName("idSecuencial");
             entity.Property(e => e.Activo)
-                .HasDefaultValueSql("true")
+                .HasDefaultValue(true)
                 .HasColumnName("activo");
             entity.Property(e => e.FechaRegistro)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
@@ -986,11 +1096,15 @@ public partial class _context : DbContext
 
             entity.ToTable("secuencialesProformas");
 
+            entity.HasIndex(e => e.IdEmpresa, "IX_secuencialesProformas_idEmpresa");
+
+            entity.HasIndex(e => e.IdTipoDocumento, "IX_secuencialesProformas_idTipoDocumento");
+
             entity.Property(e => e.IdSecuencialesProforma)
                 .HasDefaultValueSql("gen_random_uuid()")
                 .HasColumnName("idSecuencialesProforma");
             entity.Property(e => e.Activo)
-                .HasDefaultValueSql("true")
+                .HasDefaultValue(true)
                 .HasColumnName("activo");
             entity.Property(e => e.FechaRegistro)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
@@ -1019,7 +1133,7 @@ public partial class _context : DbContext
                 .HasDefaultValueSql("gen_random_uuid()")
                 .HasColumnName("idTiempoFormaPago");
             entity.Property(e => e.Activo)
-                .HasDefaultValueSql("true")
+                .HasDefaultValue(true)
                 .HasColumnName("activo");
             entity.Property(e => e.Codigo).HasColumnName("codigo");
             entity.Property(e => e.Descripcion)
@@ -1044,7 +1158,7 @@ public partial class _context : DbContext
                 .HasDefaultValueSql("gen_random_uuid()")
                 .HasColumnName("idTipoDocumento");
             entity.Property(e => e.Activo)
-                .HasDefaultValueSql("true")
+                .HasDefaultValue(true)
                 .HasColumnName("activo");
             entity.Property(e => e.Codigo).HasColumnName("codigo");
             entity.Property(e => e.Descripcion)
@@ -1067,7 +1181,7 @@ public partial class _context : DbContext
 
             entity.Property(e => e.IdTipoEstadoDocumento).HasColumnName("idTipoEstadoDocumento");
             entity.Property(e => e.Activo)
-                .HasDefaultValueSql("false")
+                .HasDefaultValue(false)
                 .HasColumnName("activo");
             entity.Property(e => e.Codigo).HasColumnName("codigo");
             entity.Property(e => e.Descripcion)
@@ -1090,7 +1204,7 @@ public partial class _context : DbContext
 
             entity.Property(e => e.IdTipoEstadoSri).HasColumnName("idTipoEstadoSri");
             entity.Property(e => e.Activo)
-                .HasDefaultValueSql("false")
+                .HasDefaultValue(false)
                 .HasColumnName("activo");
             entity.Property(e => e.Codigo).HasColumnName("codigo");
             entity.Property(e => e.Descripcion)
@@ -1115,7 +1229,7 @@ public partial class _context : DbContext
                 .HasDefaultValueSql("gen_random_uuid()")
                 .HasColumnName("idTipoIdentificacion");
             entity.Property(e => e.Activo)
-                .HasDefaultValueSql("false")
+                .HasDefaultValue(false)
                 .HasColumnName("activo");
             entity.Property(e => e.Codigo).HasColumnName("codigo");
             entity.Property(e => e.Descripcion)
@@ -1140,7 +1254,7 @@ public partial class _context : DbContext
                 .HasDefaultValueSql("gen_random_uuid()")
                 .HasColumnName("idTipoIdentificacionesGeneracionDocumentos");
             entity.Property(e => e.Activo)
-                .HasDefaultValueSql("true")
+                .HasDefaultValue(true)
                 .HasColumnName("activo");
             entity.Property(e => e.Codigo).HasColumnName("codigo");
             entity.Property(e => e.Descripcion)
@@ -1165,7 +1279,7 @@ public partial class _context : DbContext
                 .HasDefaultValueSql("gen_random_uuid()")
                 .HasColumnName("idTipoNegocio");
             entity.Property(e => e.Activo)
-                .HasDefaultValueSql("false")
+                .HasDefaultValue(false)
                 .HasColumnName("activo");
             entity.Property(e => e.Codigo)
                 .HasMaxLength(500)
@@ -1188,11 +1302,15 @@ public partial class _context : DbContext
 
             entity.ToTable("usuarioEmpresas");
 
+            entity.HasIndex(e => e.IdEmpresa, "IX_usuarioEmpresas_idEmpresa");
+
+            entity.HasIndex(e => e.IdUsuario, "IX_usuarioEmpresas_idUsuario");
+
             entity.Property(e => e.IdUsuarioEmpresas)
                 .HasDefaultValueSql("gen_random_uuid()")
                 .HasColumnName("idUsuarioEmpresas");
             entity.Property(e => e.Activo)
-                .HasDefaultValueSql("true")
+                .HasDefaultValue(true)
                 .HasColumnName("activo");
             entity.Property(e => e.FechaRegistro)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
@@ -1222,7 +1340,7 @@ public partial class _context : DbContext
                 .HasDefaultValueSql("gen_random_uuid()")
                 .HasColumnName("idUsuario");
             entity.Property(e => e.Activo)
-                .HasDefaultValueSql("true")
+                .HasDefaultValue(true)
                 .HasColumnName("activo");
             entity.Property(e => e.Clave)
                 .HasMaxLength(500)

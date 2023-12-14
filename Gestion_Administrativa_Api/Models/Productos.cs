@@ -34,4 +34,6 @@ public partial class Productos
     public virtual Empresas? IdEmpresaNavigation { get; set; }
 
     public virtual Ivas? IdIvaNavigation { get; set; }
+
+    public virtual ICollection<Lotes> Lotes { get; set; } = new List<Lotes>();
 }

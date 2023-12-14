@@ -130,7 +130,7 @@ namespace Gestion_Administrativa_Api.Documents_Models.Factura
             public string? unidadTiempo { get; set; }
         }
 
-        [XmlType("detAdicional")]
+        [XmlType("campoAdicional")]
         public class detAdicional_V1_0_0
         {
             [XmlAttribute]

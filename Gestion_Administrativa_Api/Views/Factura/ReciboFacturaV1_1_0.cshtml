@@ -1,5 +1,4 @@
-﻿
-@using static Gestion_Administrativa_Api.Documents_Models.Factura.factura_V100;
+﻿@using static Gestion_Administrativa_Api.Documents_Models.Factura.factura_V100;
 @{
     factura_V1_0_0 factura = @Model.factura_V1_0_0;
     string telefono = @Model.telefono;
@@ -29,7 +28,7 @@
 
         <div style="text-align: center;">
 
-            <img class="logo" src="~/Imagenes/Logo/logoRecibo.png">
+            <img class="logo" src="~/Imagenes/Logos/@factura.infoTributaria.ruc/logo.png">
 
         </div>
 
@@ -368,8 +367,8 @@
 
 
     /* .encabezado {
-                margin-left:0px;
-            } */
+                    margin-left:0px;
+                } */
 
 
     .detalleTabla {

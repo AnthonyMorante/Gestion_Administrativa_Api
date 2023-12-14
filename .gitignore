@@ -361,3 +361,9 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/Gestion_Administrativa_Api/Controllers/Interfaz/FacturasController.cs
+/Gestion_Administrativa_Api/Interfaces/Interfaz/IFacturas.cs
+/Gestion_Administrativa_Api/Interfaces/Utilidades/IUtilidades.cs
+/Gestion_Administrativa_Api/Views/Factura/FacturaV1_1_0.cshtml
+/Gestion_Administrativa_Api/wwwroot/Facturacion/Firmas/1803769759001/e7313730-d9b0-4ec7-ac69-901434299e25.p12
+/Gestion_Administrativa_Api/Gestion_Administrativa_Api.csproj

@@ -113,6 +113,8 @@ public partial class Facturas
 
     public string? Mensaje { get; set; }
 
+    public bool? CorreoEnviado { get; set; }
+
     public virtual ICollection<DetalleFacturas> DetalleFacturas { get; set; } = new List<DetalleFacturas>();
 
     public virtual ICollection<DetalleFormaPagos> DetalleFormaPagos { get; set; } = new List<DetalleFormaPagos>();
