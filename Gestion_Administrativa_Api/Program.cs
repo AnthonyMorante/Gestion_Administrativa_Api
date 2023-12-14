@@ -154,5 +154,4 @@ app.MapControllers();
 app.UseCors("cors");
 string wwwroot = app.Environment.WebRootPath;
 RotativaConfiguration.Setup(wwwroot, "Rotativa/Windows");
-//RotativaConfiguration.Setup(app.Environment.WebRootPath);
 app.Run();
