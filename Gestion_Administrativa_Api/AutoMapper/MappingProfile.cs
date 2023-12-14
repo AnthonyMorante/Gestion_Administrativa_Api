@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Gestion_Administrativa_Api.Documents_Models.Factura;
+using Gestion_Administrativa_Api.Documents_Models.Retencion;
 using Gestion_Administrativa_Api.Dtos.Interfaz;
 using Gestion_Administrativa_Api.Models;
 using static Gestion_Administrativa_Api.Documents_Models.Factura.factura_V100;
@@ -13,22 +14,7 @@ namespace Gestion_Administrativa_Api.AutoMapper
         {
 
 
-            //#region FormaPago
-
-            //CreateMap<DetalleDto, totalImpuesto_V1_0_0>()
-            //     .ForMember(dest => dest.codigo, opt => opt.MapFrom(src => 2))
-            //     .ForMember(dest => dest.codigoPorcentaje, opt => opt.MapFrom(src => src.idIva == Guid.Parse("53347a4d-5c75-42e8-9456-595a728306aa") ? 2 :
-            //                src.idIva == Guid.Parse("d4c41fb5-1791-4739-8285-a312e010afa9") ? 0 :
-            //                src.idIva == Guid.Parse("aaf450c1-058f-4406-8c69-7ab3b1d1c339") ? 6 :
-            //                src.idIva == Guid.Parse("8980f44a-df38-400a-9d89-4150cadd13ba") ? 7 : -1))
-            //     .ForMember(dest => dest.baseImponible, opt => opt.MapFrom(src => src.total))
-            //     .ForMember(dest => dest.valor, opt => opt.MapFrom(src => src.porcentaje))
-            //.ReverseMap();
-            //;
-            //#endregion
-
-
-
+           
             #region FormaPago
 
             CreateMap<DetalleDto, detalle_V1_0_0>()
@@ -249,8 +235,14 @@ namespace Gestion_Administrativa_Api.AutoMapper
 
             CreateMap<DetallePrecioProductosDto, DetallePrecioProductos>()
                     .ForMember(dest => dest.Total, opt => opt.MapFrom(src => src.Utilidad)).ReverseMap();
-       
-  
+
+
+            #endregion
+
+            #region Retenciones
+
+            CreateMap<RetencionDto, retencion_V100>();
+
             #endregion
 
         }
