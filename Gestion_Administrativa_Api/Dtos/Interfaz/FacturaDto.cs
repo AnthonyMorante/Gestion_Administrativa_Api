@@ -7,6 +7,9 @@
         public int? TipoDocumento { get; set; } = 1;
         public int? codigoTipoIdentificacion { get; set; } = 1;
         public string? establecimiento { get; set; }
+        public decimal? valorRecibido { get; set; }
+        public decimal? cambio { get; set; }
+        public decimal? saldo { get; set; }
         public string? puntoEmision { get; set; }
         public string? secuencial { get; set; }
         public DateTime fechaEmision { get; set; }
