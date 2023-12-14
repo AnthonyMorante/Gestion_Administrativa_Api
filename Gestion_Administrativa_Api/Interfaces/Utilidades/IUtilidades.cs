@@ -9,8 +9,9 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Xml;
 using System.Xml.Linq;
-using wsSriAutorizacion;
+using System.Xml.Serialization;
 using wsSriRecepcion;
+using static Gestion_Administrativa_Api.Interfaces.Utilidades.UtilidadesI;
 
 namespace Gestion_Administrativa_Api.Interfaces.Utilidades
 {
@@ -23,14 +24,14 @@ namespace Gestion_Administrativa_Api.Interfaces.Utilidades
         Task<SignatureDocument> firmar(string codigo, string rutaFirma, XDocument documento);
 
         Task<bool> envioXmlSRI(XmlDocument? documentoFirmado);
-        Task<string> verificarEstadoSRI(string claveAcceso);
+
+        Task<estadoSri> verificarEstadoSRI(string claveAcceso);
 
         Task<bool> envioCorreo(string email, byte[] archivo, string nombreArchivo);
     }
 
     public class UtilidadesI : IUtilidades
     {
-
         public async Task<string> modulo11(string claveAcceso)
         {
             try
@@ -177,8 +178,8 @@ namespace Gestion_Administrativa_Api.Interfaces.Utilidades
             {
                 var xmlByte = Encoding.UTF8.GetBytes(documentoFirmado.InnerXml);
                 var response = await new RecepcionComprobantesOfflineClient().validarComprobanteAsync(xmlByte);
-                var estado=response.RespuestaRecepcionComprobante.estado;
-                return estado=="RECIBIDA";
+                var estado = response.RespuestaRecepcionComprobante.estado;
+                return estado == "RECIBIDA";
             }
             catch (Exception exc)
             {
@@ -187,19 +188,158 @@ namespace Gestion_Administrativa_Api.Interfaces.Utilidades
             }
         }
 
-        public async Task<string> verificarEstadoSRI(string claveAcceso)
+        public async Task<estadoSri> verificarEstadoSRI(string claveAcceso)
         {
             try
             {
-                var response = await new AutorizacionComprobantesOfflineClient().autorizacionComprobanteLoteAsync(claveAcceso);
-                var autorizaciones=response.RespuestaAutorizacionLote.autorizaciones;
-                return autorizaciones[0].estado;
-
+                await Task.Delay(2000);
+                var content = new StringContent(GetAuthorizationSoap(claveAcceso), Encoding.ASCII, "text/xml");
+                var peticion = await new HttpClient().PostAsync(Tools.config["SRI:urlEstado"], content);
+                peticion.EnsureSuccessStatusCode();
+                var response = await peticion.Content.ReadAsStringAsync();
+                XmlSerializer serializer = new XmlSerializer(typeof(AuthorizationEnvelope));
+                AuthorizationEnvelope respuesta;
+                using (StringReader reader = new StringReader(response)) respuesta = (AuthorizationEnvelope)serializer.Deserialize(reader);
+                return procesarAutorizacion(respuesta.Body.AutorizacionComprobanteResponse.RespuestaAutorizacionComprobante.Authorizations.Last());
             }
             catch (Exception ex)
             {
-                return ex.Message;
+                await Console.Out.WriteLineAsync(ex.Message);
+                return new estadoSri();
             }
+        }
+
+        private estadoSri procesarAutorizacion(AuthorizationSri _autorizacion)
+        {
+            try
+            {
+                var estado=new estadoSri();
+                switch (_autorizacion.Estado)
+                {
+                    case "EN PROCESAMIENTO":
+                        estado.idTipoEstadoSri = 1;
+                        estado.fechaAutorizacion = _autorizacion.FechaAutorizacion;
+                        break;                   
+                    case "AUTORIZADO":
+                        estado.idTipoEstadoSri = 2;
+                        estado.fechaAutorizacion = _autorizacion.FechaAutorizacion;
+                        break;
+                    case "NO AUTORIZADO":
+                        estado.idTipoEstadoSri = 3;
+                        estado.fechaAutorizacion = null;
+                        break;
+                    case "RECHAZADO":
+                        estado.idTipoEstadoSri = 4;
+                        estado.fechaAutorizacion = null;
+                        break;
+                    default:
+                        throw new Exception($"No se ha encontrado el código de tipoEstadoSri {_autorizacion.Estado}");
+                }
+
+                return estado;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return new estadoSri();
+            }
+        }
+
+        public class estadoSri
+        {
+
+            public int idTipoEstadoSri { get; set; }
+            public DateTime? fechaAutorizacion { get; set; }            
+        }
+
+        private string GetAuthorizationSoap(string claveAcceso)
+        {
+            return $@"<soapenv:Envelope xmlns:soapenv=""http://schemas.xmlsoap.org/soap/envelope/"" xmlns:ec=""http://ec.gob.sri.ws.autorizacion"">
+                      <soapenv:Header/>
+                       <soapenv:Body>
+                         <ec:autorizacionComprobante>
+                            <!--Optional:-->
+                            <claveAccesoComprobante>{claveAcceso}</claveAccesoComprobante>
+                          </ec:autorizacionComprobante>
+                        </soapenv:Body>
+                      </soapenv:Envelope>";
+        }
+
+        [XmlRoot(ElementName = "Envelope", Namespace = "http://schemas.xmlsoap.org/soap/envelope/")]
+        public class ReceptionEnvelope
+        {
+            [XmlElement(ElementName = "Body", Namespace = "http://schemas.xmlsoap.org/soap/envelope/")]
+            public Body Body { get; set; }
+
+            [XmlAttribute(AttributeName = "soap")]
+            public string Soap { get; set; }
+
+            [XmlText]
+            public string Text { get; set; }
+        }
+        [XmlRoot(ElementName = "Body", Namespace = "http://schemas.xmlsoap.org/soap/envelope/")]
+        public class Body
+        {
+            [XmlElement(ElementName = "autorizacionComprobanteResponse", Namespace = "http://ec.gob.sri.ws.autorizacion")]
+            public AutorizacionComprobanteResponse AutorizacionComprobanteResponse { get; set; }
+        }
+        [XmlRoot(ElementName = "autorizacionComprobanteResponse", Namespace = "http://ec.gob.sri.ws.autorizacion")]
+        public class AutorizacionComprobanteResponse
+        {
+            [XmlElement(ElementName = "RespuestaAutorizacionComprobante", Namespace = "")]
+            public AuthorizationResponse RespuestaAutorizacionComprobante { get; set; }
+            [XmlAttribute(AttributeName = "ns2")]
+            public string Ns2 { get; set; }
+
+            [XmlText]
+            public string Text { get; set; }
+        }
+        [XmlRoot(ElementName = "RespuestaAutorizacionComprobante")]
+        public class AuthorizationResponse
+        {
+            [XmlElement(ElementName = "claveAccesoConsultada")]
+            public string ClaveAccesoConsultada { get; set; }
+
+            [XmlElement(ElementName = "numeroComprobantes")]
+            public int NumeroComprobantes { get; set; }
+
+            [XmlArray(ElementName = "autorizaciones")]
+            [XmlArrayItem(typeof(AuthorizationSri), ElementName = "autorizacion")]
+            public List<AuthorizationSri> Authorizations { get; set; }
+        }
+        [XmlRoot(ElementName = "Envelope", Namespace = "http://schemas.xmlsoap.org/soap/envelope/")]
+        public class AuthorizationEnvelope
+        {
+            [XmlElement(ElementName = "Body", Namespace = "http://schemas.xmlsoap.org/soap/envelope/")]
+            public Body Body { get; set; }
+
+            [XmlAttribute(AttributeName = "soap")]
+            public string Soap { get; set; }
+
+            [XmlText]
+            public string Text { get; set; }
+        }
+        [XmlRoot(ElementName = "autorizacion")]
+        public class AuthorizationSri
+        {
+
+            [XmlElement(ElementName = "estado")]
+            public string Estado { get; set; }
+
+            [XmlElement(ElementName = "numeroAutorizacion")]
+            public string NumeroAutorizacion { get; set; }
+
+            [XmlElement(ElementName = "fechaAutorizacion")]
+            public DateTime FechaAutorizacion { get; set; }
+
+            [XmlElement(ElementName = "ambiente")]
+            public string Ambiente { get; set; }
+
+            [XmlElement(ElementName = "comprobante")]
+            public string Comprobante { get; set; }
+
+            [XmlElement(ElementName = "mensajes")]
+            public object Mensajes { get; set; }
         }
     }
 }

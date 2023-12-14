@@ -16,16 +16,26 @@ namespace wsSriAutorizacion
     public interface AutorizacionComprobantesOffline
     {
         
+        // CODEGEN: El parámetro "RespuestaAutorizacionComprobante" requiere información adicional de esquema que no se puede capturar con el modo de parámetros. El atributo específico es "Microsoft.Xml.Serialization.XmlElementAttribute".
         [System.ServiceModel.OperationContractAttribute(Action="", ReplyAction="*")]
         [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(mensaje[]))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(autorizacion[]))]
-        System.Threading.Tasks.Task<wsSriAutorizacion.autorizacionComprobanteResponse> autorizacionComprobanteAsync(wsSriAutorizacion.autorizacionComprobante request);
+        [return: System.ServiceModel.MessageParameterAttribute(Name="RespuestaAutorizacionComprobante")]
+        wsSriAutorizacion.autorizacionComprobanteResponse autorizacionComprobante(wsSriAutorizacion.autorizacionComprobante request);
         
         [System.ServiceModel.OperationContractAttribute(Action="", ReplyAction="*")]
+        System.Threading.Tasks.Task<wsSriAutorizacion.autorizacionComprobanteResponse> autorizacionComprobanteAsync(wsSriAutorizacion.autorizacionComprobante request);
+        
+        // CODEGEN: El parámetro "RespuestaAutorizacionLote" requiere información adicional de esquema que no se puede capturar con el modo de parámetros. El atributo específico es "Microsoft.Xml.Serialization.XmlElementAttribute".
+        [System.ServiceModel.OperationContractAttribute(Action="", ReplyAction="*")]
         [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(mensaje[]))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(autorizacion[]))]
+        [return: System.ServiceModel.MessageParameterAttribute(Name="RespuestaAutorizacionLote")]
+        wsSriAutorizacion.autorizacionComprobanteLoteResponse autorizacionComprobanteLote(wsSriAutorizacion.autorizacionComprobanteLote request);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="", ReplyAction="*")]
         System.Threading.Tasks.Task<wsSriAutorizacion.autorizacionComprobanteLoteResponse> autorizacionComprobanteLoteAsync(wsSriAutorizacion.autorizacionComprobanteLote request);
     }
     
@@ -471,6 +481,20 @@ namespace wsSriAutorizacion
         }
         
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+        wsSriAutorizacion.autorizacionComprobanteResponse wsSriAutorizacion.AutorizacionComprobantesOffline.autorizacionComprobante(wsSriAutorizacion.autorizacionComprobante request)
+        {
+            return base.Channel.autorizacionComprobante(request);
+        }
+        
+        public wsSriAutorizacion.respuestaComprobante autorizacionComprobante(string claveAccesoComprobante)
+        {
+            wsSriAutorizacion.autorizacionComprobante inValue = new wsSriAutorizacion.autorizacionComprobante();
+            inValue.claveAccesoComprobante = claveAccesoComprobante;
+            wsSriAutorizacion.autorizacionComprobanteResponse retVal = ((wsSriAutorizacion.AutorizacionComprobantesOffline)(this)).autorizacionComprobante(inValue);
+            return retVal.RespuestaAutorizacionComprobante;
+        }
+        
+        [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
         System.Threading.Tasks.Task<wsSriAutorizacion.autorizacionComprobanteResponse> wsSriAutorizacion.AutorizacionComprobantesOffline.autorizacionComprobanteAsync(wsSriAutorizacion.autorizacionComprobante request)
         {
             return base.Channel.autorizacionComprobanteAsync(request);
@@ -481,6 +505,20 @@ namespace wsSriAutorizacion
             wsSriAutorizacion.autorizacionComprobante inValue = new wsSriAutorizacion.autorizacionComprobante();
             inValue.claveAccesoComprobante = claveAccesoComprobante;
             return ((wsSriAutorizacion.AutorizacionComprobantesOffline)(this)).autorizacionComprobanteAsync(inValue);
+        }
+        
+        [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+        wsSriAutorizacion.autorizacionComprobanteLoteResponse wsSriAutorizacion.AutorizacionComprobantesOffline.autorizacionComprobanteLote(wsSriAutorizacion.autorizacionComprobanteLote request)
+        {
+            return base.Channel.autorizacionComprobanteLote(request);
+        }
+        
+        public wsSriAutorizacion.respuestaLote autorizacionComprobanteLote(string claveAccesoLote)
+        {
+            wsSriAutorizacion.autorizacionComprobanteLote inValue = new wsSriAutorizacion.autorizacionComprobanteLote();
+            inValue.claveAccesoLote = claveAccesoLote;
+            wsSriAutorizacion.autorizacionComprobanteLoteResponse retVal = ((wsSriAutorizacion.AutorizacionComprobantesOffline)(this)).autorizacionComprobanteLote(inValue);
+            return retVal.RespuestaAutorizacionLote;
         }
         
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
