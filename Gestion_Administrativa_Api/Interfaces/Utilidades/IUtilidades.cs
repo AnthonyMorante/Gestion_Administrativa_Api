@@ -205,7 +205,10 @@ namespace Gestion_Administrativa_Api.Interfaces.Utilidades
             catch (Exception ex)
             {
                 await Console.Out.WriteLineAsync(ex.Message);
-                return new estadoSri();
+                return new estadoSri()
+                {
+                    idTipoEstadoSri = 6,
+                };
             }
         }
 
@@ -213,25 +216,29 @@ namespace Gestion_Administrativa_Api.Interfaces.Utilidades
         {
             try
             {
-                var estado=new estadoSri();
+                var estado = new estadoSri();
                 switch (_autorizacion.Estado)
                 {
                     case "EN PROCESAMIENTO":
                         estado.idTipoEstadoSri = 1;
                         estado.fechaAutorizacion = _autorizacion.FechaAutorizacion;
-                        break;                   
+                        break;
+
                     case "AUTORIZADO":
                         estado.idTipoEstadoSri = 2;
                         estado.fechaAutorizacion = _autorizacion.FechaAutorizacion;
                         break;
+
                     case "NO AUTORIZADO":
                         estado.idTipoEstadoSri = 3;
                         estado.fechaAutorizacion = null;
                         break;
+
                     case "RECHAZADO":
                         estado.idTipoEstadoSri = 4;
                         estado.fechaAutorizacion = null;
                         break;
+
                     default:
                         throw new Exception($"No se ha encontrado el código de tipoEstadoSri {_autorizacion.Estado}");
                 }
@@ -241,15 +248,17 @@ namespace Gestion_Administrativa_Api.Interfaces.Utilidades
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                return new estadoSri();
+                return new estadoSri()
+                {
+                    idTipoEstadoSri = 6,
+                };
             }
         }
 
         public class estadoSri
         {
-
             public int idTipoEstadoSri { get; set; }
-            public DateTime? fechaAutorizacion { get; set; }            
+            public DateTime? fechaAutorizacion { get; set; }
         }
 
         private string GetAuthorizationSoap(string claveAcceso)
@@ -277,23 +286,27 @@ namespace Gestion_Administrativa_Api.Interfaces.Utilidades
             [XmlText]
             public string Text { get; set; }
         }
+
         [XmlRoot(ElementName = "Body", Namespace = "http://schemas.xmlsoap.org/soap/envelope/")]
         public class Body
         {
             [XmlElement(ElementName = "autorizacionComprobanteResponse", Namespace = "http://ec.gob.sri.ws.autorizacion")]
             public AutorizacionComprobanteResponse AutorizacionComprobanteResponse { get; set; }
         }
+
         [XmlRoot(ElementName = "autorizacionComprobanteResponse", Namespace = "http://ec.gob.sri.ws.autorizacion")]
         public class AutorizacionComprobanteResponse
         {
             [XmlElement(ElementName = "RespuestaAutorizacionComprobante", Namespace = "")]
             public AuthorizationResponse RespuestaAutorizacionComprobante { get; set; }
+
             [XmlAttribute(AttributeName = "ns2")]
             public string Ns2 { get; set; }
 
             [XmlText]
             public string Text { get; set; }
         }
+
         [XmlRoot(ElementName = "RespuestaAutorizacionComprobante")]
         public class AuthorizationResponse
         {
@@ -307,6 +320,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Utilidades
             [XmlArrayItem(typeof(AuthorizationSri), ElementName = "autorizacion")]
             public List<AuthorizationSri> Authorizations { get; set; }
         }
+
         [XmlRoot(ElementName = "Envelope", Namespace = "http://schemas.xmlsoap.org/soap/envelope/")]
         public class AuthorizationEnvelope
         {
@@ -319,10 +333,10 @@ namespace Gestion_Administrativa_Api.Interfaces.Utilidades
             [XmlText]
             public string Text { get; set; }
         }
+
         [XmlRoot(ElementName = "autorizacion")]
         public class AuthorizationSri
         {
-
             [XmlElement(ElementName = "estado")]
             public string Estado { get; set; }
 
