@@ -82,7 +82,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                 factura.EmisorRazonSocial = consultaEmpresa.RazonSocial;
                 factura.RegimenMicroempresas = consultaEmpresa.RegimenMicroEmpresas;
                 factura.ObligadoContabilidad = consultaEmpresa.LlevaContabilidad;
-                factura.ResolucionAgenteRetencion = consultaEmpresa.ResolucionAgenteRetencion;
+                factura.AgenteRetencion = consultaEmpresa.AgenteRetencion;
                 factura.RegimenRimpe = consultaEmpresa.RegimenRimpe;
                 factura.IdTipoEstadoDocumento = 1;
                 factura.IdTipoEstadoSri = 1;
@@ -248,6 +248,8 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                 factura.infoFactura.pagos = formaPago;
                 factura.detalles = detalleFactura;
                 factura.infoAdicional = infoAdicional;
+                factura.infoTributaria.agenteRetencion = _factura.AgenteRetencion == true ? factura.infoTributaria.agenteRetencion="1" : null;
+
                 return factura;
             }
             catch (Exception ex)
