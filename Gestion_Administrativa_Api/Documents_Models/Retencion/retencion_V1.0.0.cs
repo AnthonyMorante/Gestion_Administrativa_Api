@@ -61,9 +61,9 @@ namespace Gestion_Administrativa_Api.Documents_Models.Retencion
             public decimal? baseImponible { get; set; }
             public decimal? porcentajeRetener { get; set; }
             public decimal? valorRetenido { get; set; }
-            public decimal? codDocSustento { get; set; }
-            public decimal? numDocSustento { get; set; }
-            public decimal? fechaEmisionDocSustento { get; set; }
+            public string? codDocSustento { get; set; }
+            public string? numDocSustento { get; set; }
+            public string? fechaEmisionDocSustento { get; set; }
         }
 
 

@@ -124,6 +124,8 @@ builder.Services.AddScoped<IFormaPagos, FormaPagosI>();
 builder.Services.AddScoped<ITiempoFormaPagos, TiempoFormaPagosI>();
 builder.Services.AddScoped<IFacturas, FacturasI>();
 builder.Services.AddScoped<IUtilidades, UtilidadesI>();
+builder.Services.AddScoped<IRetenciones, RetencionesI>();
+
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
