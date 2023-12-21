@@ -18,4 +18,6 @@ public partial class TipoEstadoDocumentos
     public int? Codigo { get; set; }
 
     public virtual ICollection<Facturas> Facturas { get; set; } = new List<Facturas>();
+
+    public virtual ICollection<Retenciones> Retenciones { get; set; } = new List<Retenciones>();
 }

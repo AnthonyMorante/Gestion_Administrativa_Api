@@ -21,5 +21,7 @@ public partial class Usuarios
 
     public virtual ICollection<Proformas> Proformas { get; set; } = new List<Proformas>();
 
+    public virtual ICollection<Retenciones> Retenciones { get; set; } = new List<Retenciones>();
+
     public virtual ICollection<UsuarioEmpresas> UsuarioEmpresas { get; set; } = new List<UsuarioEmpresas>();
 }

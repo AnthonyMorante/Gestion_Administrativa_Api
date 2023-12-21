@@ -33,21 +33,25 @@ public partial class _context : DbContext
 
     public virtual DbSet<Empresas> Empresas { get; set; }
 
-    public virtual DbSet<Errorlogs> Errorlogs { get; set; }
-
     public virtual DbSet<Establecimientos> Establecimientos { get; set; }
 
     public virtual DbSet<Facturas> Facturas { get; set; }
 
     public virtual DbSet<FormaPagos> FormaPagos { get; set; }
 
+    public virtual DbSet<ImpuestoRetenciones> ImpuestoRetenciones { get; set; }
+
     public virtual DbSet<InformacionAdicional> InformacionAdicional { get; set; }
+
+    public virtual DbSet<InformacionAdicionalRetencion> InformacionAdicionalRetencion { get; set; }
 
     public virtual DbSet<InformacionFirmas> InformacionFirmas { get; set; }
 
     public virtual DbSet<Ivas> Ivas { get; set; }
 
     public virtual DbSet<Lotes> Lotes { get; set; }
+
+    public virtual DbSet<PorcentajeImpuestosRetenciones> PorcentajeImpuestosRetenciones { get; set; }
 
     public virtual DbSet<Productos> Productos { get; set; }
 
@@ -58,6 +62,8 @@ public partial class _context : DbContext
     public virtual DbSet<Provincias> Provincias { get; set; }
 
     public virtual DbSet<PuntoEmisiones> PuntoEmisiones { get; set; }
+
+    public virtual DbSet<Retenciones> Retenciones { get; set; }
 
     public virtual DbSet<Secuenciales> Secuenciales { get; set; }
 
@@ -77,17 +83,14 @@ public partial class _context : DbContext
 
     public virtual DbSet<TipoNegocios> TipoNegocios { get; set; }
 
+    public virtual DbSet<TipoValorRetenciones> TipoValorRetenciones { get; set; }
+
     public virtual DbSet<UsuarioEmpresas> UsuarioEmpresas { get; set; }
 
     public virtual DbSet<Usuarios> Usuarios { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseNpgsql("name=cn");
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.HasAnnotation("Npgsql:CollationDefinition:public.general_ci_ai", "und-u-ks-level1,und-u-ks-level1,icu,False");
-
         modelBuilder.Entity<Ciudades>(entity =>
         {
             entity.HasKey(e => e.IdCiudad).HasName("ciudades_pkey");
@@ -459,11 +462,6 @@ public partial class _context : DbContext
                 .HasMaxLength(30)
                 .HasColumnName("telefono");
 
-            entity.HasOne(d => d.IdEmpresaNavigation).WithOne(p => p.InverseIdEmpresaNavigation)
-                .HasForeignKey<Empresas>(d => d.IdEmpresa)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("empresas_empresas");
-
             entity.HasOne(d => d.IdInformacionFirmaNavigation).WithMany(p => p.Empresas)
                 .HasForeignKey(d => d.IdInformacionFirma)
                 .HasConstraintName("fk_empresas_informacionfirmas");
@@ -471,17 +469,6 @@ public partial class _context : DbContext
             entity.HasOne(d => d.IdTipoNegocioNavigation).WithMany(p => p.Empresas)
                 .HasForeignKey(d => d.IdTipoNegocio)
                 .HasConstraintName("empresas_TipoNegocios");
-        });
-
-        modelBuilder.Entity<Errorlogs>(entity =>
-        {
-            entity.HasKey(e => e.Iderror).HasName("errorlogs_pkey");
-
-            entity.ToTable("errorlogs");
-
-            entity.Property(e => e.Iderror).HasColumnName("iderror");
-            entity.Property(e => e.Error).HasColumnName("error");
-            entity.Property(e => e.Fecharegistro).HasColumnName("fecharegistro");
         });
 
         modelBuilder.Entity<Establecimientos>(entity =>
@@ -591,9 +578,7 @@ public partial class _context : DbContext
             entity.Property(e => e.IdEstablecimiento).HasColumnName("idEstablecimiento");
             entity.Property(e => e.IdPuntoEmision).HasColumnName("idPuntoEmision");
             entity.Property(e => e.IdTipoEstadoDocumento).HasColumnName("idTipoEstadoDocumento");
-            entity.Property(e => e.IdTipoEstadoSri)
-                .ValueGeneratedOnAdd()
-                .HasColumnName("idTipoEstadoSri");
+            entity.Property(e => e.IdTipoEstadoSri).HasColumnName("idTipoEstadoSri");
             entity.Property(e => e.IdUsuario).HasColumnName("idUsuario");
             entity.Property(e => e.Irbpnr)
                 .HasPrecision(8, 2)
@@ -702,6 +687,57 @@ public partial class _context : DbContext
                 .HasColumnName("nombre");
         });
 
+        modelBuilder.Entity<ImpuestoRetenciones>(entity =>
+        {
+            entity.HasKey(e => e.IdImpuestoRetencion).HasName("impuestoRetenciones_pkey");
+
+            entity.ToTable("impuestoRetenciones");
+
+            entity.Property(e => e.IdImpuestoRetencion)
+                .HasDefaultValueSql("gen_random_uuid()")
+                .HasColumnName("idImpuestoRetencion");
+            entity.Property(e => e.BaseImponible)
+                .HasPrecision(8, 2)
+                .HasColumnName("baseImponible");
+            entity.Property(e => e.CodDocSustento)
+                .HasPrecision(8, 2)
+                .HasColumnName("codDocSustento");
+            entity.Property(e => e.FechaEmisionDocSustento)
+                .HasMaxLength(50)
+                .HasColumnName("fechaEmisionDocSustento");
+            entity.Property(e => e.FechaRegistro)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("fechaRegistro");
+            entity.Property(e => e.IdPorcentajeImpuestoRetencion).HasColumnName("idPorcentajeImpuestoRetencion");
+            entity.Property(e => e.IdRetencion).HasColumnName("idRetencion");
+            entity.Property(e => e.IdTipoValorRetencion).HasColumnName("idTipoValorRetencion");
+            entity.Property(e => e.NumDocSustento)
+                .HasPrecision(8, 2)
+                .HasColumnName("numDocSustento");
+            entity.Property(e => e.PorcentajeRetener)
+                .HasPrecision(8, 2)
+                .HasColumnName("porcentajeRetener");
+            entity.Property(e => e.ValorRetenido)
+                .HasPrecision(8, 2)
+                .HasColumnName("valorRetenido");
+
+            entity.HasOne(d => d.IdPorcentajeImpuestoRetencionNavigation).WithMany(p => p.ImpuestoRetenciones)
+                .HasForeignKey(d => d.IdPorcentajeImpuestoRetencion)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("impuestoRetenciones_idPorcentajeImpuestoRetencion_fkey");
+
+            entity.HasOne(d => d.IdRetencionNavigation).WithMany(p => p.ImpuestoRetenciones)
+                .HasForeignKey(d => d.IdRetencion)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("tipoRetencionIva_idRetencion_fkey");
+
+            entity.HasOne(d => d.IdTipoValorRetencionNavigation).WithMany(p => p.ImpuestoRetenciones)
+                .HasForeignKey(d => d.IdTipoValorRetencion)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("impuestoRetenciones_idTipoValorRetencion_fkey");
+        });
+
         modelBuilder.Entity<InformacionAdicional>(entity =>
         {
             entity.HasKey(e => e.IdInformacionAdicional).HasName("informacionAdicional_pkey");
@@ -725,6 +761,29 @@ public partial class _context : DbContext
                 .HasForeignKey(d => d.IdFactura)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("informacionAdicional_idFactura_fkey");
+        });
+
+        modelBuilder.Entity<InformacionAdicionalRetencion>(entity =>
+        {
+            entity.HasKey(e => e.IdInformacionAdicionalRetencion).HasName("informacionAdicionalRetencion_pkey");
+
+            entity.ToTable("informacionAdicionalRetencion");
+
+            entity.Property(e => e.IdInformacionAdicionalRetencion)
+                .HasDefaultValueSql("gen_random_uuid()")
+                .HasColumnName("idInformacionAdicionalRetencion");
+            entity.Property(e => e.IdRetencion).HasColumnName("idRetencion");
+            entity.Property(e => e.Nombre)
+                .HasMaxLength(500)
+                .HasColumnName("nombre");
+            entity.Property(e => e.Valor)
+                .HasMaxLength(500)
+                .HasColumnName("valor");
+
+            entity.HasOne(d => d.IdRetencionNavigation).WithMany(p => p.InformacionAdicionalRetencion)
+                .HasForeignKey(d => d.IdRetencion)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("informacionAdicionalRetencion_idRetencion_fkey");
         });
 
         modelBuilder.Entity<InformacionFirmas>(entity =>
@@ -809,6 +868,40 @@ public partial class _context : DbContext
             entity.HasOne(d => d.IdUsuarioNavigation).WithMany(p => p.Lotes)
                 .HasForeignKey(d => d.IdUsuario)
                 .HasConstraintName("lotes_idUsuario_fkey");
+        });
+
+        modelBuilder.Entity<PorcentajeImpuestosRetenciones>(entity =>
+        {
+            entity.HasKey(e => e.IdPorcentajeImpuestoRetencion).HasName("porcentajeRetencion_pkey");
+
+            entity.ToTable("porcentajeImpuestosRetenciones");
+
+            entity.Property(e => e.IdPorcentajeImpuestoRetencion)
+                .HasDefaultValueSql("gen_random_uuid()")
+                .HasColumnName("idPorcentajeImpuestoRetencion");
+            entity.Property(e => e.Activo)
+                .HasDefaultValue(true)
+                .HasColumnName("activo");
+            entity.Property(e => e.Codigo).HasColumnName("codigo");
+            entity.Property(e => e.Descripcion)
+                .HasMaxLength(500)
+                .HasColumnName("descripcion");
+            entity.Property(e => e.FechaRegistro)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("fechaRegistro");
+            entity.Property(e => e.IdTipoValorRetencion).HasColumnName("idTipoValorRetencion");
+            entity.Property(e => e.Nombre)
+                .HasMaxLength(500)
+                .HasColumnName("nombre");
+            entity.Property(e => e.Valor)
+                .HasPrecision(8, 2)
+                .HasColumnName("valor");
+
+            entity.HasOne(d => d.IdTipoValorRetencionNavigation).WithMany(p => p.PorcentajeImpuestosRetenciones)
+                .HasForeignKey(d => d.IdTipoValorRetencion)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("tipoRetencionIva_idTipoValorRetencion_fkey");
         });
 
         modelBuilder.Entity<Productos>(entity =>
@@ -1057,6 +1150,115 @@ public partial class _context : DbContext
                 .HasConstraintName("puntoEmisiones_idEmpresa_fkey");
         });
 
+        modelBuilder.Entity<Retenciones>(entity =>
+        {
+            entity.HasKey(e => e.IdRetencion).HasName("retenciones_pkey");
+
+            entity.ToTable("retenciones");
+
+            entity.Property(e => e.IdRetencion)
+                .HasDefaultValueSql("gen_random_uuid()")
+                .HasColumnName("idRetencion");
+            entity.Property(e => e.AgenteRetencion)
+                .HasMaxLength(300)
+                .HasColumnName("agenteRetencion");
+            entity.Property(e => e.Ambiente).HasColumnName("ambiente");
+            entity.Property(e => e.ClaveAcceso)
+                .HasMaxLength(50)
+                .HasColumnName("claveAcceso");
+            entity.Property(e => e.CodigoDocumento).HasColumnName("codigoDocumento");
+            entity.Property(e => e.DireccionMatriz)
+                .HasMaxLength(300)
+                .HasColumnName("direccionMatriz");
+            entity.Property(e => e.EmisorRazonSocial)
+                .HasMaxLength(300)
+                .HasColumnName("emisorRazonSocial");
+            entity.Property(e => e.EmisorRuc)
+                .HasMaxLength(20)
+                .HasColumnName("emisorRuc");
+            entity.Property(e => e.Establecimiento).HasColumnName("establecimiento");
+            entity.Property(e => e.FechaEmision)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("fechaEmision");
+            entity.Property(e => e.IdCiudad).HasColumnName("idCiudad");
+            entity.Property(e => e.IdCliente).HasColumnName("idCliente");
+            entity.Property(e => e.IdDocumentoEmitir).HasColumnName("idDocumentoEmitir");
+            entity.Property(e => e.IdEmpresa).HasColumnName("idEmpresa");
+            entity.Property(e => e.IdEstablecimiento).HasColumnName("idEstablecimiento");
+            entity.Property(e => e.IdPuntoEmision).HasColumnName("idPuntoEmision");
+            entity.Property(e => e.IdTipoDocumento).HasColumnName("idTipoDocumento");
+            entity.Property(e => e.IdTipoEstadoDocumento).HasColumnName("idTipoEstadoDocumento");
+            entity.Property(e => e.IdTipoEstadoSri).HasColumnName("idTipoEstadoSri");
+            entity.Property(e => e.IdTipoIdenticacion).HasColumnName("idTipoIdenticacion");
+            entity.Property(e => e.IdUsuario).HasColumnName("idUsuario");
+            entity.Property(e => e.IdentificacionSujetoRetenido)
+                .HasMaxLength(20)
+                .HasColumnName("identificacionSujetoRetenido");
+            entity.Property(e => e.NombreComercial)
+                .HasMaxLength(300)
+                .HasColumnName("nombreComercial");
+            entity.Property(e => e.ObligadoContabilidad).HasColumnName("obligadoContabilidad");
+            entity.Property(e => e.PeriodoFiscal)
+                .HasMaxLength(20)
+                .HasColumnName("periodoFiscal");
+            entity.Property(e => e.PuntoEmision).HasColumnName("puntoEmision");
+            entity.Property(e => e.RazonSocialSujetoRetenido)
+                .HasMaxLength(500)
+                .HasColumnName("razonSocialSujetoRetenido");
+            entity.Property(e => e.Ruta)
+                .HasMaxLength(1000)
+                .HasColumnName("ruta");
+            entity.Property(e => e.Secuencial).HasColumnName("secuencial");
+            entity.Property(e => e.TipoDocumento).HasColumnName("tipoDocumento");
+            entity.Property(e => e.TipoEmision).HasColumnName("tipoEmision");
+            entity.Property(e => e.TipoIdentificacionSujetoRetenido)
+                .HasMaxLength(20)
+                .HasColumnName("tipoIdentificacionSujetoRetenido");
+            entity.Property(e => e.VersionXml)
+                .HasMaxLength(10)
+                .HasColumnName("versionXml");
+
+            entity.HasOne(d => d.IdCiudadNavigation).WithMany(p => p.Retenciones)
+                .HasForeignKey(d => d.IdCiudad)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("retenciones_idCiudad_fkey");
+
+            entity.HasOne(d => d.IdClienteNavigation).WithMany(p => p.Retenciones)
+                .HasForeignKey(d => d.IdCliente)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("retenciones_idCliente_fkey");
+
+            entity.HasOne(d => d.IdDocumentoEmitirNavigation).WithMany(p => p.Retenciones)
+                .HasForeignKey(d => d.IdDocumentoEmitir)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("retenciones_idDocumentoEmitir_fkey");
+
+            entity.HasOne(d => d.IdEstablecimientoNavigation).WithMany(p => p.Retenciones)
+                .HasForeignKey(d => d.IdEstablecimiento)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("retenciones_idEstablecimiento_fkey");
+
+            entity.HasOne(d => d.IdPuntoEmisionNavigation).WithMany(p => p.Retenciones)
+                .HasForeignKey(d => d.IdPuntoEmision)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("retenciones_idPuntoEmision_fkey");
+
+            entity.HasOne(d => d.IdTipoEstadoDocumentoNavigation).WithMany(p => p.Retenciones)
+                .HasForeignKey(d => d.IdTipoEstadoDocumento)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("retenciones_idTipoEstadoDocumento_fkey");
+
+            entity.HasOne(d => d.IdTipoEstadoSriNavigation).WithMany(p => p.Retenciones)
+                .HasForeignKey(d => d.IdTipoEstadoSri)
+                .HasConstraintName("retenciones_idTipoEstadoSri_fkey");
+
+            entity.HasOne(d => d.IdUsuarioNavigation).WithMany(p => p.Retenciones)
+                .HasForeignKey(d => d.IdUsuario)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("retenciones_idUsuario_fkey");
+        });
+
         modelBuilder.Entity<Secuenciales>(entity =>
         {
             entity.HasKey(e => e.IdSecuencial).HasName("secuenciales_pkey");
@@ -1284,6 +1486,31 @@ public partial class _context : DbContext
             entity.Property(e => e.Codigo)
                 .HasMaxLength(500)
                 .HasColumnName("codigo");
+            entity.Property(e => e.Descripcion)
+                .HasMaxLength(500)
+                .HasColumnName("descripcion");
+            entity.Property(e => e.FechaRegistro)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("fechaRegistro");
+            entity.Property(e => e.Nombre)
+                .HasMaxLength(500)
+                .HasColumnName("nombre");
+        });
+
+        modelBuilder.Entity<TipoValorRetenciones>(entity =>
+        {
+            entity.HasKey(e => e.IdTipoValorRetencion).HasName("tipoRetencion_pkey");
+
+            entity.ToTable("tipoValorRetenciones");
+
+            entity.Property(e => e.IdTipoValorRetencion)
+                .HasDefaultValueSql("gen_random_uuid()")
+                .HasColumnName("idTipoValorRetencion");
+            entity.Property(e => e.Activo)
+                .HasDefaultValue(true)
+                .HasColumnName("activo");
+            entity.Property(e => e.Codigo).HasColumnName("codigo");
             entity.Property(e => e.Descripcion)
                 .HasMaxLength(500)
                 .HasColumnName("descripcion");

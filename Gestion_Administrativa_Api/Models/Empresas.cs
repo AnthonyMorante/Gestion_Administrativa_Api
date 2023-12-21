@@ -39,13 +39,9 @@ public partial class Empresas
 
     public virtual ICollection<Establecimientos> Establecimientos { get; set; } = new List<Establecimientos>();
 
-    public virtual Empresas IdEmpresaNavigation { get; set; } = null!;
-
     public virtual InformacionFirmas? IdInformacionFirmaNavigation { get; set; }
 
     public virtual TipoNegocios? IdTipoNegocioNavigation { get; set; }
-
-    public virtual Empresas? InverseIdEmpresaNavigation { get; set; }
 
     public virtual ICollection<Productos> Productos { get; set; } = new List<Productos>();
 

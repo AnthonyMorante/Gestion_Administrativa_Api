@@ -34,4 +34,6 @@ public partial class Clientes
     public virtual Empresas? IdEmpresaNavigation { get; set; }
 
     public virtual TipoIdentificaciones? IdTipoIdentificacionNavigation { get; set; }
+
+    public virtual ICollection<Retenciones> Retenciones { get; set; } = new List<Retenciones>();
 }

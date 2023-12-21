@@ -24,4 +24,6 @@ public partial class Establecimientos
     public virtual Empresas? IdEmpresaNavigation { get; set; }
 
     public virtual ICollection<Proformas> Proformas { get; set; } = new List<Proformas>();
+
+    public virtual ICollection<Retenciones> Retenciones { get; set; } = new List<Retenciones>();
 }

@@ -16,4 +16,6 @@ public partial class DocumentosEmitir
     public Guid? IdTipoDocumento { get; set; }
 
     public virtual TipoDocumentos? IdTipoDocumentoNavigation { get; set; }
+
+    public virtual ICollection<Retenciones> Retenciones { get; set; } = new List<Retenciones>();
 }
