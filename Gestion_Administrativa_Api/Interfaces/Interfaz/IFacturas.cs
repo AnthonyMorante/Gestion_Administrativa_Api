@@ -117,12 +117,11 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                     _context.Secuenciales.Update(consultaSecuencial);
                     await _context.SaveChangesAsync();
                     var enviadoSri=await enviarSri(factura.ClaveAcceso);
-                    if (enviadoSri == true)
-                    {
-                        string sql = @"UPDATE facturas SET ""idTipoEstadoSri""=6
-                                       WHERE ""claveAcceso"" = @claveAcceso;";
-                        await _dapper.ExecuteScalarAsync(sql,new { claveAcceso=factura.ClaveAcceso });
-                    }
+                    var idTipoEstadoSri = enviadoSri ? 6 : 0;
+                    string sql = @"UPDATE facturas SET ""idTipoEstadoSri""=@idTipoEstadoSri
+                                   WHERE ""claveAcceso"" = @claveAcceso;";
+                    await _dapper.ExecuteScalarAsync(sql,new { claveAcceso=factura.ClaveAcceso,idTipoEstadoSri });
+
                 }
                 result.StatusCode = 200;
                 return result;
