@@ -1,6 +1,6 @@
 ﻿using System.Xml.Serialization;
 
-namespace GestionAdministrativa_Api.Models.Factura
+namespace Gestion_Administrativa_Api.Models.XML.Factura
 {
     [XmlRoot(ElementName = "detalle")]
     public class Detalle

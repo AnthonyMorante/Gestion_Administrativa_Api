@@ -1,8 +1,5 @@
-﻿using Gestion_Administrativa_Api.Models;
-using Microsoft.AspNetCore.Http;
+﻿using Gestion_Administrativa_Api.Models.XML.Factura;
 using Microsoft.AspNetCore.Mvc;
-using GestionAdministrativa_Api.Models.Factura;
-using System.Text;
 using System.Xml.Serialization;
 
 namespace Gestion_Administrativa_Api.Controllers.Interfaz
@@ -16,14 +13,12 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
         {
             try
             {
-
-                XmlSerializer serializer = new XmlSerializer(typeof(FacturaProveedor));
-                var factura = serializer.Deserialize(fileXml.OpenReadStream());
+                XmlSerializer serializer = new XmlSerializer(typeof(Factura));
+                var factura = (Factura)serializer.Deserialize(fileXml.OpenReadStream());
                 return Ok(factura);
             }
             catch (Exception ex)
             {
-
                 return Problem(ex.Message);
             }
         }

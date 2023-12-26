@@ -1,9 +1,9 @@
 ﻿using System.Xml.Serialization;
 
-namespace GestionAdministrativa_Api.Models.Factura
+namespace Gestion_Administrativa_Api.Models.XML.Factura
 {
     [XmlRoot(ElementName = "factura")]
-    public class FacturaProveedor
+    public class Factura
     {
 
         [XmlElement(ElementName = "infoTributaria")]

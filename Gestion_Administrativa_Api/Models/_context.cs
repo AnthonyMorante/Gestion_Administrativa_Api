@@ -51,6 +51,8 @@ public partial class _context : DbContext
 
     public virtual DbSet<Lotes> Lotes { get; set; }
 
+    public virtual DbSet<Personas> Personas { get; set; }
+
     public virtual DbSet<PorcentajeImpuestosRetenciones> PorcentajeImpuestosRetenciones { get; set; }
 
     public virtual DbSet<Productos> Productos { get; set; }
@@ -68,6 +70,24 @@ public partial class _context : DbContext
     public virtual DbSet<Secuenciales> Secuenciales { get; set; }
 
     public virtual DbSet<SecuencialesProformas> SecuencialesProformas { get; set; }
+
+    public virtual DbSet<Sriambientes> Sriambientes { get; set; }
+
+    public virtual DbSet<Sriestados> Sriestados { get; set; }
+
+    public virtual DbSet<Srifacturas> Srifacturas { get; set; }
+
+    public virtual DbSet<Sriformaspagos> Sriformaspagos { get; set; }
+
+    public virtual DbSet<Srimonedas> Srimonedas { get; set; }
+
+    public virtual DbSet<Sriporcentajesimpuestos> Sriporcentajesimpuestos { get; set; }
+
+    public virtual DbSet<Sritiposdocumentos> Sritiposdocumentos { get; set; }
+
+    public virtual DbSet<Sritiposidentificaciones> Sritiposidentificaciones { get; set; }
+
+    public virtual DbSet<Sriunidadestiempos> Sriunidadestiempos { get; set; }
 
     public virtual DbSet<TiempoFormaPagos> TiempoFormaPagos { get; set; }
 
@@ -88,6 +108,9 @@ public partial class _context : DbContext
     public virtual DbSet<UsuarioEmpresas> UsuarioEmpresas { get; set; }
 
     public virtual DbSet<Usuarios> Usuarios { get; set; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        => optionsBuilder.UseNpgsql("name=cn");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -870,6 +893,46 @@ public partial class _context : DbContext
                 .HasConstraintName("lotes_idUsuario_fkey");
         });
 
+        modelBuilder.Entity<Personas>(entity =>
+        {
+            entity.HasKey(e => e.Identificacion).HasName("personas_pkey");
+
+            entity.ToTable("personas");
+
+            entity.Property(e => e.Identificacion)
+                .HasMaxLength(20)
+                .HasColumnName("identificacion");
+            entity.Property(e => e.Apellidos)
+                .HasMaxLength(100)
+                .HasColumnName("apellidos");
+            entity.Property(e => e.Direccion)
+                .HasMaxLength(300)
+                .HasColumnName("direccion");
+            entity.Property(e => e.Email)
+                .HasMaxLength(100)
+                .HasColumnName("email");
+            entity.Property(e => e.Fecharegistro)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("fecharegistro");
+            entity.Property(e => e.Nombres)
+                .HasMaxLength(100)
+                .HasColumnName("nombres");
+            entity.Property(e => e.Razonsocial)
+                .HasMaxLength(200)
+                .HasColumnName("razonsocial");
+            entity.Property(e => e.Telefono)
+                .HasMaxLength(20)
+                .HasColumnName("telefono");
+            entity.Property(e => e.Tipoidentificacion)
+                .HasMaxLength(5)
+                .HasColumnName("tipoidentificacion");
+
+            entity.HasOne(d => d.TipoidentificacionNavigation).WithMany(p => p.Personas)
+                .HasForeignKey(d => d.Tipoidentificacion)
+                .HasConstraintName("personas_tipoidentificacion_fkey");
+        });
+
         modelBuilder.Entity<PorcentajeImpuestosRetenciones>(entity =>
         {
             entity.HasKey(e => e.IdPorcentajeImpuestoRetencion).HasName("porcentajeRetencion_pkey");
@@ -1170,6 +1233,9 @@ public partial class _context : DbContext
             entity.Property(e => e.DireccionMatriz)
                 .HasMaxLength(300)
                 .HasColumnName("direccionMatriz");
+            entity.Property(e => e.EmisorNombreComercial)
+                .HasMaxLength(300)
+                .HasColumnName("emisorNombreComercial");
             entity.Property(e => e.EmisorRazonSocial)
                 .HasMaxLength(300)
                 .HasColumnName("emisorRazonSocial");
@@ -1195,9 +1261,6 @@ public partial class _context : DbContext
             entity.Property(e => e.IdentificacionSujetoRetenido)
                 .HasMaxLength(20)
                 .HasColumnName("identificacionSujetoRetenido");
-            entity.Property(e => e.NombreComercial)
-                .HasMaxLength(300)
-                .HasColumnName("nombreComercial");
             entity.Property(e => e.ObligadoContabilidad).HasColumnName("obligadoContabilidad");
             entity.Property(e => e.PeriodoFiscal)
                 .HasMaxLength(20)
@@ -1323,6 +1386,259 @@ public partial class _context : DbContext
             entity.HasOne(d => d.IdTipoDocumentoNavigation).WithMany(p => p.SecuencialesProformas)
                 .HasForeignKey(d => d.IdTipoDocumento)
                 .HasConstraintName("secuencialesProformas_idTipoDocumento_fkey");
+        });
+
+        modelBuilder.Entity<Sriambientes>(entity =>
+        {
+            entity.HasKey(e => e.Codigo).HasName("sriambientes_pkey");
+
+            entity.ToTable("sriambientes");
+
+            entity.Property(e => e.Codigo)
+                .HasMaxLength(3)
+                .HasColumnName("codigo");
+            entity.Property(e => e.Activo)
+                .HasDefaultValue(true)
+                .HasColumnName("activo");
+            entity.Property(e => e.Ambiente)
+                .HasMaxLength(50)
+                .HasColumnName("ambiente");
+        });
+
+        modelBuilder.Entity<Sriestados>(entity =>
+        {
+            entity.HasKey(e => e.Codigo).HasName("sriestados_pkey");
+
+            entity.ToTable("sriestados");
+
+            entity.Property(e => e.Codigo)
+                .ValueGeneratedNever()
+                .HasColumnName("codigo");
+            entity.Property(e => e.Activo)
+                .HasDefaultValue(true)
+                .HasColumnName("activo");
+            entity.Property(e => e.Estado)
+                .HasMaxLength(50)
+                .HasColumnName("estado");
+        });
+
+        modelBuilder.Entity<Srifacturas>(entity =>
+        {
+            entity.HasKey(e => e.Idfactura).HasName("srifacturas_pkey");
+
+            entity.ToTable("srifacturas");
+
+            entity.Property(e => e.Idfactura).HasColumnName("idfactura");
+            entity.Property(e => e.Ambiente)
+                .HasMaxLength(5)
+                .HasColumnName("ambiente");
+            entity.Property(e => e.Claveacceso)
+                .HasMaxLength(64)
+                .HasColumnName("claveacceso");
+            entity.Property(e => e.Coddoc)
+                .HasMaxLength(5)
+                .HasColumnName("coddoc");
+            entity.Property(e => e.Codigoestado)
+                .HasDefaultValue(0)
+                .HasColumnName("codigoestado");
+            entity.Property(e => e.Compra)
+                .HasDefaultValue(false)
+                .HasColumnName("compra");
+            entity.Property(e => e.Contribuyenteespecial)
+                .HasMaxLength(5)
+                .HasColumnName("contribuyenteespecial");
+            entity.Property(e => e.Direstablecimiento)
+                .HasMaxLength(300)
+                .HasColumnName("direstablecimiento");
+            entity.Property(e => e.Dirmatriz)
+                .HasMaxLength(300)
+                .HasColumnName("dirmatriz");
+            entity.Property(e => e.Estab)
+                .HasMaxLength(5)
+                .HasColumnName("estab");
+            entity.Property(e => e.Fechaautorizacion)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("fechaautorizacion");
+            entity.Property(e => e.Fechaemision).HasColumnName("fechaemision");
+            entity.Property(e => e.Fecharegistro)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("fecharegistro");
+            entity.Property(e => e.Idempresa).HasColumnName("idempresa");
+            entity.Property(e => e.Identificacioncomprador)
+                .HasMaxLength(20)
+                .HasColumnName("identificacioncomprador");
+            entity.Property(e => e.Idusuario).HasColumnName("idusuario");
+            entity.Property(e => e.Importetotal)
+                .HasPrecision(10, 2)
+                .HasColumnName("importetotal");
+            entity.Property(e => e.Moneda)
+                .HasMaxLength(20)
+                .HasColumnName("moneda");
+            entity.Property(e => e.Nombrecomercial)
+                .HasMaxLength(200)
+                .HasColumnName("nombrecomercial");
+            entity.Property(e => e.Obligadocontabilidad)
+                .HasMaxLength(5)
+                .HasColumnName("obligadocontabilidad");
+            entity.Property(e => e.Propina)
+                .HasPrecision(10, 2)
+                .HasDefaultValueSql("0")
+                .HasColumnName("propina");
+            entity.Property(e => e.Ptoemi)
+                .HasMaxLength(5)
+                .HasColumnName("ptoemi");
+            entity.Property(e => e.Razonsocial)
+                .HasMaxLength(200)
+                .HasColumnName("razonsocial");
+            entity.Property(e => e.Razonsocialcomprador)
+                .HasMaxLength(200)
+                .HasColumnName("razonsocialcomprador");
+            entity.Property(e => e.Ruc)
+                .HasMaxLength(20)
+                .HasColumnName("ruc");
+            entity.Property(e => e.Secuencial)
+                .HasMaxLength(12)
+                .HasColumnName("secuencial");
+            entity.Property(e => e.Tipoidentificacioncomprador)
+                .HasMaxLength(5)
+                .HasColumnName("tipoidentificacioncomprador");
+            entity.Property(e => e.Totaldescuento)
+                .HasPrecision(10, 2)
+                .HasColumnName("totaldescuento");
+            entity.Property(e => e.Totalsinimpuesto)
+                .HasPrecision(10, 2)
+                .HasColumnName("totalsinimpuesto");
+            entity.Property(e => e.Version)
+                .HasMaxLength(10)
+                .HasColumnName("version");
+
+            entity.HasOne(d => d.AmbienteNavigation).WithMany(p => p.Srifacturas)
+                .HasForeignKey(d => d.Ambiente)
+                .HasConstraintName("srifacturas_ambiente_fkey");
+
+            entity.HasOne(d => d.CoddocNavigation).WithMany(p => p.Srifacturas)
+                .HasForeignKey(d => d.Coddoc)
+                .HasConstraintName("srifacturas_coddoc_fkey");
+
+            entity.HasOne(d => d.IdentificacioncompradorNavigation).WithMany(p => p.Srifacturas)
+                .HasForeignKey(d => d.Identificacioncomprador)
+                .HasConstraintName("srifacturas_identificacioncomprador_fkey");
+
+            entity.HasOne(d => d.MonedaNavigation).WithMany(p => p.Srifacturas)
+                .HasForeignKey(d => d.Moneda)
+                .HasConstraintName("srifacturas_moneda_fkey");
+
+            entity.HasOne(d => d.TipoidentificacioncompradorNavigation).WithMany(p => p.Srifacturas)
+                .HasForeignKey(d => d.Tipoidentificacioncomprador)
+                .HasConstraintName("srifacturas_tipoidentificacioncomprador_fkey");
+        });
+
+        modelBuilder.Entity<Sriformaspagos>(entity =>
+        {
+            entity.HasKey(e => e.Codigo).HasName("sriformaspagos_pkey");
+
+            entity.ToTable("sriformaspagos");
+
+            entity.Property(e => e.Codigo)
+                .HasMaxLength(5)
+                .HasColumnName("codigo");
+            entity.Property(e => e.Activo)
+                .HasDefaultValue(true)
+                .HasColumnName("activo");
+            entity.Property(e => e.Formapago)
+                .HasMaxLength(200)
+                .HasColumnName("formapago");
+        });
+
+        modelBuilder.Entity<Srimonedas>(entity =>
+        {
+            entity.HasKey(e => e.Moneda).HasName("srimonedas_pkey");
+
+            entity.ToTable("srimonedas");
+
+            entity.Property(e => e.Moneda)
+                .HasMaxLength(20)
+                .HasColumnName("moneda");
+            entity.Property(e => e.Activo)
+                .HasDefaultValue(true)
+                .HasColumnName("activo");
+        });
+
+        modelBuilder.Entity<Sriporcentajesimpuestos>(entity =>
+        {
+            entity.HasKey(e => e.Codigoporcentaje).HasName("sriporcentajesimpuestos_pkey");
+
+            entity.ToTable("sriporcentajesimpuestos");
+
+            entity.HasIndex(e => e.Codigo, "sriporcentajesimpuestos_codigo_key").IsUnique();
+
+            entity.Property(e => e.Codigoporcentaje)
+                .HasMaxLength(5)
+                .HasColumnName("codigoporcentaje");
+            entity.Property(e => e.Activo)
+                .HasDefaultValue(true)
+                .HasColumnName("activo");
+            entity.Property(e => e.Codigo)
+                .HasMaxLength(5)
+                .HasColumnName("codigo");
+            entity.Property(e => e.Nombre)
+                .HasMaxLength(100)
+                .HasColumnName("nombre");
+            entity.Property(e => e.Porcentaje)
+                .HasPrecision(5, 2)
+                .HasColumnName("porcentaje");
+            entity.Property(e => e.Valor)
+                .HasPrecision(5, 2)
+                .HasColumnName("valor");
+        });
+
+        modelBuilder.Entity<Sritiposdocumentos>(entity =>
+        {
+            entity.HasKey(e => e.Coddoc).HasName("sritiposdocumentos_pkey");
+
+            entity.ToTable("sritiposdocumentos");
+
+            entity.Property(e => e.Coddoc)
+                .HasMaxLength(5)
+                .HasColumnName("coddoc");
+            entity.Property(e => e.Activo)
+                .HasDefaultValue(true)
+                .HasColumnName("activo");
+            entity.Property(e => e.Tipodocumento)
+                .HasMaxLength(50)
+                .HasColumnName("tipodocumento");
+        });
+
+        modelBuilder.Entity<Sritiposidentificaciones>(entity =>
+        {
+            entity.HasKey(e => e.Codigo).HasName("sritiposidentificaciones_pkey");
+
+            entity.ToTable("sritiposidentificaciones");
+
+            entity.Property(e => e.Codigo)
+                .HasMaxLength(5)
+                .HasColumnName("codigo");
+            entity.Property(e => e.Activo)
+                .HasDefaultValue(true)
+                .HasColumnName("activo");
+            entity.Property(e => e.Tipoidentificacion)
+                .HasMaxLength(50)
+                .HasColumnName("tipoidentificacion");
+        });
+
+        modelBuilder.Entity<Sriunidadestiempos>(entity =>
+        {
+            entity.HasKey(e => e.Unidadtiempo).HasName("sriunidadestiempos_pkey");
+
+            entity.ToTable("sriunidadestiempos");
+
+            entity.Property(e => e.Unidadtiempo)
+                .HasMaxLength(50)
+                .HasColumnName("unidadtiempo");
+            entity.Property(e => e.Codigo)
+                .HasMaxLength(5)
+                .HasColumnName("codigo");
         });
 
         modelBuilder.Entity<TiempoFormaPagos>(entity =>

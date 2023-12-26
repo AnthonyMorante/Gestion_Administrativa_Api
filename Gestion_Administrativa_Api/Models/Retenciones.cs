@@ -13,7 +13,7 @@ public partial class Retenciones
 
     public string? EmisorRazonSocial { get; set; }
 
-    public string? NombreComercial { get; set; }
+    public string? EmisorNombreComercial { get; set; }
 
     public string? EmisorRuc { get; set; }
 
