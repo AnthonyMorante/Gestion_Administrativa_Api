@@ -3,9 +3,11 @@ using System.Collections.Generic;
 
 namespace Gestion_Administrativa_Api.Models;
 
-public partial class Sriunidadestiempos
+public partial class SriUnidadesTiempos
 {
-    public string Unidadtiempo { get; set; } = null!;
+    public string UnidadTiempo { get; set; } = null!;
 
     public string? Codigo { get; set; }
+
+    public virtual ICollection<SriPagos> SriPagos { get; set; } = new List<SriPagos>();
 }

@@ -3,13 +3,13 @@ using System.Collections.Generic;
 
 namespace Gestion_Administrativa_Api.Models;
 
-public partial class Sritiposdocumentos
+public partial class SriTiposDocumentos
 {
-    public string Coddoc { get; set; } = null!;
+    public string CodDoc { get; set; } = null!;
 
-    public string? Tipodocumento { get; set; }
+    public string? TipoDocumento { get; set; }
 
     public bool? Activo { get; set; }
 
-    public virtual ICollection<Srifacturas> Srifacturas { get; set; } = new List<Srifacturas>();
+    public virtual ICollection<SriFacturas> SriFacturas { get; set; } = new List<SriFacturas>();
 }

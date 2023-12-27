@@ -3,15 +3,13 @@ using System.Collections.Generic;
 
 namespace Gestion_Administrativa_Api.Models;
 
-public partial class Sritiposidentificaciones
+public partial class SriTiposIdentificaciones
 {
     public string Codigo { get; set; } = null!;
 
-    public string? Tipoidentificacion { get; set; }
+    public string? TipoIdentificacion { get; set; }
 
     public bool? Activo { get; set; }
 
-    public virtual ICollection<Personas> Personas { get; set; } = new List<Personas>();
-
-    public virtual ICollection<Srifacturas> Srifacturas { get; set; } = new List<Srifacturas>();
+    public virtual ICollection<SriPersonas> SriPersonas { get; set; } = new List<SriPersonas>();
 }

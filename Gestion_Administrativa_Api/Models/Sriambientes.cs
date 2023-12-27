@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Gestion_Administrativa_Api.Models;
 
-public partial class Sriambientes
+public partial class SriAmbientes
 {
     public string Codigo { get; set; } = null!;
 
@@ -11,5 +11,5 @@ public partial class Sriambientes
 
     public bool? Activo { get; set; }
 
-    public virtual ICollection<Srifacturas> Srifacturas { get; set; } = new List<Srifacturas>();
+    public virtual ICollection<SriFacturas> SriFacturas { get; set; } = new List<SriFacturas>();
 }

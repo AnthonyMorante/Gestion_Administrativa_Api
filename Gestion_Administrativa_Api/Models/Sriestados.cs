@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Gestion_Administrativa_Api.Models;
 
-public partial class Sriestados
+public partial class SriEstados
 {
     public int Codigo { get; set; }
 
