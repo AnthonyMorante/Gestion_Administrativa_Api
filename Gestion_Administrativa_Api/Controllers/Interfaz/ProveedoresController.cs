@@ -13,32 +13,32 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
     [ApiController]
     public class ProveedoresController : ControllerBase
     {
-        private readonly IProveedores _IProveedores;
+        private readonly _context _context;
         private readonly IDbConnection _dapper;
 
-        public ProveedoresController(IProveedores IProveedores, IDbConnection db)
+        public ProveedoresController(_context context, IDbConnection db)
         {
-            _IProveedores = IProveedores;
             _dapper = db;
+            _context = context;
         }
 
-        [HttpPost]
-        public async Task<IActionResult> insertar(ProveedoresDto _clientes)
-        {
-            try
-            {
-                _clientes.IdEmpresa = new Guid(Tools.getIdEmpresa(HttpContext));
-                var consulta = await _IProveedores.insertar(_clientes);
+        //[HttpPost]
+        //public async Task<IActionResult> insertar(ProveedoresDto _clientes)
+        //{
+        //    try
+        //    {
+        //        _clientes.IdEmpresa = new Guid(Tools.getIdEmpresa(HttpContext));
+        //        var consulta = await _IProveedores.insertar(_clientes);
 
-                if (consulta == "ok") return Ok();
-                if (consulta == "repetido") return Problem("El documento de identidad ya existe en el sistema");
-                return Problem();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { error = "error", exc = ex });
-            }
-        }
+        //        if (consulta == "ok") return Ok();
+        //        if (consulta == "repetido") return Problem("El documento de identidad ya existe en el sistema");
+        //        return Problem();
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest(new { error = "error", exc = ex });
+        //    }
+        //}
 
         [HttpPost]
         public async Task<IActionResult> listar([FromBody] Tools.DataTableModel? _params)
@@ -46,7 +46,11 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             try
             {
                 var idEmpresa = Tools.getIdEmpresa(HttpContext);
-                string sql = @"SELECT * FROM Proveedores WHERE ""idEmpresa""=uuid(@idEmpresa)";
+                string sql = @"SELECT identificacion,""razonSocial"",direccion,telefono,proveedor,email
+                               FROM ""SriPersonas""
+                               WHERE identificacion IN (SELECT ruc FROM ""SriFacturas""
+                               WHERE compra=TRUE AND ""idEmpresa""=@idEmpresa::uuid
+                               )";
                 return Ok(await Tools.DataTablePostgresSql(new Tools.DataTableParams
                 {
                     parameters = new { idEmpresa },
@@ -61,55 +65,53 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             }
         }
 
-        [HttpGet]
-        [Route("{idProveedor}")]
-        public async Task<IActionResult> cargar(Guid idProveedor)
+        [HttpGet("{identificacion}")]
+        public async Task<IActionResult> cargar(string identificacion)
         {
             try
             {
-                var consulta = await _IProveedores.cargar(idProveedor);
-                return StatusCode(200, consulta);
+                return Ok(await _context.SriPersonas.FindAsync(identificacion));
             }
             catch (Exception ex)
             {
-                return BadRequest(new { error = "error", exc = ex });
+                return Tools.handleError(ex);
             }
         }
 
         [HttpPut]
-        public async Task<IActionResult> actualizar(Proveedores _cliente)
+        public async Task<IActionResult> actualizar(SriPersonas _data)
         {
             try
             {
-                var consulta = await _IProveedores.editar(_cliente);
-                if (consulta == "ok") return Ok();
-                if (consulta == "repetido") throw new Exception("El número de identificación ya se encuentra registrado");
-                return Problem();
+                _data.Proveedor= true;
+                _context.SriPersonas.Update(_data);
+                await _context.SaveChangesAsync();
+                return Ok();
             }
             catch (Exception ex)
             {
-                return BadRequest(new { error = "error", exc = ex });
+                return Tools.handleError(ex);
             }
         }
 
-        [HttpDelete]
-        [Route("{idProveedor}")]
-        public async Task<IActionResult> eliminar(Guid idProveedor)
-        {
-            try
-            {
-                var consulta = await _IProveedores.eliminar(idProveedor);
+        //[HttpDelete]
+        //[Route("{idProveedor}")]
+        //public async Task<IActionResult> eliminar(Guid idProveedor)
+        //{
+        //    try
+        //    {
+        //        var consulta = await _IProveedores.eliminar(idProveedor);
 
-                if (consulta == "ok")
-                {
-                    return StatusCode(200, consulta);
-                }
-                return BadRequest();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { error = "error", exc = ex });
-            }
-        }
+        //        if (consulta == "ok")
+        //        {
+        //            return StatusCode(200, consulta);
+        //        }
+        //        return BadRequest();
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest(new { error = "error", exc = ex });
+        //    }
+        //}
     }
 }

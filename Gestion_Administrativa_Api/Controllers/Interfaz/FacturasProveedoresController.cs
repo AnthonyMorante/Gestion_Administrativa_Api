@@ -123,7 +123,6 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                 }
                 else
                 {
-                    persona.RazonSocial = _factura.RazonSocial;
                     persona.Direccion = _factura.DirMatriz;
                     _context.SriPersonas.Update(persona);
                 }
