@@ -8,10 +8,14 @@ using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.Blazor;
 using Newtonsoft.Json;
 using System.Data;
 using System.IdentityModel.Tokens.Jwt;
+using System.Net.Http;
 using System.Security.Claims;
 using System.Text;
+using System.Web;
+using System.Xml;
 using System.Xml.Serialization;
 using static Gestion_Administrativa_Api.Dtos.Interfaz.RetencionDto;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Gestion_Administrativa_Api.Utilities
 {
@@ -626,8 +630,38 @@ namespace Gestion_Administrativa_Api.Utilities
 
         public static Factura XmlToFacturaModel(Stream fileStream)
         {
-            XmlSerializer serializer = new XmlSerializer(typeof(Tools.Factura));
-            return (Tools.Factura)serializer.Deserialize(fileStream);
+            var encoded = "";
+            using (StreamReader reader = new StreamReader(fileStream, Encoding.UTF8)) encoded = HttpUtility.HtmlDecode(reader.ReadToEnd());
+            var arreglo = encoded.Split(new string[] { "<comprobante>" }, StringSplitOptions.None);
+            if(arreglo.Length > 1)
+            {
+                encoded = encoded.Split(new string[] { "<comprobante>" }, StringSplitOptions.None)[1];
+                encoded= encoded.Split(new string[] { "</comprobante>" }, StringSplitOptions.None)[0];
+            }
+            
+            return ConvertStringToObject<Tools.Factura>(encoded);
+        }
+
+        static T ConvertStringToObject<T>(string xmlString)
+        {
+            using (StringReader stringReader = new StringReader(xmlString))
+            {
+                XmlSerializer serializer = new XmlSerializer(typeof(T));
+                return (T)serializer.Deserialize(stringReader);
+            }
+        }
+
+        static string SerializeObjectToXml<T>(T obj)
+        {
+            XmlSerializer serializer = new XmlSerializer(typeof(T));
+            using (StringWriter stringWriter = new StringWriter())
+            {
+                using (XmlWriter xmlWriter = XmlWriter.Create(stringWriter))
+                {
+                    serializer.Serialize(xmlWriter, obj);
+                    return stringWriter.ToString();
+                }
+            }
         }
 
         public static SriFacturas XmlToFacturaDbModel(Stream fileStream,bool? compra)
