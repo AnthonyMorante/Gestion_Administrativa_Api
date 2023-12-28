@@ -8,6 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.Blazor;
 using Newtonsoft.Json;
 using System.Data;
+using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http;
 using System.Security.Claims;
@@ -682,7 +683,7 @@ namespace Gestion_Administrativa_Api.Utilities
                 _f.Compra= compra;
                 _f.Id=_factura.Id;
                 _f.Secuencial = _factura.InfoTributaria.Secuencial;
-                _f.FechaEmision = DateOnly.Parse(_factura.InfoFactura.FechaEmision);
+                _f.FechaEmision = DateOnly.ParseExact(_factura.InfoFactura.FechaEmision, "dd/MM/yyyy", CultureInfo.InvariantCulture);
                 _f.ClaveAcceso = _factura.InfoTributaria.ClaveAcceso;
                 _f.CodDoc = _factura.InfoTributaria.CodDoc;
                 _f.ObligadoContabilidad = _factura.InfoFactura.ObligadoContabilidad;
