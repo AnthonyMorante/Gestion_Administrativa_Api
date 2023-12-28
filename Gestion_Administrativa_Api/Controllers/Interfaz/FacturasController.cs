@@ -71,9 +71,9 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             try
             {
                 var idEmpresa = Tools.getIdEmpresa(HttpContext);
-                string sql = @" SELECT ""nombre"",""idTipoDocumento"" FROM secuenciales
-                                WHERE ""activo""= TRUE
-                                AND ""idEmpresa""=uuid(@idEmpresa)
+                string sql = @" SELECT s.nombre,s.""idTipoDocumento"" FROM secuenciales s 
+                                INNER JOIN ""tipoDocumentos"" td ON s.""idTipoDocumento"" = td.""idTipoDocumento""
+                                WHERE codigo=1 AND s.activo =TRUE AND ""idEmpresa""=uuid(@idEmpresa)
                                 UNION ALL
                                 SELECT nombre,""idTipoDocumento"" FROM ""secuencialesProformas""
                                 WHERE ""activo""= TRUE
