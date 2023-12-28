@@ -176,7 +176,8 @@ namespace Gestion_Administrativa_Api.Interfaces.Utilidades
         {
             try
             {
-                var xmlByte = Encoding.UTF8.GetBytes(documentoFirmado.InnerXml);
+                await Task.Delay(2000);
+                var xmlByte = Encoding.ASCII.GetBytes(documentoFirmado.InnerXml);
                 var response = await new RecepcionComprobantesOfflineClient().validarComprobanteAsync(xmlByte);
                 var estado = response.RespuestaRecepcionComprobante.estado;
                 return estado == "RECIBIDA";

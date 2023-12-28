@@ -104,27 +104,27 @@ builder.Services.AddAuthentication(options =>
     options.JwtValidationClockSkew = TimeSpan.FromHours(5);
 });
 
-builder.Services.AddScoped<IProfileService, ProfileService>();
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IClientes, ClientesI>();
-builder.Services.AddScoped<ITipoIdentificaciones, TipoIdentificacionesI>();
-builder.Services.AddScoped<IProvincias, ProvinciasI>();
-builder.Services.AddScoped<ICiudades, CiudadesI>();
-builder.Services.AddScoped<IProveedores, ProveedoresI>();
-builder.Services.AddScoped<IEmpleados, EmpleadosI>();
-builder.Services.AddScoped<IProductos, ProductosI>();
-builder.Services.AddScoped<IIvas, IvasI>();
-builder.Services.AddScoped<IDatosContribuyentes, DatosContribuyentesI>();
-builder.Services.AddScoped<IEstablecimientos, EstablecimientosI>();
-builder.Services.AddScoped<IPuntoEmisiones, PuntoEmisionesI>();
-builder.Services.AddScoped<IDocumentosEmitir, DocumentosEmitirI>();
-builder.Services.AddScoped<IDetallePrecioProductos, DetallePrecioProductosI>();
-builder.Services.AddScoped<ISecuenciales, SecuencialesI>();
-builder.Services.AddScoped<IFormaPagos, FormaPagosI>();
-builder.Services.AddScoped<ITiempoFormaPagos, TiempoFormaPagosI>();
-builder.Services.AddScoped<IFacturas, FacturasI>();
-builder.Services.AddScoped<IUtilidades, UtilidadesI>();
-builder.Services.AddScoped<IRetenciones, RetencionesI>();
+builder.Services.AddTransient<IProfileService, ProfileService>();
+builder.Services.AddTransient<IUserRepository, UserRepository>();
+builder.Services.AddTransient<IClientes, ClientesI>();
+builder.Services.AddTransient<ITipoIdentificaciones, TipoIdentificacionesI>();
+builder.Services.AddTransient<IProvincias, ProvinciasI>();
+builder.Services.AddTransient<ICiudades, CiudadesI>();
+builder.Services.AddTransient<IProveedores, ProveedoresI>();
+builder.Services.AddTransient<IEmpleados, EmpleadosI>();
+builder.Services.AddTransient<IProductos, ProductosI>();
+builder.Services.AddTransient<IIvas, IvasI>();
+builder.Services.AddTransient<IDatosContribuyentes, DatosContribuyentesI>();
+builder.Services.AddTransient<IEstablecimientos, EstablecimientosI>();
+builder.Services.AddTransient<IPuntoEmisiones, PuntoEmisionesI>();
+builder.Services.AddTransient<IDocumentosEmitir, DocumentosEmitirI>();
+builder.Services.AddTransient<IDetallePrecioProductos, DetallePrecioProductosI>();
+builder.Services.AddTransient<ISecuenciales, SecuencialesI>();
+builder.Services.AddTransient<IFormaPagos, FormaPagosI>();
+builder.Services.AddTransient<ITiempoFormaPagos, TiempoFormaPagosI>();
+builder.Services.AddTransient<IFacturas, FacturasI>();
+builder.Services.AddTransient<IUtilidades, UtilidadesI>();
+builder.Services.AddTransient<IRetenciones, RetencionesI>();
 
 
 builder.Services.AddControllers();

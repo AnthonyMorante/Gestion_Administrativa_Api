@@ -49,7 +49,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                                 WHERE (DATE_PART('year', f.""fechaEmision""::date) - DATE_PART('year', current_date::date)) * 12 +
                                 (DATE_PART('month', f.""fechaEmision""::date) - DATE_PART('month', current_date::date))<=3
                                 AND e.""idEmpresa""=uuid(@idEmpresa)
-                                ORDER BY ""secuencial"" desc";
+                                ORDER BY ""fechaEmision"" desc";
                 return Ok(await Tools.DataTablePostgresSql(new Tools.DataTableParams
                 {
                     parameters = new { idEmpresa },
@@ -62,10 +62,6 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             {
                 return Problem(ex.Message);
             }
-            finally
-            {
-                _dapper.Dispose();
-            }
         }
 
         [Authorize]
@@ -75,8 +71,8 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             try
             {
                 var idEmpresa = Tools.getIdEmpresa(HttpContext);
-                string sql = @" SELECT s.nombre,s.""idTipoDocumento"" 
-                                FROM secuenciales s 
+                string sql = @" SELECT s.nombre,s.""idTipoDocumento""
+                                FROM secuenciales s
                                 INNER JOIN ""tipoDocumentos"" td ON s.""idTipoDocumento"" = td.""idTipoDocumento""
                                 WHERE codigo=1 AND s.activo =TRUE AND ""idEmpresa""=uuid(@idEmpresa)
                                 UNION ALL
@@ -89,10 +85,6 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             catch (Exception ex)
             {
                 return Problem(ex.Message);
-            }
-            finally
-            {
-                _dapper.Dispose();
             }
         }
 
@@ -149,7 +141,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                             }
                         }
                     }
-                    await _dapper.ExecuteAsync(sqlU, new { claveAcceso, estado.fechaAutorizacion,estado.idTipoEstadoSri });
+                    await _dapper.ExecuteAsync(sqlU, new { claveAcceso, estado.fechaAutorizacion, estado.idTipoEstadoSri });
                 }
                 else
                 {
@@ -162,10 +154,6 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             {
                 Console.Out.WriteLineAsync(ex.Message);
                 return Ok();
-            }
-            finally
-            {
-                _dapper.Dispose();
             }
         }
 
@@ -275,11 +263,6 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                 await Console.Out.WriteLineAsync(ex.Message);
                 throw;
             }
-            finally
-            {
-                _dapper.Dispose();
-            }
- 
         }
 
         [AllowAnonymous]
@@ -313,10 +296,6 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             {
                 return Problem(ex.Message);
             }
-            finally
-            {
-                _dapper.Dispose();
-            }
         }
 
         [HttpGet]
@@ -334,10 +313,6 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             catch (Exception ex)
             {
                 return Problem(ex.Message);
-            }
-            finally
-            {
-                _dapper.Dispose();
             }
         }
 
@@ -358,10 +333,6 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             {
                 return Problem(ex.Message);
             }
-            finally
-            {
-                _dapper.Dispose();
-            }
         }
 
         [HttpGet]
@@ -379,10 +350,6 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             {
                 return Problem(ex.Message);
             }
-            finally
-            {
-                _dapper.Dispose();
-            }
         }
 
         [HttpGet]
@@ -398,10 +365,6 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             catch (Exception ex)
             {
                 return Problem(ex.Message);
-            }
-            finally
-            {
-                _dapper.Dispose();
             }
         }
 
@@ -432,10 +395,6 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             {
                 return Problem(ex.Message);
             }
-            finally
-            {
-                _dapper.Dispose();
-            }
         }
 
         [HttpGet]
@@ -461,10 +420,6 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             {
                 return Problem(ex.Message);
             }
-            finally
-            {
-                _dapper.Dispose();
-            }
         }
 
         [HttpGet]
@@ -484,10 +439,6 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             {
                 return Problem(ex.Message);
             }
-            finally
-            {
-                _dapper.Dispose();
-            }
         }
 
         [HttpGet]
@@ -501,7 +452,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                                 INNER JOIN ""usuarioEmpresas"" ue ON ue.""idUsuario"" = f.""idUsuario""
                                 WHERE ""idTipoEstadoSri"" NOT IN(2,3,4,5)
                                 AND ""idEmpresa""= @idEmpresa::uuid";
-                if ( _dapper.ExecuteScalar<int>(sql, new { idEmpresa }) == 0) return Ok("empty");
+                if (_dapper.ExecuteScalar<int>(sql, new { idEmpresa }) == 0) return Ok("empty");
                 sql = @"SELECT ""claveAcceso""
                               FROM facturas f
                               INNER JOIN establecimientos e ON e.""idEstablecimiento"" = f.""idEstablecimiento""
@@ -509,7 +460,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                               AND ""idEmpresa""=uuid(@idEmpresa)
                             ;
                             ";
-                var lista =_dapper.Query<string>(sql, new { idEmpresa });
+                var lista = _dapper.Query<string>(sql, new { idEmpresa });
                 if (lista.Count() == 0) return Ok("empty");
                 string sqlA = "";
                 foreach (var claveAcceso in lista)
@@ -517,13 +468,13 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                     try
                     {
                         var factura = (from item in _context.Facturas
-                                             where item.ClaveAcceso == claveAcceso
-                                             select new
-                                             {
-                                                 item.IdTipoEstadoSri,
-                                                 item.ReceptorCorreo,
-                                                 item.CorreoEnviado
-                                             }).FirstOrDefault();
+                                       where item.ClaveAcceso == claveAcceso
+                                       select new
+                                       {
+                                           item.IdTipoEstadoSri,
+                                           item.ReceptorCorreo,
+                                           item.CorreoEnviado
+                                       }).FirstOrDefault();
                         if (factura.IdTipoEstadoSri == 0 || factura.IdTipoEstadoSri == null)
                         {
                             var enviado = await _IFacturas.enviarSri(claveAcceso);
@@ -548,7 +499,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                                         var ride = await _IFacturas.generaRide(ControllerContext, claveAcceso);
                                         await _IFacturas.enviarCorreo(factura.ReceptorCorreo, ride, claveAcceso);
                                         sqlA += @"UPDATE facturas SET ""correoEnviado""=TRUE,""fechaAutorizacion""=@fechaAutorizacion WHERE ""claveAcceso"" =@claveAcceso;";
-                                        _dapper.Execute(sqlA, new { claveAcceso, estado.fechaAutorizacion,estado.idTipoEstadoSri });
+                                        _dapper.Execute(sqlA, new { claveAcceso, estado.fechaAutorizacion, estado.idTipoEstadoSri });
                                     }
                                     catch (Exception ex)
                                     {
@@ -570,10 +521,6 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             catch (Exception ex)
             {
                 return Problem(ex.Message);
-            }
-            finally
-            {
-                _dapper.Dispose();
             }
         }
     }
