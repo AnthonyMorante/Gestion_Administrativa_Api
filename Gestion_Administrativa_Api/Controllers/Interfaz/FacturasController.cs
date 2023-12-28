@@ -442,7 +442,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
         }
 
         [HttpGet]
-        public async Task<IActionResult> verificarEstados()
+        public IActionResult verificarEstados()
         {
             try
             {
@@ -477,17 +477,17 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                                        }).FirstOrDefault();
                         if (factura.IdTipoEstadoSri == 0 || factura.IdTipoEstadoSri == null)
                         {
-                            var enviado = await _IFacturas.enviarSri(claveAcceso);
+                            var enviado = _IFacturas.enviarSri(claveAcceso).Result;
                             if (enviado == true)
                             {
                                 string sqlEnvio = $@"UPDATE facturas SET ""idTipoEstadoSri""=6
                                                            WHERE ""claveAcceso"" = @claveAcceso;";
-                                await _dapper.ExecuteAsync(sqlEnvio, new { claveAcceso });
+                                _dapper.Execute(sqlEnvio, new { claveAcceso });
                             }
                         }
                         else
                         {
-                            var estado = await _IUtilidades.verificarEstadoSRI(claveAcceso);
+                            var estado = _IUtilidades.verificarEstadoSRI(claveAcceso).Result;
                             sqlA = $@"UPDATE facturas SET ""idTipoEstadoSri""=@idTipoEstadoSri
                                       WHERE ""claveAcceso"" = @claveAcceso;";
                             if (estado.idTipoEstadoSri == 2)
@@ -496,14 +496,17 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                                 {
                                     try
                                     {
-                                        var ride = await _IFacturas.generaRide(ControllerContext, claveAcceso);
-                                        await _IFacturas.enviarCorreo(factura.ReceptorCorreo, ride, claveAcceso);
-                                        sqlA += @"UPDATE facturas SET ""correoEnviado""=TRUE,""fechaAutorizacion""=@fechaAutorizacion WHERE ""claveAcceso"" =@claveAcceso;";
-                                        _dapper.Execute(sqlA, new { claveAcceso, estado.fechaAutorizacion, estado.idTipoEstadoSri });
+                                        var ride = _IFacturas.generaRide(ControllerContext, claveAcceso).Result;
+                                        var correoEnviado=_IFacturas.enviarCorreo(factura.ReceptorCorreo, ride, claveAcceso).Result;
+                                        if (correoEnviado)
+                                        {
+                                            sqlA += @"UPDATE facturas SET ""correoEnviado""=TRUE,""fechaAutorizacion""=@fechaAutorizacion WHERE ""claveAcceso"" =@claveAcceso;";
+                                            _dapper.Execute(sqlA, new { claveAcceso, estado.fechaAutorizacion, estado.idTipoEstadoSri });
+                                        }
                                     }
                                     catch (Exception ex)
                                     {
-                                        await Console.Out.WriteLineAsync(ex.Message);
+                                        Console.WriteLine(ex.Message);
                                         continue;
                                     }
                                 }
@@ -512,7 +515,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                     }
                     catch (Exception ex)
                     {
-                        await Console.Out.WriteLineAsync(ex.Message);
+                        Console.WriteLine(ex.Message);
                         continue;
                     }
                 }
