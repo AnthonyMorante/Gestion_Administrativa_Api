@@ -36,4 +36,6 @@ public partial class Productos
     public virtual Ivas? IdIvaNavigation { get; set; }
 
     public virtual ICollection<Lotes> Lotes { get; set; } = new List<Lotes>();
+
+    public virtual ICollection<ProductosProveedores> ProductosProveedores { get; set; } = new List<ProductosProveedores>();
 }
