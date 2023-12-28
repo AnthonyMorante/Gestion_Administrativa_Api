@@ -62,6 +62,10 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             {
                 return Problem(ex.Message);
             }
+            finally
+            {
+                _dapper.Dispose();
+            }
         }
 
         [Authorize]
@@ -71,7 +75,8 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             try
             {
                 var idEmpresa = Tools.getIdEmpresa(HttpContext);
-                string sql = @" SELECT s.nombre,s.""idTipoDocumento"" FROM secuenciales s 
+                string sql = @" SELECT s.nombre,s.""idTipoDocumento"" 
+                                FROM secuenciales s 
                                 INNER JOIN ""tipoDocumentos"" td ON s.""idTipoDocumento"" = td.""idTipoDocumento""
                                 WHERE codigo=1 AND s.activo =TRUE AND ""idEmpresa""=uuid(@idEmpresa)
                                 UNION ALL
@@ -84,6 +89,10 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             catch (Exception ex)
             {
                 return Problem(ex.Message);
+            }
+            finally
+            {
+                _dapper.Dispose();
             }
         }
 
@@ -154,6 +163,10 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                 Console.Out.WriteLineAsync(ex.Message);
                 return Ok();
             }
+            finally
+            {
+                _dapper.Dispose();
+            }
         }
 
         [HttpGet("{claveAcceso}")]
@@ -192,68 +205,81 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
 
         private async Task<FacturaDto> procesarFactura(FacturaDto? _facturaDto)
         {
-            _facturaDto.idEmpresa = new Guid(Tools.getIdEmpresa(HttpContext));
-            var empresa = await _context.Clientes.AsNoTracking().Where(x => x.IdEmpresa == _facturaDto.idEmpresa).FirstOrDefaultAsync();
-            string sql = @"SELECT * FROM ""clientes"" WHERE ""identificacion""=@identificacion AND ""idEmpresa""=uuid(@idEmpresa)";
-            string ciudadDefecto = "Pelileo";
-            var cliente = await _dapper.QueryFirstOrDefaultAsync<Clientes>(sql, _facturaDto);
-            if (cliente == null)
+            try
             {
-                cliente = new Clientes();
-                sql = $@"SELECT ""idCiudad""
+                _facturaDto.idEmpresa = new Guid(Tools.getIdEmpresa(HttpContext));
+                var empresa = await _context.Clientes.AsNoTracking().Where(x => x.IdEmpresa == _facturaDto.idEmpresa).FirstOrDefaultAsync();
+                string sql = @"SELECT * FROM ""clientes"" WHERE ""identificacion""=@identificacion AND ""idEmpresa""=uuid(@idEmpresa)";
+                string ciudadDefecto = "Pelileo";
+                var cliente = await _dapper.QueryFirstOrDefaultAsync<Clientes>(sql, _facturaDto);
+                if (cliente == null)
+                {
+                    cliente = new Clientes();
+                    sql = $@"SELECT ""idCiudad""
                         FROM ""ciudades""
                         WHERE upper(""nombre"") LIKE '%{ciudadDefecto.ToUpper()}%'
                         AND ""activo""=TRUE
                         LIMIT 1";
-                cliente.IdCiudad = await _dapper.ExecuteScalarAsync<Guid>(sql);
-                _facturaDto.idCiudad = Tools.toGuid(cliente.IdCiudad);
-                cliente.Activo = true;
-                cliente.IdTipoIdentificacion = _facturaDto.idTipoIdenticacion;
-                cliente.RazonSocial = _facturaDto.razonSocial;
-                cliente.FechaRegistro = DateTime.Now;
-                cliente.Direccion = _facturaDto.direccion;
-                cliente.Identificacion = _facturaDto.identificacion;
-                cliente.Telefono = _facturaDto.telefono;
-                cliente.Email = _facturaDto.email;
-                cliente.IdEmpresa = _facturaDto.idEmpresa;
-                _context.Clientes.Add(cliente);
-            }
-            else
-            {
-                cliente = await _context.Clientes.Where(x => x.IdEmpresa == _facturaDto.idEmpresa && x.Identificacion == _facturaDto.identificacion).FirstOrDefaultAsync();
-                cliente.RazonSocial = _facturaDto.razonSocial;
-                cliente.Direccion = _facturaDto.direccion;
-                cliente.Telefono = _facturaDto.telefono;
-                cliente.Email = _facturaDto.email;
-                _facturaDto.idCiudad = Tools.toGuid(cliente.IdCiudad);
-                _context.Clientes.Update(cliente);
-            }
+                    cliente.IdCiudad = await _dapper.ExecuteScalarAsync<Guid>(sql);
+                    _facturaDto.idCiudad = Tools.toGuid(cliente.IdCiudad);
+                    cliente.Activo = true;
+                    cliente.IdTipoIdentificacion = _facturaDto.idTipoIdenticacion;
+                    cliente.RazonSocial = _facturaDto.razonSocial;
+                    cliente.FechaRegistro = DateTime.Now;
+                    cliente.Direccion = _facturaDto.direccion;
+                    cliente.Identificacion = _facturaDto.identificacion;
+                    cliente.Telefono = _facturaDto.telefono;
+                    cliente.Email = _facturaDto.email;
+                    cliente.IdEmpresa = _facturaDto.idEmpresa;
+                    _context.Clientes.Add(cliente);
+                }
+                else
+                {
+                    cliente = await _context.Clientes.Where(x => x.IdEmpresa == _facturaDto.idEmpresa && x.Identificacion == _facturaDto.identificacion).FirstOrDefaultAsync();
+                    cliente.RazonSocial = _facturaDto.razonSocial;
+                    cliente.Direccion = _facturaDto.direccion;
+                    cliente.Telefono = _facturaDto.telefono;
+                    cliente.Email = _facturaDto.email;
+                    _facturaDto.idCiudad = Tools.toGuid(cliente.IdCiudad);
+                    _context.Clientes.Update(cliente);
+                }
 
-            await _context.SaveChangesAsync();
-            _facturaDto.idCliente = cliente.IdCliente;
-            _facturaDto.idDocumentoEmitir = (await _context.DocumentosEmitir.AsNoTracking().Where(x => x.IdTipoDocumento == _facturaDto.idTipoDocumento).FirstOrDefaultAsync()).IdDocumentoEmitir;
-            sql = @"SELECT ""nombre""
+                await _context.SaveChangesAsync();
+                _facturaDto.idCliente = cliente.IdCliente;
+                _facturaDto.idDocumentoEmitir = (await _context.DocumentosEmitir.AsNoTracking().Where(x => x.IdTipoDocumento == _facturaDto.idTipoDocumento).FirstOrDefaultAsync()).IdDocumentoEmitir;
+                sql = @"SELECT ""nombre""
                         FROM ""establecimientos""
                         WHERE ""idEstablecimiento""=uuid(@idEstablecimiento)
                         ";
-            _facturaDto.establecimiento = Convert.ToInt32(await _dapper.ExecuteScalarAsync<string>(sql, _facturaDto)).ToString("D3");
-            sql = @"SELECT ""nombre""
+                _facturaDto.establecimiento = Convert.ToInt32(await _dapper.ExecuteScalarAsync<string>(sql, _facturaDto)).ToString("D3");
+                sql = @"SELECT ""nombre""
                     FROM ""puntoEmisiones""
                     WHERE ""idPuntoEmision""=uuid(@idPuntoEmision)
                     ";
-            _facturaDto.puntoEmision = Convert.ToInt32(await _dapper.ExecuteScalarAsync<string>(sql, _facturaDto)).ToString("D3");
-            sql = @"SELECT ""nombre""
+                _facturaDto.puntoEmision = Convert.ToInt32(await _dapper.ExecuteScalarAsync<string>(sql, _facturaDto)).ToString("D3");
+                sql = @"SELECT ""nombre""
                     FROM ""secuenciales""
                     WHERE ""idEmpresa""=uuid(@idEmpresa)
                     ";
-            _facturaDto.secuencial = Convert.ToInt32(await _dapper.ExecuteScalarAsync<string>(sql, _facturaDto)).ToString("D9");
-            _facturaDto.idUsuario = new Guid(Tools.getIdUsuario(HttpContext));
-            _facturaDto.idFormaPago = _facturaDto.formaPago.FirstOrDefault().idFormaPago;
-            sql = @"SELECT codigo FROM clientes c
+                _facturaDto.secuencial = Convert.ToInt32(await _dapper.ExecuteScalarAsync<string>(sql, _facturaDto)).ToString("D9");
+                _facturaDto.idUsuario = new Guid(Tools.getIdUsuario(HttpContext));
+                _facturaDto.idFormaPago = _facturaDto.formaPago.FirstOrDefault().idFormaPago;
+                sql = @"SELECT codigo FROM clientes c
                    INNER JOIN ""tipoIdentificaciones"" ti ON ti.""idTipoIdentificacion""=c.""idTipoIdentificacion""
                    WHERE ""idCliente""=uuid(@idCliente);";
-            _facturaDto.codigoTipoIdentificacion = await _dapper.ExecuteScalarAsync<int>(sql, _facturaDto);
-            return _facturaDto;
+                _facturaDto.codigoTipoIdentificacion = await _dapper.ExecuteScalarAsync<int>(sql, _facturaDto);
+                return _facturaDto;
+            }
+            catch (Exception ex)
+            {
+                await Console.Out.WriteLineAsync(ex.Message);
+                throw;
+            }
+            finally
+            {
+                _dapper.Dispose();
+            }
+ 
         }
 
         [AllowAnonymous]
@@ -287,6 +313,10 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             {
                 return Problem(ex.Message);
             }
+            finally
+            {
+                _dapper.Dispose();
+            }
         }
 
         [HttpGet]
@@ -304,6 +334,10 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             catch (Exception ex)
             {
                 return Problem(ex.Message);
+            }
+            finally
+            {
+                _dapper.Dispose();
             }
         }
 
@@ -324,6 +358,10 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             {
                 return Problem(ex.Message);
             }
+            finally
+            {
+                _dapper.Dispose();
+            }
         }
 
         [HttpGet]
@@ -341,6 +379,10 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             {
                 return Problem(ex.Message);
             }
+            finally
+            {
+                _dapper.Dispose();
+            }
         }
 
         [HttpGet]
@@ -356,6 +398,10 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             catch (Exception ex)
             {
                 return Problem(ex.Message);
+            }
+            finally
+            {
+                _dapper.Dispose();
             }
         }
 
@@ -386,6 +432,10 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             {
                 return Problem(ex.Message);
             }
+            finally
+            {
+                _dapper.Dispose();
+            }
         }
 
         [HttpGet]
@@ -411,6 +461,10 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             {
                 return Problem(ex.Message);
             }
+            finally
+            {
+                _dapper.Dispose();
+            }
         }
 
         [HttpGet]
@@ -429,6 +483,10 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             catch (Exception ex)
             {
                 return Problem(ex.Message);
+            }
+            finally
+            {
+                _dapper.Dispose();
             }
         }
 
@@ -512,6 +570,10 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             catch (Exception ex)
             {
                 return Problem(ex.Message);
+            }
+            finally
+            {
+                _dapper.Dispose();
             }
         }
     }
