@@ -701,28 +701,28 @@ namespace Gestion_Administrativa_Api.Utilities
                 _f.RazonSocialComprador = _factura.InfoFactura.RazonSocialComprador;
                 _f.TipoIdentificacionComprador = _factura.InfoFactura.TipoIdentificacionComprador;
                 _f.Moneda=_factura.InfoFactura.Moneda;
-                _f.Propina = Convert.ToDecimal(_factura.InfoFactura.Propina?.Replace(".", ","));
-                _f.TotalDescuento = Convert.ToDecimal(_factura.InfoFactura.TotalDescuento?.Replace(".", ","));
-                _f.TotalSinImpuesto = Convert.ToDecimal(_factura.InfoFactura.TotalSinImpuestos?.Replace(".", ","));
-                _f.ImporteTotal = Convert.ToDecimal(_factura.InfoFactura.ImporteTotal?.Replace(".", ","));
+                _f.Propina = Convert.ToDecimal(_factura.InfoFactura.Propina, CultureInfo.InvariantCulture);
+                _f.TotalDescuento = Convert.ToDecimal(_factura.InfoFactura.TotalDescuento, CultureInfo.InvariantCulture);
+                _f.TotalSinImpuesto = Convert.ToDecimal(_factura.InfoFactura.TotalSinImpuestos, CultureInfo.InvariantCulture);
+                _f.ImporteTotal = Convert.ToDecimal(_factura.InfoFactura.ImporteTotal, CultureInfo.InvariantCulture);
                 _f.SriDetallesFacturas = (from item in _factura.Detalles.Detalle
                                           select new SriDetallesFacturas()
                                           {
-                                              Cantidad = Convert.ToDecimal(item.Cantidad?.Replace(".", ",")),
+                                              Cantidad = Convert.ToDecimal(item.Cantidad,CultureInfo.InvariantCulture),
                                               CodigoPrincipal = item.CodigoPrincipal,
                                               Descripcion = item.Descripcion,
-                                              Descuento = Convert.ToDecimal(item.Descuento?.Replace(".", ",")),
-                                              PrecioTotalSinImpuesto = Convert.ToDecimal(item.PrecioTotalSinImpuesto?.Replace(".", ",")),
-                                              PrecioUnitario = Convert.ToDecimal(item.PrecioUnitario?.Replace(".", ",")),
-                                              PrecioTotalConImpuesto = item.Impuestos.Impuesto.Aggregate(Convert.ToDecimal("0"),(acc,x)=>acc+Convert.ToDecimal(x.Valor?.Replace(".", ","))),
+                                              Descuento = Convert.ToDecimal(item.Descuento, CultureInfo.InvariantCulture),
+                                              PrecioTotalSinImpuesto = Convert.ToDecimal(item.PrecioTotalSinImpuesto, CultureInfo.InvariantCulture),
+                                              PrecioUnitario = Convert.ToDecimal(item.PrecioUnitario, CultureInfo.InvariantCulture),
+                                              PrecioTotalConImpuesto = item.Impuestos.Impuesto.Aggregate(Convert.ToDecimal("0"),(acc,x)=>acc+Convert.ToDecimal(x.Valor, CultureInfo.InvariantCulture)),
                                               SriDetallesFacturasImpuestos = (from impuesto in item.Impuestos.Impuesto
                                                                               select new SriDetallesFacturasImpuestos()
                                                                               {
                                                                                   Codigo=impuesto.CodigoPorcentaje,
                                                                                   CodigoPorcentaje=impuesto.CodigoPorcentaje,
-                                                                                  BaseImponible=Convert.ToDecimal(impuesto.BaseImponible?.Replace(".", ",")),
-                                                                                  Tarifa=Convert.ToDecimal(impuesto.Tarifa?.Replace(".", ",")),
-                                                                                  Valor=Convert.ToDecimal(impuesto.Valor?.Replace(".", ","))
+                                                                                  BaseImponible=Convert.ToDecimal(impuesto.BaseImponible, CultureInfo.InvariantCulture),
+                                                                                  Tarifa=Convert.ToDecimal(impuesto.Tarifa, CultureInfo.InvariantCulture),
+                                                                                  Valor=Convert.ToDecimal(impuesto.Valor, CultureInfo.InvariantCulture)
                                                                               }
                                                                             ).ToList(),
 
@@ -732,9 +732,9 @@ namespace Gestion_Administrativa_Api.Utilities
                     var detalleTotal = new SriTotalesConImpuestos();
                     detalleTotal.Codigo = total.Codigo;
                     detalleTotal.CodigoPorcentaje = total.CodigoPorcentaje;
-                    detalleTotal.DescuentoAdicional = Convert.ToDecimal(total.DescuentoAdicional?.Replace(".", ","));
-                    detalleTotal.BaseImponible = Convert.ToDecimal(total.BaseImponible?.Replace(".", ","));
-                    detalleTotal.Valor = Convert.ToDecimal(total.Valor?.Replace(".", ","));
+                    detalleTotal.DescuentoAdicional = Convert.ToDecimal(total.DescuentoAdicional, CultureInfo.InvariantCulture);
+                    detalleTotal.BaseImponible = Convert.ToDecimal(total.BaseImponible, CultureInfo.InvariantCulture);
+                    detalleTotal.Valor = Convert.ToDecimal(total.Valor, CultureInfo.InvariantCulture);
                     _f.SriTotalesConImpuestos.Add(detalleTotal);
                 }
                 _f.SriPagos = (from item in _factura.InfoFactura.Pagos.Pago
@@ -742,7 +742,7 @@ namespace Gestion_Administrativa_Api.Utilities
                                {
                                    Plazo=Convert.ToInt32(item.Plazo),
                                    FormaPago=item.FormaPago,
-                                   Total=Convert.ToDecimal(item.Total?.Replace(".", ",")),
+                                   Total=Convert.ToDecimal(item.Total, CultureInfo.InvariantCulture),
                                    UnidadTiempo=item.UnidadTiempo
                                }).ToList();
                 if (_factura.InfoAdicional!=null){
