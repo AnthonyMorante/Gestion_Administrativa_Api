@@ -4,7 +4,6 @@ using Gestion_Administrativa_Api.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
-using System.Xml.Serialization;
 
 namespace Gestion_Administrativa_Api.Controllers.Interfaz
 {
@@ -22,32 +21,55 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
         }
 
         [HttpPost]
+        public async Task<IActionResult> listar([FromBody] Tools.DataTableModel? _params)
+        {
+            try
+            {
+                var idEmpresa = Guid.Parse(Tools.getIdEmpresa(HttpContext));
+                string sql = @"SELECT ""idFactura"",""fechaRegistro"",""fechaEmision"",
+                            ""claveAcceso"",ruc,""dirMatriz"",""nombreComercial"",""razonSocial"",
+                            ""importeTotal""
+                            FROM ""SriFacturas""
+                            WHERE ""idEmpresa"" = @idEmpresa
+                            AND compra=true";
+                return Ok(await Tools.DataTablePostgresSql(new Tools.DataTableParams
+                {
+                    parameters = new { idEmpresa },
+                    query = sql,
+                    dapperConnection = _dapper,
+                    dataTableModel = _params
+                }));
+            }
+            catch (Exception ex)
+            {
+                return Tools.handleError(ex);
+            }
+        }
+
+        [HttpPost]
         public async Task<IActionResult> leerXml([FromForm] IFormFile fileXml)
         {
             try
             {
-                //var idEmpresa = Guid.Parse(Tools.getIdEmpresa(HttpContext));
-                //var factura = Tools.XmlToFacturaDbModel(fileXml.OpenReadStream(), true);
-                //var productos=await (from item in _context.Productos
-                //                where item.IdEmpresa== idEmpresa && item.Activo==true
-                //               select new
-                //               {
-                //                   item.IdProducto,
-                //                   item.Descripcion
-                //               }).ToListAsync();
-                //var preciosProductos = await (from item in _context.ProductosProveedores
-                //                        join pr in _context.Productos on item.IdProducto equals pr.IdProducto
-                //                        where pr.IdEmpresa == idEmpresa && item.Identificacion == factura.Ruc
-                //                        select new
-                //                        {
-                //                            item.IdProducto,
-                //                            item.CodigoPrincipal
-                //                        }
-                //                      ).ToListAsync();
-                //return Ok(new {factura,productos,preciosProductos});
+                var idEmpresa = Guid.Parse(Tools.getIdEmpresa(HttpContext));
                 var factura = Tools.XmlToFacturaDbModel(fileXml.OpenReadStream(), true);
-                await guardarFacturaProveedor(factura);
-                return Ok();
+                var productos = await (from item in _context.Productos
+                                       where item.IdEmpresa == idEmpresa && item.Activo == true
+                                       select new
+                                       {
+                                           item.IdProducto,
+                                           Producto=item.Nombre.TrimStart().TrimEnd()
+                                       }).OrderBy(x=>x.Producto).ToListAsync();
+                var preciosProductos = await (from item in _context.ProductosProveedores
+                                              join pr in _context.Productos on item.IdProducto equals pr.IdProducto
+                                              where pr.IdEmpresa == idEmpresa && item.Identificacion == factura.Ruc
+                                              select new
+                                              {
+                                                  item.IdProducto,
+                                                  item.CodigoPrincipal
+                                              }
+                                      ).ToListAsync();
+                return Ok(new { factura, productos, preciosProductos });
             }
             catch (Exception ex)
             {
@@ -55,18 +77,25 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             }
         }
 
-        private async Task guardarFacturaProveedor(SriFacturas _factura)
+        public class FacturaProveedor
+        {
+            public SriFacturas factura { get; set; }
+            public List<ProductosProveedores> listaProductos { get; set; }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> guardar(FacturaProveedor _data)
         {
             try
             {
-
+                var _factura = _data.factura;
                 string sql = @"SELECT COUNT(""idFactura"") FROM ""SriFacturas"" WHERE ""claveAcceso""=@ClaveAcceso";
                 if (await _dapper.ExecuteScalarAsync<int>(sql, _factura) > 0) throw new Exception("La factura seleccionada ya se encuentra registrada");
                 _factura.CodigoEstado = 2;
                 var idEmpresa = Guid.Parse(Tools.getIdEmpresa(HttpContext));
                 sql = @"SELECT * FROM ""SriPersonas"" WHERE identificacion=@Ruc";
                 _factura.IdEmpresa = idEmpresa;
-                _factura.IdUsuario=Guid.Parse(Tools.getIdUsuario(HttpContext));
+                _factura.IdUsuario = Guid.Parse(Tools.getIdUsuario(HttpContext));
                 var persona = await _dapper.QueryFirstOrDefaultAsync<SriPersonas>(sql, _factura);
                 if (persona == null)
                 {
@@ -77,7 +106,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                     persona.Direccion = _factura.DirMatriz;
                     persona.FechaRegistro = DateTime.Now;
                     persona.Apellidos = _factura.RazonSocial;
-                    persona.Nombres=_factura.RazonSocial;   
+                    persona.Nombres = _factura.RazonSocial;
                     persona.Proveedor = true;
                     _context.SriPersonas.Add(persona);
                 }
@@ -133,11 +162,11 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                 }
                 _context.SriFacturas.Add(_factura);
                 await _context.SaveChangesAsync();
+                return Ok();
             }
             catch (Exception ex)
             {
-                await Console.Out.WriteLineAsync(ex.Message);
-                throw;
+                return Tools.handleError(ex);
             }
         }
     }
