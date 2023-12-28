@@ -4,6 +4,7 @@ using Gestion_Administrativa_Api.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
+using System.Xml.Linq;
 
 namespace Gestion_Administrativa_Api.Controllers.Interfaz
 {
@@ -44,6 +45,10 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             {
                 return Tools.handleError(ex);
             }
+            finally
+            {
+                _dapper.Dispose();
+            }
         }
 
         [HttpPost]
@@ -60,7 +65,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                                            item.IdProducto,
                                            Producto=item.Nombre.TrimStart().TrimEnd()
                                        }).OrderBy(x=>x.Producto).ToListAsync();
-                var preciosProductos = await (from item in _context.ProductosProveedores
+                var productosProveedores = await (from item in _context.ProductosProveedores
                                               join pr in _context.Productos on item.IdProducto equals pr.IdProducto
                                               where pr.IdEmpresa == idEmpresa && item.Identificacion == factura.Ruc
                                               select new
@@ -69,7 +74,13 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                                                   item.CodigoPrincipal
                                               }
                                       ).ToListAsync();
-                return Ok(new { factura, productos, preciosProductos });
+                var formasPagos = await (from item in _context.SriFormasPagos
+                                         select new
+                                         {
+                                             item.Codigo,
+                                             item.FormaPago
+                                         }).ToListAsync();
+                return Ok(new { factura, productos, productosProveedores, formasPagos });
             }
             catch (Exception ex)
             {
@@ -161,11 +172,74 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                     }
                 }
                 _context.SriFacturas.Add(_factura);
+                var productosProveedores = _data.listaProductos.Select(x => { x.FechaRegistro = DateTime.Now; return x; });
+                foreach (var item in productosProveedores)
+                {
+                    var producto=_context.ProductosProveedores.Where(x=>x.IdProducto==item.IdProducto && x.CodigoPrincipal==item.CodigoPrincipal).FirstOrDefault();
+                    if (producto==null)
+                    {
+                        _context.ProductosProveedores.Add(item);
+                    }
+                    else
+                    {
+                        producto.IdProducto = item.IdProducto;
+                        _context.ProductosProveedores.Update(producto);
+                    }
+                    var productoStock = await _context.Productos.FindAsync(item.IdProducto);
+                    productoStock.Cantidad += _factura.SriDetallesFacturas.Where(x => x.CodigoPrincipal == item.CodigoPrincipal).FirstOrDefault().Cantidad;
+                    _context.Productos.Update(productoStock);
+                }
                 await _context.SaveChangesAsync();
                 return Ok();
             }
             catch (Exception ex)
             {
+                return Tools.handleError(ex);
+            }
+            finally
+            {
+                _dapper.Dispose();
+            }
+        }
+
+        [HttpGet("{idFactura}")]
+        public async Task<IActionResult> unDato(int idFactura)
+        {
+            try
+            {
+                var idEmpresa = Guid.Parse(Tools.getIdEmpresa(HttpContext));
+                var factura=await _context.SriFacturas.FindAsync(idFactura);
+                factura.SriCamposAdicionales=await _context.SriCamposAdicionales.Where(x=>x.IdFactura == idFactura).ToListAsync();
+                factura.SriDetallesFacturas=await _context.SriDetallesFacturas.Where(x=>x.IdFactura == idFactura).ToListAsync();
+                factura.SriPagos=await _context.SriPagos.Where(x=>x.IdFactura == idFactura).ToListAsync();
+                factura.SriTotalesConImpuestos=await _context.SriTotalesConImpuestos.Where(x=>x.IdFactura == idFactura).ToListAsync();
+                var productos = await (from item in _context.Productos
+                                       where item.IdEmpresa == idEmpresa && item.Activo == true
+                                       select new
+                                       {
+                                           item.IdProducto,
+                                           Producto = item.Nombre.TrimStart().TrimEnd()
+                                       }).OrderBy(x => x.Producto).ToListAsync();
+                var productosProveedores = await (from item in _context.ProductosProveedores
+                                                  join pr in _context.Productos on item.IdProducto equals pr.IdProducto
+                                                  where pr.IdEmpresa == idEmpresa && item.Identificacion == factura.Ruc
+                                                  select new
+                                                  {
+                                                      item.IdProducto,
+                                                      item.CodigoPrincipal
+                                                  }
+                                      ).ToListAsync();
+                var formasPagos = await (from item in _context.SriFormasPagos
+                                         select new
+                                         {
+                                             item.Codigo,
+                                             item.FormaPago
+                                         }).ToListAsync();
+                return Ok(new { factura, productos, productosProveedores, formasPagos });
+            }
+            catch (Exception ex)
+            {
+
                 return Tools.handleError(ex);
             }
         }
