@@ -757,7 +757,7 @@ namespace Gestion_Administrativa_Api.Utilities
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                return new SriFacturas();
+                throw;
             }
         }
 
