@@ -140,12 +140,15 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                         producto.PrecioCompra = item.PrecioUnitario;
                         producto.IdEmpresa = idEmpresa;
                         producto.Identificacion = _factura.Ruc;
+                        producto.CodigoPrincipal = item.CodigoPrincipal;
                         var impuestos = item.SriDetallesFacturasImpuestos.FirstOrDefault();
                         producto.SriPrecios = new List<SriPrecios>()
                         {
                             new SriPrecios
                             {
                                Tarifa = impuestos.Tarifa,
+                               BaseImponible=impuestos.BaseImponible,
+                               TotalConImpuestos=impuestos.BaseImponible+impuestos.Valor,
                                Valor = impuestos.Valor,
                                Codigo = impuestos.Codigo,
                                Activo = false,
@@ -164,6 +167,8 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                             {
                                IdProducto= producto.IdProducto,
                                Tarifa = impuestos.Tarifa,
+                               BaseImponible=impuestos.BaseImponible, 
+                               TotalConImpuestos=impuestos.BaseImponible+impuestos.Valor,
                                Valor = impuestos.Valor,
                                Codigo = impuestos.Codigo,
                                Activo = false,
@@ -210,7 +215,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                 var idEmpresa = Guid.Parse(Tools.getIdEmpresa(HttpContext));
                 var factura=await _context.SriFacturas.FindAsync(idFactura);
                 factura.SriCamposAdicionales=await _context.SriCamposAdicionales.Where(x=>x.IdFactura == idFactura).ToListAsync();
-                factura.SriDetallesFacturas=await _context.SriDetallesFacturas.Where(x=>x.IdFactura == idFactura).ToListAsync();
+                factura.SriDetallesFacturas=await _context.SriDetallesFacturas.Include(x=>x.SriDetallesFacturasImpuestos).Where(x=>x.IdFactura == idFactura).ToListAsync();
                 factura.SriPagos=await _context.SriPagos.Where(x=>x.IdFactura == idFactura).ToListAsync();
                 factura.SriTotalesConImpuestos=await _context.SriTotalesConImpuestos.Where(x=>x.IdFactura == idFactura).ToListAsync();
                 var productos = await (from item in _context.Productos

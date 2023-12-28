@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using Gestion_Administrativa_Api.Models;
+using Humanizer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Data.SqlClient;
@@ -13,6 +14,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Web;
 using System.Xml;
+using System.Xml.Linq;
 using System.Xml.Serialization;
 using static Gestion_Administrativa_Api.Dtos.Interfaz.RetencionDto;
 using static System.Net.Mime.MediaTypeNames;
@@ -629,16 +631,18 @@ namespace Gestion_Administrativa_Api.Utilities
         }
 
         public static Factura XmlToFacturaModel(Stream fileStream)
-        {
+            {
             var encoded = "";
-            using (StreamReader reader = new StreamReader(fileStream, Encoding.UTF8)) encoded = HttpUtility.HtmlDecode(reader.ReadToEnd());
+            using (StreamReader reader = new StreamReader(fileStream, Encoding.ASCII)) encoded = HttpUtility.HtmlDecode(reader.ReadToEnd());
+            encoded = encoded.Replace("<![CDATA[", "");
+            encoded = encoded.Replace("]]>", "");
+            encoded = encoded.Replace("</br>", "\n").Replace("<br>", "\n");
             var arreglo = encoded.Split(new string[] { "<comprobante>" }, StringSplitOptions.None);
             if(arreglo.Length > 1)
             {
                 encoded = encoded.Split(new string[] { "<comprobante>" }, StringSplitOptions.None)[1];
                 encoded= encoded.Split(new string[] { "</comprobante>" }, StringSplitOptions.None)[0];
             }
-            
             return ConvertStringToObject<Tools.Factura>(encoded);
         }
 
@@ -713,7 +717,7 @@ namespace Gestion_Administrativa_Api.Utilities
                                               SriDetallesFacturasImpuestos = (from impuesto in item.Impuestos.Impuesto
                                                                               select new SriDetallesFacturasImpuestos()
                                                                               {
-                                                                                  Codigo=impuesto.Codigo,
+                                                                                  Codigo=impuesto.CodigoPorcentaje,
                                                                                   CodigoPorcentaje=impuesto.CodigoPorcentaje,
                                                                                   BaseImponible=Convert.ToDecimal(impuesto.BaseImponible?.Replace(".", ",")),
                                                                                   Tarifa=Convert.ToDecimal(impuesto.Tarifa?.Replace(".", ",")),
@@ -740,12 +744,14 @@ namespace Gestion_Administrativa_Api.Utilities
                                    Total=Convert.ToDecimal(item.Total?.Replace(".", ",")),
                                    UnidadTiempo=item.UnidadTiempo
                                }).ToList();
-                _f.SriCamposAdicionales = (from item in _factura.InfoAdicional.CampoAdicional
-                                           select new SriCamposAdicionales
-                                           {
-                                               Nombre=item.Nombre,
-                                               Text=item.Text
-                                           }).ToList();
+                if (_factura.InfoAdicional!=null){
+                    _f.SriCamposAdicionales = (from item in _factura.InfoAdicional.CampoAdicional
+                                               select new SriCamposAdicionales
+                                               {
+                                                   Nombre = item.Nombre,
+                                                   Text = item.Text
+                                               }).ToList();
+                }
                 return _f;
             }
             catch (Exception ex)
