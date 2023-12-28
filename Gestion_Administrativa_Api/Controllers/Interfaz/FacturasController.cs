@@ -7,6 +7,7 @@ using Gestion_Administrativa_Api.Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using System.Data;
 using System.Text;
 
@@ -18,20 +19,21 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
     {
         private readonly IFacturas _IFacturas;
         private readonly IUtilidades _IUtilidades;
-        private readonly IDbConnection _dapper;
         private readonly _context _context;
+        private readonly string cn;
 
-        public FacturasController(IFacturas IFacturas, IDbConnection db, _context context, IUtilidades IUtilidades)
+        public FacturasController(IFacturas IFacturas, _context context, IUtilidades IUtilidades)
         {
             _IFacturas = IFacturas;
-            _dapper = db;
             _context = context;
             _IUtilidades = IUtilidades;
+            cn = Tools.config!.GetConnectionString("cn")!;
         }
 
         [HttpPost]
         public async Task<IActionResult> listar([FromBody] Tools.DataTableModel? _params)
         {
+            var _dapper = new NpgsqlConnection(cn);
             try
             {
                 var idEmpresa = Tools.getIdEmpresa(HttpContext);
@@ -62,12 +64,17 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             {
                 return Problem(ex.Message);
             }
+            finally
+            {
+                _dapper.Dispose();
+            }
         }
 
         [Authorize]
         [HttpGet]
         public async Task<IActionResult> secuenciales()
         {
+            var _dapper = new NpgsqlConnection(cn);
             try
             {
                 var idEmpresa = Tools.getIdEmpresa(HttpContext);
@@ -85,6 +92,9 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             catch (Exception ex)
             {
                 return Problem(ex.Message);
+            }
+            finally {
+                _dapper.Dispose();
             }
         }
 
@@ -108,6 +118,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
         [HttpGet("{claveAcceso}")]
         public async Task<IActionResult> reenviar(string claveAcceso)
         {
+            var _dapper = new NpgsqlConnection(cn);
             try
             {
                 var enviado = await _IFacturas.enviarSri(claveAcceso);
@@ -152,8 +163,12 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             }
             catch (Exception ex)
             {
-                Console.Out.WriteLineAsync(ex.Message);
+                await Console.Out.WriteLineAsync(ex.Message);
                 return Ok();
+            }
+            finally
+            {
+                _dapper.Dispose();
             }
         }
 
@@ -193,6 +208,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
 
         private async Task<FacturaDto> procesarFactura(FacturaDto? _facturaDto)
         {
+            var _dapper = new NpgsqlConnection(cn);
             try
             {
                 _facturaDto.idEmpresa = new Guid(Tools.getIdEmpresa(HttpContext));
@@ -263,6 +279,10 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                 await Console.Out.WriteLineAsync(ex.Message);
                 throw;
             }
+            finally
+            {
+                _dapper.Dispose();
+            }
         }
 
         [AllowAnonymous]
@@ -283,6 +303,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
         [HttpGet]
         public async Task<IActionResult> tiposDocumentos()
         {
+            var _dapper = new NpgsqlConnection(cn);
             try
             {
                 string sql = @"
@@ -296,11 +317,16 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             {
                 return Problem(ex.Message);
             }
+            finally
+            {
+                _dapper.Dispose();
+            }
         }
 
         [HttpGet]
         public async Task<IActionResult> puntosEmisiones()
         {
+            var _dapper = new NpgsqlConnection(cn);
             try
             {
                 var idEmpresa = Tools.getIdEmpresa(HttpContext);
@@ -314,11 +340,16 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             {
                 return Problem(ex.Message);
             }
+            finally
+            {
+                _dapper.Dispose();
+            }
         }
 
         [HttpGet]
         public async Task<IActionResult> establecimientos()
         {
+            var _dapper = new NpgsqlConnection(cn);
             try
             {
                 var idEmpresa = Tools.getIdEmpresa(HttpContext);
@@ -333,11 +364,16 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             {
                 return Problem(ex.Message);
             }
+            finally
+            {
+                _dapper.Dispose();
+            }
         }
 
         [HttpGet]
         public async Task<IActionResult> formaPagos()
         {
+            var _dapper = new NpgsqlConnection(cn);
             try
             {
                 string sql = @"SELECT * FROM ""formaPagos""
@@ -350,11 +386,16 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             {
                 return Problem(ex.Message);
             }
+            finally
+            {
+                _dapper.Dispose();
+            }
         }
 
         [HttpGet]
         public async Task<IActionResult> tiempoFormaPagos()
         {
+            var _dapper = new NpgsqlConnection(cn);
             try
             {
                 string sql = @"SELECT * FROM ""tiempoFormaPagos""
@@ -366,11 +407,16 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             {
                 return Problem(ex.Message);
             }
+            finally
+            {
+                _dapper.Dispose();
+            }
         }
 
         [HttpGet]
         public async Task<IActionResult> listaProductos()
         {
+            var _dapper = new NpgsqlConnection(cn);
             try
             {
                 var idEmpresa = Tools.getIdEmpresa(HttpContext);
@@ -395,11 +441,16 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             {
                 return Problem(ex.Message);
             }
+            finally
+            {
+                _dapper.Dispose();
+            }
         }
 
         [HttpGet]
         public async Task<IActionResult> listaPreciosProductos()
         {
+            var _dapper = new NpgsqlConnection(cn);
             try
             {
                 var idEmpresa = Tools.getIdEmpresa(HttpContext);
@@ -420,12 +471,17 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             {
                 return Problem(ex.Message);
             }
+            finally
+            {
+                _dapper.Dispose();
+            }
         }
 
         [HttpGet]
         [Route("{identificacion}")]
         public async Task<IActionResult> buscarCliente(string identificacion)
         {
+            var _dapper = new NpgsqlConnection(cn);
             try
             {
                 var idEmpresa = Tools.getIdEmpresa(HttpContext);
@@ -439,11 +495,16 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             {
                 return Problem(ex.Message);
             }
+            finally
+            {
+                _dapper.Dispose();
+            }
         }
 
         [HttpGet]
         public IActionResult verificarEstados()
         {
+            var _dapper = new NpgsqlConnection(cn);
             try
             {
                 var idEmpresa = Tools.getIdEmpresa(HttpContext);
@@ -524,6 +585,10 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             catch (Exception ex)
             {
                 return Problem(ex.Message);
+            }
+            finally
+            {
+               _dapper.Dispose();
             }
         }
     }

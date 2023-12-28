@@ -18,6 +18,7 @@ using Microsoft.CodeAnalysis.FlowAnalysis.DataFlow;
 using System.Security.Cryptography.Xml;
 using Microsoft.AspNetCore.Http.HttpResults;
 using System.Text;
+using Npgsql;
 
 namespace Gestion_Administrativa_Api.Interfaces.Interfaz
 {
@@ -46,21 +47,22 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
         private readonly IMapper _mapper;
         private readonly IUtilidades _IUtilidades;
         private readonly IConfiguration _configuration;
-        private readonly IDbConnection _dapper;
         private factura_V1_0_0? _factura_V1_0_0;
+        private readonly string cn;
 
-        public FacturasI(_context context, IMapper mapper, IUtilidades iUtilidades, IConfiguration configuration, IDbConnection dapper)
+        public FacturasI(_context context, IMapper mapper, IUtilidades iUtilidades, IConfiguration configuration)
         {
             _context = context;
             _mapper = mapper;
             _IUtilidades = iUtilidades;
             _configuration = configuration;
-            _dapper = dapper;
+            cn = Tools.config!.GetConnectionString("cn")!;
         }
 
         public async Task<IActionResult> guardar(FacturaDto? _facturaDto)
         {
             var result = new ObjectResult("");
+            var _dapper = new NpgsqlConnection(cn);
             try
             {
                 var consultaEmpresa = await _context.Empresas.FindAsync(_facturaDto.idEmpresa);
@@ -132,10 +134,15 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                 result.Value = ex.Message;
                 return result;
             }
+            finally
+            {
+                _dapper.Dispose();
+            }
         }
 
         private async Task<Facturas> _Facturas(string claveAcceso)
         {
+            var _dapper = new NpgsqlConnection(cn);
             try
             {
                 string sql = @"SELECT * FROM facturas
@@ -158,10 +165,15 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                 await Console.Out.WriteLineAsync(ex.Message);
                 return new Facturas();
             }
+            finally
+            {
+                 _dapper.Dispose();
+            }
         }
 
         private async Task<FacturaDto> _FacturaDto(string claveAcceso)
         {
+            var _dapper = new NpgsqlConnection(cn);
             try
             {
                 string sql = @"SELECT ""tipoDocumento"" AS ""TipoDocumento"",
@@ -219,6 +231,10 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
             {
                 await Console.Out.WriteLineAsync(ex.Message);
                 return new FacturaDto();
+            }
+            finally
+            {
+                _dapper.Dispose();
             }
         }
 
@@ -291,6 +307,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
 
         public async Task<XmlDocument?> firmarXml(string claveAcceso)
         {
+            var _dapper = new NpgsqlConnection(cn);
             try
             {
                 var documento = await generarXml(claveAcceso);
@@ -311,6 +328,10 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
             {
                 Console.WriteLine(ex.Message);
                 return null;
+            }
+            finally
+            {
+                _dapper.Dispose();
             }
         }
 

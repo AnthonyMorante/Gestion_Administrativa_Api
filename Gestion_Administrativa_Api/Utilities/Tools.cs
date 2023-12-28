@@ -413,7 +413,7 @@ namespace Gestion_Administrativa_Api.Utilities
                 if (error.Source == "modelError") result.StatusCode = 422;
                 if (error.Source.ToLower().Contains("data")) result.StatusCode = 424;
                 result.Value = error.Message;
-                logError(error);
+                //logError(error);
                 return result;
             }
             catch (Exception ex)

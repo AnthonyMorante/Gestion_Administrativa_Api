@@ -48,8 +48,7 @@ IConfiguration config = new ConfigurationBuilder()
 builder.Services.AddDbContext<_context>(options =>
 options.UseNpgsql(config.GetConnectionString("cn")));
 
-builder.Services.AddScoped<IDbConnection>(db => new NpgsqlConnection(
-config.GetConnectionString("cn")));
+builder.Services.AddScoped<IDbConnection>(db => new NpgsqlConnection(config.GetConnectionString("cn")));
 
 // Add services to the container.
 

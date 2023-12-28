@@ -3,6 +3,7 @@ using Gestion_Administrativa_Api.Models;
 using Gestion_Administrativa_Api.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using System.Data;
 using System.Xml.Linq;
 
@@ -12,18 +13,18 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
     [ApiController]
     public class FacturasProveedoresController : ControllerBase
     {
-        private readonly IDbConnection _dapper;
         private readonly _context _context;
-
-        public FacturasProveedoresController(IDbConnection dapper, _context context)
+        private readonly string cn;
+        public FacturasProveedoresController(_context context)
         {
             _context = context;
-            _dapper = dapper;
+            cn = Tools.config!.GetConnectionString("cn")!;
         }
 
         [HttpPost]
         public async Task<IActionResult> listar([FromBody] Tools.DataTableModel? _params)
         {
+            var _dapper = new NpgsqlConnection(cn);
             try
             {
                 var idEmpresa = Guid.Parse(Tools.getIdEmpresa(HttpContext));
@@ -98,6 +99,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
         [HttpPost]
         public async Task<IActionResult> guardar(FacturaProveedor _data)
         {
+            var _dapper = new NpgsqlConnection(cn);
             try
             {
                 var _factura = _data.factura;
@@ -203,7 +205,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             }
             finally
             {
-                _dapper.Dispose();
+                _dapper.Close();
             }
         }
 
