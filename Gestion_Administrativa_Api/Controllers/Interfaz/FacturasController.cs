@@ -145,7 +145,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                 }
                 else
                 {
-                    string sql = @"UPDATE facturas SET ""idTipoEstadoSri""=6 WHERE ""claveAcceso""=@claveAcceso";
+                    string sql = @"UPDATE facturas SET ""idTipoEstadoSri""=5 WHERE ""claveAcceso""=@claveAcceso";
                     await _dapper.ExecuteAsync(sql, new { claveAcceso });
                 }
                 return Ok();
@@ -247,7 +247,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                 _facturaDto.puntoEmision = Convert.ToInt32(await _dapper.ExecuteScalarAsync<string>(sql, _facturaDto)).ToString("D3");
                 sql = @"SELECT ""nombre""
                     FROM ""secuenciales""
-                    WHERE ""idEmpresa""=uuid(@idEmpresa)
+                    WHERE ""idEmpresa""=uuid(@idEmpresa) AND ""idTipoDocumento"" IN (SELECT ""idTipoDocumento"" FROM ""documentosEmitir"" WHERE ""idDocumentoEmitir""=@idDocumentoEmitir)
                     ";
                 _facturaDto.secuencial = Convert.ToInt32(await _dapper.ExecuteScalarAsync<string>(sql, _facturaDto)).ToString("D9");
                 _facturaDto.idUsuario = new Guid(Tools.getIdUsuario(HttpContext));
@@ -450,13 +450,13 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                 string sql = @"SELECT COUNT(""claveAcceso"")
                                 FROM facturas f
                                 INNER JOIN ""usuarioEmpresas"" ue ON ue.""idUsuario"" = f.""idUsuario""
-                                WHERE ""idTipoEstadoSri"" NOT IN(2,3,4,5)
+                                WHERE (""idTipoEstadoSri"" NOT IN(2,3,4,5) OR (""correoEnviado""=FALSE AND ""idTipoEstadoSri""=2))
                                 AND ""idEmpresa""= @idEmpresa::uuid";
                 if (_dapper.ExecuteScalar<int>(sql, new { idEmpresa }) == 0) return Ok("empty");
                 sql = @"SELECT ""claveAcceso""
                               FROM facturas f
                               INNER JOIN establecimientos e ON e.""idEstablecimiento"" = f.""idEstablecimiento""
-                              WHERE ""idTipoEstadoSri"" IN (1,6,0) OR (""correoEnviado""=FALSE AND ""idTipoEstadoSri""=6)
+                              WHERE ""idTipoEstadoSri"" IN (1,6,0) OR (""correoEnviado""=FALSE AND ""idTipoEstadoSri""=2)
                               AND ""idEmpresa""=uuid(@idEmpresa)
                             ;
                             ";

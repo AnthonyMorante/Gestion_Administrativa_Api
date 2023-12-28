@@ -154,6 +154,10 @@ namespace Gestion_Administrativa_Api.Interfaces.Utilidades
                 correo.From = new MailAddress(Tools.config["EnvioCorreo:Email"]);
                 correo.To.Add(email);
                 correo.Subject = "Mega Aceros - Documento Emitido";
+                correo.Body = @"<div style='width:100%;margin-top:25px;'>
+                                   <h1>Mega Aceros</h1>
+                                   <p>Gracias por su compra adjuntamos el documento electrónico correspondiente.</p>
+                                </div>";
                 correo.IsBodyHtml = true;
                 correo.Priority = MailPriority.Normal;
                 SmtpClient smtp = new SmtpClient();
@@ -176,7 +180,6 @@ namespace Gestion_Administrativa_Api.Interfaces.Utilidades
         {
             try
             {
-                await Task.Delay(2000);
                 var xmlByte = Encoding.ASCII.GetBytes(documentoFirmado.InnerXml);
                 var response = await new RecepcionComprobantesOfflineClient().validarComprobanteAsync(xmlByte);
                 var estado = response.RespuestaRecepcionComprobante.estado;
