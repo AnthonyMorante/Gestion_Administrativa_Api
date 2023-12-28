@@ -86,9 +86,9 @@ namespace Gestion_Administrativa_Api.Utilities
             [XmlElement(ElementName = "infoFactura")]
             public InfoFactura InfoFactura { get; set; }
             [XmlElement(ElementName = "detalles")]
-            public List<Detalles> Detalles { get; set; }
+            public Detalles Detalles { get; set; }
             [XmlElement(ElementName = "infoAdicional")]
-            public List<InfoAdicional> InfoAdicional { get; set; }
+            public InfoAdicional InfoAdicional { get; set; }
             [XmlAttribute(AttributeName = "id")]
             public string Id { get; set; }
             [XmlAttribute(AttributeName = "version")]
@@ -109,14 +109,14 @@ namespace Gestion_Administrativa_Api.Utilities
             [XmlElement(ElementName = "precioTotalSinImpuesto")]
             public string PrecioTotalSinImpuesto { get; set; }
             [XmlElement(ElementName = "impuestos")]
-            public List<Impuestos> Impuestos { get; set; }
+            public Impuestos Impuestos { get; set; }
         }
 
         [XmlRoot(ElementName = "detalles")]
         public class Detalles
         {
             [XmlElement(ElementName = "detalle")]
-            public Detalle Detalle { get; set; }
+            public List<Detalle> Detalle { get; set; }
         }
         [XmlRoot(ElementName = "impuesto")]
         public class Impuesto
@@ -136,13 +136,13 @@ namespace Gestion_Administrativa_Api.Utilities
         public class Impuestos
         {
             [XmlElement(ElementName = "impuesto")]
-            public Impuesto Impuesto { get; set; }
+            public List<Impuesto> Impuesto { get; set; }
         }
         [XmlRoot(ElementName = "infoAdicional")]
         public class InfoAdicional
         {
             [XmlElement(ElementName = "campoAdicional")]
-            public CampoAdicional CampoAdicional { get; set; }
+            public List<CampoAdicional> CampoAdicional { get; set; }
         }
         [XmlRoot(ElementName = "campoAdicional")]
         public class CampoAdicional
@@ -182,7 +182,7 @@ namespace Gestion_Administrativa_Api.Utilities
             [XmlElement(ElementName = "moneda")]
             public string Moneda { get; set; }
             [XmlElement(ElementName = "pagos")]
-            public List<Pagos> Pagos { get; set; }
+            public Pagos Pagos { get; set; }
         }
         [XmlRoot(ElementName = "infoTributaria")]
         public class InfoTributaria
@@ -226,13 +226,13 @@ namespace Gestion_Administrativa_Api.Utilities
         public class Pagos
         {
             [XmlElement(ElementName = "pago")]
-            public Pago Pago { get; set; }
+            public List<Pago> Pago { get; set; }
         }
         [XmlRoot(ElementName = "totalConImpuestos")]
         public class TotalConImpuestos
         {
             [XmlElement(ElementName = "totalImpuesto")]
-            public TotalImpuesto TotalImpuesto { get; set; }
+            public List<TotalImpuesto> TotalImpuesto { get; set; }
         }
         [XmlRoot(ElementName = "totalImpuesto")]
         public class TotalImpuesto
@@ -666,7 +666,7 @@ namespace Gestion_Administrativa_Api.Utilities
                 _f.TotalDescuento = Convert.ToDecimal(_factura.InfoFactura.TotalDescuento?.Replace(".", ","));
                 _f.TotalSinImpuesto = Convert.ToDecimal(_factura.InfoFactura.TotalSinImpuestos?.Replace(".", ","));
                 _f.ImporteTotal = Convert.ToDecimal(_factura.InfoFactura.ImporteTotal?.Replace(".", ","));
-                _f.SriDetallesFacturas = (from item in _factura.Detalles.Select(x=>x.Detalle)
+                _f.SriDetallesFacturas = (from item in _factura.Detalles.Detalle
                                           select new SriDetallesFacturas()
                                           {
                                               Cantidad = Convert.ToDecimal(item.Cantidad?.Replace(".", ",")),
@@ -675,8 +675,8 @@ namespace Gestion_Administrativa_Api.Utilities
                                               Descuento = Convert.ToDecimal(item.Descuento?.Replace(".", ",")),
                                               PrecioTotalSinImpuesto = Convert.ToDecimal(item.PrecioTotalSinImpuesto?.Replace(".", ",")),
                                               PrecioUnitario = Convert.ToDecimal(item.PrecioUnitario?.Replace(".", ",")),
-                                              PrecioTotalConImpuesto = item.Impuestos.Select(x=>x.Impuesto).Aggregate(Convert.ToDecimal("0"),(acc,x)=>acc+Convert.ToDecimal(x.Valor?.Replace(".", ","))),
-                                              SriDetallesFacturasImpuestos = (from impuesto in item.Impuestos.Select(x=>x.Impuesto)
+                                              PrecioTotalConImpuesto = item.Impuestos.Impuesto.Aggregate(Convert.ToDecimal("0"),(acc,x)=>acc+Convert.ToDecimal(x.Valor?.Replace(".", ","))),
+                                              SriDetallesFacturasImpuestos = (from impuesto in item.Impuestos.Impuesto
                                                                               select new SriDetallesFacturasImpuestos()
                                                                               {
                                                                                   Codigo=impuesto.Codigo,
@@ -688,15 +688,17 @@ namespace Gestion_Administrativa_Api.Utilities
                                                                             ).ToList(),
 
                                           }).ToList();
-                var totales = _factura.InfoFactura.TotalConImpuestos.TotalImpuesto;
-                var detalleTotal = new SriTotalesConImpuestos();
-                detalleTotal.Codigo=totales.Codigo;
-                detalleTotal.CodigoPorcentaje = totales.CodigoPorcentaje;
-                detalleTotal.DescuentoAdicional = Convert.ToDecimal(totales.DescuentoAdicional?.Replace(".", ","));
-                detalleTotal.BaseImponible = Convert.ToDecimal(totales.BaseImponible?.Replace(".", ","));
-                detalleTotal.Valor=Convert.ToDecimal(totales.Valor?.Replace(".", ","));
-                _f.SriTotalesConImpuestos.Add(detalleTotal);
-                _f.SriPagos = (from item in _factura.InfoFactura.Pagos.Select(x=>x.Pago)
+                foreach (var total in _factura.InfoFactura.TotalConImpuestos.TotalImpuesto)
+                {
+                    var detalleTotal = new SriTotalesConImpuestos();
+                    detalleTotal.Codigo = total.Codigo;
+                    detalleTotal.CodigoPorcentaje = total.CodigoPorcentaje;
+                    detalleTotal.DescuentoAdicional = Convert.ToDecimal(total.DescuentoAdicional?.Replace(".", ","));
+                    detalleTotal.BaseImponible = Convert.ToDecimal(total.BaseImponible?.Replace(".", ","));
+                    detalleTotal.Valor = Convert.ToDecimal(total.Valor?.Replace(".", ","));
+                    _f.SriTotalesConImpuestos.Add(detalleTotal);
+                }
+                _f.SriPagos = (from item in _factura.InfoFactura.Pagos.Pago
                                select new SriPagos
                                {
                                    Plazo=Convert.ToInt32(item.Plazo),
@@ -704,7 +706,7 @@ namespace Gestion_Administrativa_Api.Utilities
                                    Total=Convert.ToDecimal(item.Total?.Replace(".", ",")),
                                    UnidadTiempo=item.UnidadTiempo
                                }).ToList();
-                _f.SriCamposAdicionales = (from item in _factura.InfoAdicional.Select(x => x.CampoAdicional)
+                _f.SriCamposAdicionales = (from item in _factura.InfoAdicional.CampoAdicional
                                            select new SriCamposAdicionales
                                            {
                                                Nombre=item.Nombre,
