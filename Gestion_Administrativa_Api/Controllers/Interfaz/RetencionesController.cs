@@ -36,6 +36,8 @@ namespace Gestion_Administrativa_Api.Controllers
             try
             {
 
+               var res = await _IRetenciones.guardar(_retencionDto);
+
                 return Ok();
 
             }

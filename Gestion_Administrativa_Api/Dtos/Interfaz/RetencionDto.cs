@@ -18,7 +18,7 @@ namespace Gestion_Administrativa_Api.Dtos.Interfaz
         public string? tipoEmision { get; set; }
         public string? emisorRazonSocial { get; set; }
         public string? emisorNombreComercial { get; set; }
-        public string? emmisorRuc { get; set; }
+        public string? emisorRuc { get; set; }
         public string? claveAcceso { get; set; }
         public string? tipoDocumento { get; set; }
         public string? establecimiento { get; set; }
@@ -32,6 +32,7 @@ namespace Gestion_Administrativa_Api.Dtos.Interfaz
         public string? razonSocialSujetoRetenido { get; set; }
         public string? identificacionSujetoRetenido { get; set; }
         public string? periodoFiscal { get; set; }
+        public string? versionXml { get; set; } = "1.0.0";
         public List<Impuesto>? impuestos { get; set; }
         public List<InfoAdicional>? infoAdicional { get; set; }
 

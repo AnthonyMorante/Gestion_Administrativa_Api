@@ -1170,6 +1170,9 @@ public partial class _context : DbContext
             entity.Property(e => e.DireccionMatriz)
                 .HasMaxLength(300)
                 .HasColumnName("direccionMatriz");
+            entity.Property(e => e.EmisorNombreComercial)
+                .HasMaxLength(300)
+                .HasColumnName("emisorNombreComercial");
             entity.Property(e => e.EmisorRazonSocial)
                 .HasMaxLength(300)
                 .HasColumnName("emisorRazonSocial");
@@ -1195,9 +1198,6 @@ public partial class _context : DbContext
             entity.Property(e => e.IdentificacionSujetoRetenido)
                 .HasMaxLength(20)
                 .HasColumnName("identificacionSujetoRetenido");
-            entity.Property(e => e.NombreComercial)
-                .HasMaxLength(300)
-                .HasColumnName("nombreComercial");
             entity.Property(e => e.ObligadoContabilidad).HasColumnName("obligadoContabilidad");
             entity.Property(e => e.PeriodoFiscal)
                 .HasMaxLength(20)

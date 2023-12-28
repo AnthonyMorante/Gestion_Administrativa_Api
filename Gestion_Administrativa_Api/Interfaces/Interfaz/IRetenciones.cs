@@ -18,6 +18,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
 
         Task<IActionResult> guardar(RetencionDto? _retencionDto);
 
+
     }
 
 
@@ -44,7 +45,12 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                 var consultaEstablecimiento = await _context.Establecimientos.FindAsync(_retencionDto.idEstablecimiento);
                 if (consultaEmpresa == null) throw new Exception("No se ha encontrado la empresa");
                 if (consultaEstablecimiento == null) throw new Exception("No se ha encontrado el establecimiento");
-                //var factura = _mapper.Map<Facturas>(_retencionDto);
+                var retenciones = _mapper.Map<Retenciones>(_retencionDto);
+                retenciones.IdTipoEstadoDocumento = 4;
+                retenciones.CodigoDocumento = 7;
+                retenciones.IdTipoEstadoSri = 7;
+                retenciones.TipoDocumento = 7;
+                retenciones.ObligadoContabilidad = true;
                 //var detalle = _mapper.Map<List<DetalleFacturas>>(_retencionDto.detalleFactura);
                 //var detallePagos = _mapper.Map<List<DetalleFormaPagos>>(_retencionDto.formaPago);
                 //var detalleAdicional = _mapper.Map<List<InformacionAdicional>>(_retencionDto.informacionAdicional);
