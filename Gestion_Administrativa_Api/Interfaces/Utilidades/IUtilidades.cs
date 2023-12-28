@@ -1,16 +1,22 @@
-﻿using FirmaXadesNetCore;
+﻿using Dapper;
+using FirmaXadesNetCore;
 using FirmaXadesNetCore.Crypto;
 using FirmaXadesNetCore.Signature;
 using FirmaXadesNetCore.Signature.Parameters;
+using Gestion_Administrativa_Api.Dtos.Interfaz;
+using Gestion_Administrativa_Api.Interfaces.Interfaz;
 using Gestion_Administrativa_Api.Models;
 using Gestion_Administrativa_Api.Utilities;
+using System.Data;
 using System.Net.Mail;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Serialization;
 using wsSriRecepcion;
+using static Gestion_Administrativa_Api.Documents_Models.Factura.factura_V100;
 using static Gestion_Administrativa_Api.Interfaces.Utilidades.UtilidadesI;
 
 namespace Gestion_Administrativa_Api.Interfaces.Utilidades
@@ -27,9 +33,8 @@ namespace Gestion_Administrativa_Api.Interfaces.Utilidades
 
         Task<estadoSri> verificarEstadoSRI(string claveAcceso);
 
-        Task<bool> envioCorreo(string email, byte[] archivo, string nombreArchivo);
+        Task<bool> envioCorreo(string email, byte[] archivo, byte[] xml, string nombreArchivo);
     }
-
     public class UtilidadesI : IUtilidades
     {
         public async Task<string> modulo11(string claveAcceso)
@@ -144,13 +149,13 @@ namespace Gestion_Administrativa_Api.Interfaces.Utilidades
                 return null;
             }
         }
-
-        public async Task<bool> envioCorreo(string email, byte[] archivo, string nombreArchivo)
+        public async Task<bool> envioCorreo(string email, byte[] archivo, byte[]xml, string nombreArchivo)
         {
             try
             {
                 MailMessage correo = new MailMessage();
                 correo.Attachments.Add((new Attachment(new MemoryStream(archivo), nombreArchivo + ".pdf")));
+                correo.Attachments.Add((new Attachment(new MemoryStream(xml), nombreArchivo + ".xml")));
                 correo.From = new MailAddress(Tools.config["EnvioCorreo:Email"]);
                 correo.To.Add(email);
                 correo.Subject = "Mega Aceros - Documento Emitido";

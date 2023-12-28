@@ -17,6 +17,7 @@ using NetBarcode;
 using Microsoft.CodeAnalysis.FlowAnalysis.DataFlow;
 using System.Security.Cryptography.Xml;
 using Microsoft.AspNetCore.Http.HttpResults;
+using System.Text;
 
 namespace Gestion_Administrativa_Api.Interfaces.Interfaz
 {
@@ -66,7 +67,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                 var consultaEstablecimiento = await _context.Establecimientos.FindAsync(_facturaDto.idEstablecimiento);
 
                 if (consultaEmpresa == null) throw new Exception("No se ha encontrado la empresa");
-                if(consultaEstablecimiento == null) throw new Exception("No se ha encontrado el establecimiento");
+                if (consultaEstablecimiento == null) throw new Exception("No se ha encontrado el establecimiento");
 
                 var factura = _mapper.Map<Facturas>(_facturaDto);
                 var detalle = _mapper.Map<List<DetalleFacturas>>(_facturaDto.detalleFactura);
@@ -116,12 +117,11 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                     consultaSecuencial.Nombre = consultaSecuencial.Nombre + 1;
                     _context.Secuenciales.Update(consultaSecuencial);
                     await _context.SaveChangesAsync();
-                    var enviadoSri=await enviarSri(factura.ClaveAcceso);
+                    var enviadoSri = await enviarSri(factura.ClaveAcceso);
                     var idTipoEstadoSri = enviadoSri ? 6 : 0;
                     string sql = @"UPDATE facturas SET ""idTipoEstadoSri""=@idTipoEstadoSri
                                    WHERE ""claveAcceso"" = @claveAcceso;";
-                    await _dapper.ExecuteScalarAsync(sql,new { claveAcceso=factura.ClaveAcceso,idTipoEstadoSri });
-
+                    await _dapper.ExecuteScalarAsync(sql, new { claveAcceso = factura.ClaveAcceso, idTipoEstadoSri });
                 }
                 result.StatusCode = 200;
                 return result;
@@ -247,7 +247,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                 factura.infoFactura.pagos = formaPago;
                 factura.detalles = detalleFactura;
                 factura.infoAdicional = infoAdicional;
-                factura.infoTributaria.agenteRetencion = _factura.AgenteRetencion == true ? factura.infoTributaria.agenteRetencion="1" : null;
+                factura.infoTributaria.agenteRetencion = _factura.AgenteRetencion == true ? factura.infoTributaria.agenteRetencion = "1" : null;
 
                 return factura;
             }
@@ -384,7 +384,8 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
 
         public async Task<bool> enviarCorreo(string email, byte[] archivo, string nombreArchivo)
         {
-            return await _IUtilidades.envioCorreo(email, archivo, nombreArchivo);
+            var xml = await firmarXml(nombreArchivo);
+            return await _IUtilidades.envioCorreo(email, archivo, Encoding.ASCII.GetBytes(xml.OuterXml), nombreArchivo);
         }
     }
 }
