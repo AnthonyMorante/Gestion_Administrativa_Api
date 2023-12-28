@@ -47,6 +47,9 @@ namespace Gestion_Administrativa_Api.Controllers
         }
 
 
+
+
+
         [HttpGet]
         public async Task<IActionResult> puntosEmisiones()
         {
@@ -83,6 +86,34 @@ namespace Gestion_Administrativa_Api.Controllers
                               ";
 
                 return Ok(await _dapper.QueryAsync(sql, new { idEmpresa }));
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
+        }
+
+
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> unDato(string claveAcceso)
+        {
+            try
+            {
+    
+                string sql = @"
+                           
+                                select sf.""idFactura"",sf.""totalSinImpuesto"",sf.""importeTotal"",sf.""totalDescuento"",
+                                sf.""razonSocialComprador"",sf.""identificacionComprador"",sf.estab,sf.secuencial,sf.""ptoEmi"",
+                                sf.""claveAcceso"" ,stci.""baseImponible"",stci.valor 
+                                from ""SriTotalesConImpuestos"" stci 
+                                join ""SriFacturas"" sf on sf.""idFactura"" = stci.""idFactura"" 
+                                where sf.""claveAcceso""  = @claveAcceso
+
+                                
+                              ";
+
+                return Ok(await _dapper.QueryFirstAsync(sql, new { claveAcceso }));
             }
             catch (Exception ex)
             {
