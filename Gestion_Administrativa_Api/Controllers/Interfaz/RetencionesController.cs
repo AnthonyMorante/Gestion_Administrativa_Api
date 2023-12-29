@@ -26,7 +26,7 @@ namespace Gestion_Administrativa_Api.Controllers
             _dapper = db;
             _context = context;
         }
-
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> establecimientos()
         {
@@ -49,7 +49,7 @@ namespace Gestion_Administrativa_Api.Controllers
 
 
 
-
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> puntosEmisiones()
         {
@@ -61,6 +61,26 @@ namespace Gestion_Administrativa_Api.Controllers
                                 ORDER BY NOT predeterminado;
                             ";
                 return Ok(await _dapper.QueryAsync(sql, new { idEmpresa }));
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
+        }
+
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> porcentajeImpuestosRetenciones()
+        {
+            try
+            {
+
+                string sql = @"
+                        select ""idPorcentajeImpuestoRetencion"",nombre,valor,codigo,""idTipoValorRetencion""
+                        from ""porcentajeImpuestosRetenciones"" pir 
+                        where activo =true
+                            ";
+                return Ok(await _dapper.QueryAsync(sql));
             }
             catch (Exception ex)
             {
@@ -96,11 +116,11 @@ namespace Gestion_Administrativa_Api.Controllers
 
         [Authorize]
         [HttpGet]
-        public async Task<IActionResult> unDato(string claveAcceso)
+        public async Task<IActionResult> unDato(string claveAcceso, Int32 idFactura)
         {
             try
             {
-    
+
                 string sql = @"
                            
                                 select sf.""idFactura"",sf.""totalSinImpuesto"",sf.""importeTotal"",sf.""totalDescuento"",
@@ -113,7 +133,20 @@ namespace Gestion_Administrativa_Api.Controllers
                                 
                               ";
 
-                return Ok(await _dapper.QueryFirstAsync(sql, new { claveAcceso }));
+                string sqlSubtotales = @"
+
+                         SELECT i.codigo,sum(dt.""precioTotalSinImpuesto"") as sumatoria
+                            FROM ""SriDetallesFacturas"" dt
+                            INNER JOIN ""SriDetallesFacturasImpuestos"" i ON i.""idDetalleFactura"" = dt.""idDetalleFactura"" 
+                            WHERE ""idFactura"" = @idFactura
+                            GROUP BY i.codigo
+
+                     ";
+
+
+                var res = await _dapper.QueryFirstAsync(sql, new { claveAcceso });
+                var resSubtotales = await _dapper.QueryAsync(sqlSubtotales, new { idFactura });
+                return Ok(new { res, subtotales = resSubtotales });
             }
             catch (Exception ex)
             {
@@ -123,7 +156,7 @@ namespace Gestion_Administrativa_Api.Controllers
 
 
 
-        [AllowAnonymous]
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> insertar(RetencionDto? _retencionDto)
         {
@@ -132,7 +165,7 @@ namespace Gestion_Administrativa_Api.Controllers
             try
             {
 
-               var res = await _IRetenciones.guardar(_retencionDto);
+                var res = await _IRetenciones.guardar(_retencionDto);
 
                 return Ok();
 
