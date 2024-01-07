@@ -126,7 +126,8 @@ public partial class _context : DbContext
     public virtual DbSet<Usuarios> Usuarios { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseNpgsql("name=cn");
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseNpgsql("Host=db-postgresql-nyc3-80363-do-user-15066668-0.c.db.ondigitalocean.com;Port=25060; Database=gestion_administrativa_pruebas; Username=doadmin; Password=AVNS_8iJ-ZvLG3sR5y9YiaBU");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -1249,8 +1250,6 @@ public partial class _context : DbContext
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("timestamp without time zone")
                 .HasColumnName("fechaEmision");
-            entity.Property(e => e.IdCiudad).HasColumnName("idCiudad");
-            entity.Property(e => e.IdCliente).HasColumnName("idCliente");
             entity.Property(e => e.IdDocumentoEmitir).HasColumnName("idDocumentoEmitir");
             entity.Property(e => e.IdEmpresa).HasColumnName("idEmpresa");
             entity.Property(e => e.IdEstablecimiento).HasColumnName("idEstablecimiento");
@@ -1258,7 +1257,6 @@ public partial class _context : DbContext
             entity.Property(e => e.IdTipoDocumento).HasColumnName("idTipoDocumento");
             entity.Property(e => e.IdTipoEstadoDocumento).HasColumnName("idTipoEstadoDocumento");
             entity.Property(e => e.IdTipoEstadoSri).HasColumnName("idTipoEstadoSri");
-            entity.Property(e => e.IdTipoIdenticacion).HasColumnName("idTipoIdenticacion");
             entity.Property(e => e.IdUsuario).HasColumnName("idUsuario");
             entity.Property(e => e.IdentificacionSujetoRetenido)
                 .HasMaxLength(20)
@@ -1283,16 +1281,6 @@ public partial class _context : DbContext
             entity.Property(e => e.VersionXml)
                 .HasMaxLength(10)
                 .HasColumnName("versionXml");
-
-            entity.HasOne(d => d.IdCiudadNavigation).WithMany(p => p.Retenciones)
-                .HasForeignKey(d => d.IdCiudad)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("retenciones_idCiudad_fkey");
-
-            entity.HasOne(d => d.IdClienteNavigation).WithMany(p => p.Retenciones)
-                .HasForeignKey(d => d.IdCliente)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("retenciones_idCliente_fkey");
 
             entity.HasOne(d => d.IdDocumentoEmitirNavigation).WithMany(p => p.Retenciones)
                 .HasForeignKey(d => d.IdDocumentoEmitir)

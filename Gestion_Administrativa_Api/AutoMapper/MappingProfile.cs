@@ -250,6 +250,7 @@ namespace Gestion_Administrativa_Api.AutoMapper
             .ForMember(dest => dest.PuntoEmision, opt => opt.MapFrom(src => Convert.ToInt16(src.puntoEmision)))
             .ForMember(dest => dest.Secuencial, opt => opt.MapFrom(src => Convert.ToInt16(src.secuencial)))
             .ForMember(dest => dest.CodigoDocumento, opt => opt.MapFrom(src => 7))
+            .ForMember(dest => dest.RazonSocialSujetoRetenido, opt => opt.MapFrom(src => src.razonSocialSujetoRetenido))
             .ForMember(dest => dest.ObligadoContabilidad, opt => opt.MapFrom(src => true));
             #endregion
 

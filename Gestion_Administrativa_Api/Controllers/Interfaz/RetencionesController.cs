@@ -124,7 +124,7 @@ namespace Gestion_Administrativa_Api.Controllers
                 string sql = @"
                            
                               
-                               select sf.""idFactura"",sf.""totalSinImpuesto"",sf.""importeTotal"",sf.""totalDescuento"",
+                               select sf.""idUsuario"",sf.""idFactura"",sf.""totalSinImpuesto"",sf.""importeTotal"",sf.""totalDescuento"",
                                sf.""razonSocialComprador"",sf.""identificacionComprador"",sf.estab,sf.secuencial,sf.""ptoEmi"",
                                sf.""claveAcceso"" ,stci.""baseImponible"",stci.valor,sf.""fechaEmision"",sf.""tipoIdentificacionComprador"",
                                sf.""identificacionComprador"" 

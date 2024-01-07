@@ -51,10 +51,6 @@ public partial class Retenciones
 
     public Guid IdUsuario { get; set; }
 
-    public Guid IdCliente { get; set; }
-
-    public Guid IdCiudad { get; set; }
-
     public Guid IdDocumentoEmitir { get; set; }
 
     public Guid IdEstablecimiento { get; set; }
@@ -68,12 +64,6 @@ public partial class Retenciones
     public Guid IdTipoDocumento { get; set; }
 
     public Guid IdEmpresa { get; set; }
-
-    public Guid IdTipoIdenticacion { get; set; }
-
-    public virtual Ciudades IdCiudadNavigation { get; set; } = null!;
-
-    public virtual Clientes IdClienteNavigation { get; set; } = null!;
 
     public virtual DocumentosEmitir IdDocumentoEmitirNavigation { get; set; } = null!;
 

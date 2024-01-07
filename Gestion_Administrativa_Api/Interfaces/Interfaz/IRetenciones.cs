@@ -58,7 +58,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                 //var detallePagos = _mapper.Map<List<DetalleFormaPagos>>(_retencionDto.formaPago);
                 //var detalleAdicional = _mapper.Map<List<InformacionAdicional>>(_retencionDto.informacionAdicional);
                 result.StatusCode = 200;
-                return result;  
+                return result;
 
             }
             catch (Exception ex)
