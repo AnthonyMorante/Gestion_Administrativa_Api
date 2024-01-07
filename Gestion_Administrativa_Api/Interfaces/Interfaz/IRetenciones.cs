@@ -10,6 +10,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Gestion_Administrativa_Api.Interfaces.Utilidades;
 using Microsoft.EntityFrameworkCore;
+using static Gestion_Administrativa_Api.Utilities.Tools;
 
 namespace Gestion_Administrativa_Api.Interfaces.Interfaz
 {
@@ -28,11 +29,12 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
 
         private readonly _context _context;
         private readonly IMapper _mapper;
-
-        public RetencionesI(_context context, IMapper mapper)
+        private readonly IUtilidades _IUtilidades;
+        public RetencionesI(_context context, IMapper mapper, IUtilidades iUtilidades)
         {
             _context = context;
             _mapper = mapper;
+            _IUtilidades = iUtilidades;
         }
 
 
@@ -46,16 +48,17 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                 if (consultaEmpresa == null) throw new Exception("No se ha encontrado la empresa");
                 if (consultaEstablecimiento == null) throw new Exception("No se ha encontrado el establecimiento");
                 var retenciones = _mapper.Map<Retenciones>(_retencionDto);
-                retenciones.IdTipoEstadoDocumento = 4;
-                retenciones.CodigoDocumento = 7;
-                retenciones.IdTipoEstadoSri = 7;
-                retenciones.TipoDocumento = 7;
-                retenciones.ObligadoContabilidad = true;
+                var claveAcceso = await _IUtilidades.claveAccesoRetencion(retenciones);
+                retenciones.ObligadoContabilidad = consultaEmpresa.LlevaContabilidad;
+                retenciones.EmisorRuc = consultaEmpresa.Identificacion;
+                retenciones.DireccionMatriz = consultaEmpresa.DireccionMatriz;
+                retenciones.EmisorNombreComercial = consultaEmpresa.RazonSocial;
+                retenciones.EmisorRazonSocial = consultaEmpresa.RazonSocial;
                 //var detalle = _mapper.Map<List<DetalleFacturas>>(_retencionDto.detalleFactura);
                 //var detallePagos = _mapper.Map<List<DetalleFormaPagos>>(_retencionDto.formaPago);
                 //var detalleAdicional = _mapper.Map<List<InformacionAdicional>>(_retencionDto.informacionAdicional);
                 result.StatusCode = 200;
-                return result;
+                return result;  
 
             }
             catch (Exception ex)

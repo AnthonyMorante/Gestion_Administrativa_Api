@@ -15,18 +15,18 @@ namespace Gestion_Administrativa_Api.Dtos.Interfaz
         public Guid? idEstablecimiento { get; set; }
         public Guid? idPuntoEmision { get; set; }
         public string? ambiente { get; set; }
-        public string? tipoEmision { get; set; }
+        public string? tipoEmision { get; set; } = "1";
         public string? emisorRazonSocial { get; set; }
         public string? emisorNombreComercial { get; set; }
         public string? emisorRuc { get; set; }
         public string? claveAcceso { get; set; }
-        public string? tipoDocumento { get; set; }
-        public string? establecimiento { get; set; }
-        public string? puntoEmision { get; set; }
-        public string? secuencial { get; set; }
+        public int? tipoDocumento { get; set; } = 7;
+        public int? establecimiento { get; set; }
+        public int? puntoEmision { get; set; }
+        public int? secuencial { get; set; }
         public string? direccionMatriz { get; set; }
         public string? agenteRetencion { get; set; }
-        public string? fechaEmision { get; set; }
+        public DateTime? fechaEmision { get; set; }
         public string? obligadoContabilidad { get; set; }
         public string? tipoIdentificacionSujetoRetenido { get; set; }
         public string? razonSocialSujetoRetenido { get; set; }

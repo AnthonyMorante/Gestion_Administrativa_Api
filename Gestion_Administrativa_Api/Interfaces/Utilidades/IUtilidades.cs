@@ -26,6 +26,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Utilidades
         Task<string> modulo11(string claveAcceso);
 
         Task<string> claveAcceso(Facturas? _factura);
+        Task<string> claveAccesoRetencion(Retenciones? _retencion);
 
         Task<SignatureDocument> firmar(string codigo, string rutaFirma, XDocument documento);
 
@@ -87,12 +88,40 @@ namespace Gestion_Administrativa_Api.Interfaces.Utilidades
                 string ruc = _factura.EmisorRuc;
                 int ambiente = Convert.ToInt16(Tools.config!["SRI:ambiente"]);
                 string establecimiento = _factura.Establecimiento.ToString().PadLeft(3, '0');
-                string puntoEmision = _factura.Establecimiento.ToString().PadLeft(3, '0');
+                string puntoEmision = _factura.PuntoEmision.ToString().PadLeft(3, '0');
                 string secuencial = _factura.Secuencial.ToString().PadLeft(9, '0');
                 int numeroRandom = this.numerosRandom();
                 int tipoEmision = Convert.ToInt16(Tools.config["SRI:tipoEmision"]);
                 string claveAcceso = $"{fechaFormateada}{tipoDocumento}{ruc}{ambiente}{establecimiento}{puntoEmision}{secuencial}{numeroRandom}{tipoEmision}";
                 string claveAccesoVerificador = await modulo11(claveAcceso);
+                return claveAccesoVerificador;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+
+
+        public async Task<string> claveAccesoRetencion(Retenciones? _retencion)
+        {
+            try
+            {
+                string fechaFormateada = _retencion.FechaEmision?.ToString("ddMMyyyy");
+                string tipoDocumento =  _retencion.TipoDocumento.ToString().PadLeft(2, '0');
+                string ruc = _retencion.EmisorRuc;
+                int ambiente = Convert.ToInt16(Tools.config!["SRI:ambiente"]);
+                string establecimiento = _retencion.Establecimiento.ToString().PadLeft(3, '0');
+                string puntoEmision = _retencion.PuntoEmision.ToString().PadLeft(3, '0');
+                string secuencial = _retencion.Secuencial.ToString().PadLeft(9, '0');
+                int numeroRandom = this.numerosRandom();
+                int tipoEmision = Convert.ToInt16(Tools.config["SRI:tipoEmision"]);
+                string claveAcceso = $"{fechaFormateada}{tipoDocumento}{ruc}{ambiente}{establecimiento}{puntoEmision}{secuencial}{numeroRandom}{tipoEmision}";
+                string claveAccesoVerificador = await modulo11(claveAcceso);
+                _retencion.Ambiente = ambiente;
+                _retencion.TipoEmision = tipoEmision;
+                _retencion.ClaveAcceso = claveAcceso;
                 return claveAccesoVerificador;
             }
             catch (Exception)

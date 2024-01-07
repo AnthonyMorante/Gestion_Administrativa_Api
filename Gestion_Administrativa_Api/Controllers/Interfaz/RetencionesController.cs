@@ -166,7 +166,7 @@ namespace Gestion_Administrativa_Api.Controllers
 
             try
             {
-
+                _retencionDto.idEmpresa = new Guid(Tools.getIdEmpresa(HttpContext));
                 var res = await _IRetenciones.guardar(_retencionDto);
 
                 return Ok();

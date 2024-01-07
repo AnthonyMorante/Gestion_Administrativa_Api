@@ -244,9 +244,13 @@ namespace Gestion_Administrativa_Api.AutoMapper
 
             CreateMap<RetencionDto, Retenciones>()
             .ForMember(dest => dest.ObligadoContabilidad, opt => opt.Ignore())
-            .ReverseMap()
-                ;
-
+            .ForMember(dest => dest.IdTipoEstadoDocumento, opt => opt.MapFrom(src => Convert.ToInt16(4)))
+            .ForMember(dest => dest.IdTipoEstadoSri, opt => opt.MapFrom(src => 0))
+            .ForMember(dest => dest.Establecimiento, opt => opt.MapFrom(src => Convert.ToInt16(src.establecimiento)))
+            .ForMember(dest => dest.PuntoEmision, opt => opt.MapFrom(src => Convert.ToInt16(src.puntoEmision)))
+            .ForMember(dest => dest.Secuencial, opt => opt.MapFrom(src => Convert.ToInt16(src.secuencial)))
+            .ForMember(dest => dest.CodigoDocumento, opt => opt.MapFrom(src => 7))
+            .ForMember(dest => dest.ObligadoContabilidad, opt => opt.MapFrom(src => true));
             #endregion
 
         }
