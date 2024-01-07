@@ -123,11 +123,13 @@ namespace Gestion_Administrativa_Api.Controllers
 
                 string sql = @"
                            
-                                select sf.""idFactura"",sf.""totalSinImpuesto"",sf.""importeTotal"",sf.""totalDescuento"",
-                                sf.""razonSocialComprador"",sf.""identificacionComprador"",sf.estab,sf.secuencial,sf.""ptoEmi"",
-                                sf.""claveAcceso"" ,stci.""baseImponible"",stci.valor 
-                                from ""SriTotalesConImpuestos"" stci 
-                                join ""SriFacturas"" sf on sf.""idFactura"" = stci.""idFactura"" 
+                              
+                               select sf.""idFactura"",sf.""totalSinImpuesto"",sf.""importeTotal"",sf.""totalDescuento"",
+                               sf.""razonSocialComprador"",sf.""identificacionComprador"",sf.estab,sf.secuencial,sf.""ptoEmi"",
+                               sf.""claveAcceso"" ,stci.""baseImponible"",stci.valor,sf.""fechaEmision"",sf.""tipoIdentificacionComprador"",
+                               sf.""identificacionComprador"" 
+                               from ""SriTotalesConImpuestos"" stci 
+                               join ""SriFacturas"" sf on sf.""idFactura"" = stci.""idFactura"" 
                                 where sf.""claveAcceso""  = @claveAcceso
 
                                 
@@ -168,6 +170,39 @@ namespace Gestion_Administrativa_Api.Controllers
                 var res = await _IRetenciones.guardar(_retencionDto);
 
                 return Ok();
+
+            }
+            catch (Exception ex)
+            {
+
+                return Problem(ex.Message);
+            }
+
+
+
+        }
+
+
+
+
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> listarTipoIdentificaciones()
+        {
+
+
+            try
+            {
+
+                string sql = @"
+                           
+                               select ""idTipoIdentificacion"",nombre,codigo 
+                               from ""tipoIdentificaciones"" ti 
+
+                                
+                              ";
+
+                return Ok(await _dapper.QueryAsync(sql));
 
             }
             catch (Exception ex)
