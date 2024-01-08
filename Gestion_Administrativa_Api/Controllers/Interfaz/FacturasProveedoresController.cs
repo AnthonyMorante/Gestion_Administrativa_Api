@@ -3,9 +3,7 @@ using Gestion_Administrativa_Api.Models;
 using Gestion_Administrativa_Api.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Npgsql;
 using System.Data;
-using System.Xml.Linq;
 
 namespace Gestion_Administrativa_Api.Controllers.Interfaz
 {
@@ -15,6 +13,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
     {
         private readonly _context _context;
         private readonly string cn;
+
         public FacturasProveedoresController(_context context)
         {
             _context = context;
@@ -24,7 +23,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
         [HttpPost]
         public async Task<IActionResult> listar([FromBody] Tools.DataTableModel? _params)
         {
-            var _dapper = new NpgsqlConnection(cn);
+            IDbConnection _dapper = _context.Database.GetDbConnection();
             try
             {
                 var idEmpresa = Guid.Parse(Tools.getIdEmpresa(HttpContext));
@@ -34,8 +33,8 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                             (SELECT count(""claveAcceso"") FROM retenciones r WHERE r.""claveAcceso""= f.""claveAcceso"") as ""totalRetenciones""
                             FROM ""SriFacturas"" f
                             WHERE ""idEmpresa"" = @idEmpresa
-                            AND compra=true";
-                return Ok(await Tools.DataTablePostgresSql(new Tools.DataTableParams
+                            AND compra=1";
+                return Ok(await Tools.DataTableSql(new Tools.DataTableParams
                 {
                     parameters = new { idEmpresa },
                     query = sql,
@@ -46,10 +45,6 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             catch (Exception ex)
             {
                 return Tools.handleError(ex);
-            }
-            finally
-            {
-                _dapper.Dispose();
             }
         }
 
@@ -65,16 +60,16 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                                        select new
                                        {
                                            item.IdProducto,
-                                           Producto=item.Nombre.TrimStart().TrimEnd()
-                                       }).OrderBy(x=>x.Producto).ToListAsync();
+                                           Producto = item.Nombre.TrimStart().TrimEnd()
+                                       }).OrderBy(x => x.Producto).ToListAsync();
                 var productosProveedores = await (from item in _context.ProductosProveedores
-                                              join pr in _context.Productos on item.IdProducto equals pr.IdProducto
-                                              where pr.IdEmpresa == idEmpresa && item.Identificacion == factura.Ruc
-                                              select new
-                                              {
-                                                  item.IdProducto,
-                                                  item.CodigoPrincipal
-                                              }
+                                                  join pr in _context.Productos on item.IdProducto equals pr.IdProducto
+                                                  where pr.IdEmpresa == idEmpresa && item.Identificacion == factura.Ruc
+                                                  select new
+                                                  {
+                                                      item.IdProducto,
+                                                      item.CodigoPrincipal
+                                                  }
                                       ).ToListAsync();
                 var formasPagos = await (from item in _context.SriFormasPagos
                                          select new
@@ -99,7 +94,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
         [HttpPost]
         public async Task<IActionResult> guardar(FacturaProveedor _data)
         {
-            var _dapper = new NpgsqlConnection(cn);
+            IDbConnection _dapper = _context.Database.GetDbConnection();
             try
             {
                 var _factura = _data.factura;
@@ -169,7 +164,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                             {
                                IdProducto= producto.IdProducto,
                                Tarifa = impuestos.Tarifa,
-                               BaseImponible=impuestos.BaseImponible, 
+                               BaseImponible=impuestos.BaseImponible,
                                TotalConImpuestos=impuestos.BaseImponible+impuestos.Valor,
                                Valor = impuestos.Valor,
                                Codigo = impuestos.Codigo,
@@ -182,8 +177,8 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                 var productosProveedores = _data.listaProductos.Select(x => { x.FechaRegistro = DateTime.Now; return x; });
                 foreach (var item in productosProveedores)
                 {
-                    var producto=_context.ProductosProveedores.Where(x=>x.IdProducto==item.IdProducto && x.CodigoPrincipal==item.CodigoPrincipal).FirstOrDefault();
-                    if (producto==null)
+                    var producto = _context.ProductosProveedores.Where(x => x.IdProducto == item.IdProducto && x.CodigoPrincipal == item.CodigoPrincipal).FirstOrDefault();
+                    if (producto == null)
                     {
                         _context.ProductosProveedores.Add(item);
                     }
@@ -215,11 +210,11 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             try
             {
                 var idEmpresa = Guid.Parse(Tools.getIdEmpresa(HttpContext));
-                var factura=await _context.SriFacturas.FindAsync(idFactura);
-                factura.SriCamposAdicionales=await _context.SriCamposAdicionales.Where(x=>x.IdFactura == idFactura).ToListAsync();
-                factura.SriDetallesFacturas=await _context.SriDetallesFacturas.Include(x=>x.SriDetallesFacturasImpuestos).Where(x=>x.IdFactura == idFactura).ToListAsync();
-                factura.SriPagos=await _context.SriPagos.Where(x=>x.IdFactura == idFactura).ToListAsync();
-                factura.SriTotalesConImpuestos=await _context.SriTotalesConImpuestos.Where(x=>x.IdFactura == idFactura).ToListAsync();
+                var factura = await _context.SriFacturas.FindAsync(idFactura);
+                factura.SriCamposAdicionales = await _context.SriCamposAdicionales.Where(x => x.IdFactura == idFactura).ToListAsync();
+                factura.SriDetallesFacturas = await _context.SriDetallesFacturas.Include(x => x.SriDetallesFacturasImpuestos).Where(x => x.IdFactura == idFactura).ToListAsync();
+                factura.SriPagos = await _context.SriPagos.Where(x => x.IdFactura == idFactura).ToListAsync();
+                factura.SriTotalesConImpuestos = await _context.SriTotalesConImpuestos.Where(x => x.IdFactura == idFactura).ToListAsync();
                 var productos = await (from item in _context.Productos
                                        where item.IdEmpresa == idEmpresa && item.Activo == true
                                        select new
@@ -246,7 +241,6 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             }
             catch (Exception ex)
             {
-
                 return Tools.handleError(ex);
             }
         }

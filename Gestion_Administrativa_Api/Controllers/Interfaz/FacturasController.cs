@@ -7,7 +7,6 @@ using Gestion_Administrativa_Api.Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Npgsql;
 using System.Data;
 using System.Text;
 
@@ -33,7 +32,8 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
         [HttpPost]
         public async Task<IActionResult> listar([FromBody] Tools.DataTableModel? _params)
         {
-            var _dapper = new NpgsqlConnection(cn);
+            IDbConnection _dapper = _context.Database.GetDbConnection();
+
             try
             {
                 var idEmpresa = Tools.getIdEmpresa(HttpContext);
@@ -48,11 +48,10 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                                 INNER JOIN ""tipoEstadoDocumentos"" ted ON ted.""idTipoEstadoDocumento"" = f.""idTipoEstadoDocumento""
                                 INNER JOIN ""establecimientos"" e ON e.""idEstablecimiento"" = f.""idEstablecimiento""
                                 INNER JOIN ""puntoEmisiones"" pe ON pe.""idPuntoEmision"" = f.""idPuntoEmision""
-                                WHERE (DATE_PART('year', f.""fechaEmision""::date) - DATE_PART('year', current_date::date)) * 12 +
-                                (DATE_PART('month', f.""fechaEmision""::date) - DATE_PART('month', current_date::date))<=3
-                                AND e.""idEmpresa""=uuid(@idEmpresa)
-                                ORDER BY ""fechaEmision"" desc";
-                return Ok(await Tools.DataTablePostgresSql(new Tools.DataTableParams
+                                WHERE (DATEPART(year, f.""fechaEmision"") - DATEPART(year, getdate())) * 12 +
+                                (DATEPART(MONTH, f.""fechaEmision"") - DATEPART(MONTH, getdate()))<=3
+                                AND e.""idEmpresa""=CAST(@idEmpresa AS UNIQUEIDENTIFIER)";
+                return Ok(await Tools.DataTableSql(new Tools.DataTableParams
                 {
                     parameters = new { idEmpresa },
                     query = sql,
@@ -64,37 +63,30 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             {
                 return Problem(ex.Message);
             }
-            finally
-            {
-                _dapper.Dispose();
-            }
         }
 
         [Authorize]
         [HttpGet]
         public async Task<IActionResult> secuenciales()
         {
-            var _dapper = new NpgsqlConnection(cn);
+            IDbConnection _dapper = _context.Database.GetDbConnection();
             try
             {
                 var idEmpresa = Tools.getIdEmpresa(HttpContext);
                 string sql = @" SELECT s.nombre,s.""idTipoDocumento""
                                 FROM secuenciales s
                                 INNER JOIN ""tipoDocumentos"" td ON s.""idTipoDocumento"" = td.""idTipoDocumento""
-                                WHERE codigo=1 AND s.activo =TRUE AND ""idEmpresa""=uuid(@idEmpresa)
+                                WHERE codigo=1 AND s.activo =1 AND ""idEmpresa""=CAST(@idEmpresa AS UNIQUEIDENTIFIER)
                                 UNION ALL
                                 SELECT nombre,""idTipoDocumento"" FROM ""secuencialesProformas""
-                                WHERE ""activo""= TRUE
-                                AND ""idEmpresa""=uuid(@idEmpresa)
+                                WHERE ""activo""= 1
+                                AND ""idEmpresa""=CAST(@idEmpresa AS UNIQUEIDENTIFIER)
                                 ";
                 return Ok(await _dapper.QueryAsync(sql, new { idEmpresa }));
             }
             catch (Exception ex)
             {
                 return Problem(ex.Message);
-            }
-            finally {
-                _dapper.Dispose();
             }
         }
 
@@ -118,7 +110,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
         [HttpGet("{claveAcceso}")]
         public async Task<IActionResult> reenviar(string claveAcceso)
         {
-            var _dapper = new NpgsqlConnection(cn);
+            IDbConnection _dapper = _context.Database.GetDbConnection();
             try
             {
                 var enviado = await _IFacturas.enviarSri(claveAcceso);
@@ -144,7 +136,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                             {
                                 var ride = await _IFacturas.generaRide(ControllerContext, claveAcceso);
                                 await _IFacturas.enviarCorreo(factura.ReceptorCorreo, ride, claveAcceso);
-                                sqlU += @"UPDATE facturas SET ""correoEnviado""=TRUE,""fechaAutorizacion""=@fechaAutorizacion WHERE ""claveAcceso"" =@claveAcceso;";
+                                sqlU += @"UPDATE facturas SET ""correoEnviado""=1,""fechaAutorizacion""=@fechaAutorizacion WHERE ""claveAcceso"" =@claveAcceso;";
                             }
                             catch (Exception ex)
                             {
@@ -165,10 +157,6 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             {
                 await Console.Out.WriteLineAsync(ex.Message);
                 return Ok();
-            }
-            finally
-            {
-                _dapper.Dispose();
             }
         }
 
@@ -208,22 +196,21 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
 
         private async Task<FacturaDto> procesarFactura(FacturaDto? _facturaDto)
         {
-            var _dapper = new NpgsqlConnection(cn);
+            IDbConnection _dapper = _context.Database.GetDbConnection();
             try
             {
                 _facturaDto.idEmpresa = new Guid(Tools.getIdEmpresa(HttpContext));
                 var empresa = await _context.Clientes.AsNoTracking().Where(x => x.IdEmpresa == _facturaDto.idEmpresa).FirstOrDefaultAsync();
-                string sql = @"SELECT * FROM ""clientes"" WHERE ""identificacion""=@identificacion AND ""idEmpresa""=uuid(@idEmpresa)";
+                string sql = @"SELECT * FROM ""clientes"" WHERE ""identificacion""=@identificacion AND ""idEmpresa""=CAST(@idEmpresa AS UNIQUEIDENTIFIER)";
                 string ciudadDefecto = "Pelileo";
                 var cliente = await _dapper.QueryFirstOrDefaultAsync<Clientes>(sql, _facturaDto);
                 if (cliente == null)
                 {
                     cliente = new Clientes();
-                    sql = $@"SELECT ""idCiudad""
+                    sql = $@"SELECT TOP 1 ""idCiudad""
                         FROM ""ciudades""
                         WHERE upper(""nombre"") LIKE '%{ciudadDefecto.ToUpper()}%'
-                        AND ""activo""=TRUE
-                        LIMIT 1";
+                        AND ""activo""=1";
                     cliente.IdCiudad = await _dapper.ExecuteScalarAsync<Guid>(sql);
                     _facturaDto.idCiudad = Tools.toGuid(cliente.IdCiudad);
                     cliente.Activo = true;
@@ -263,7 +250,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                 _facturaDto.puntoEmision = Convert.ToInt32(await _dapper.ExecuteScalarAsync<string>(sql, _facturaDto)).ToString("D3");
                 sql = @"SELECT ""nombre""
                     FROM ""secuenciales""
-                    WHERE ""idEmpresa""=uuid(@idEmpresa) AND ""idTipoDocumento"" IN (SELECT ""idTipoDocumento"" FROM ""documentosEmitir"" WHERE ""idDocumentoEmitir""=@idDocumentoEmitir)
+                    WHERE ""idEmpresa""=CAST(@idEmpresa AS UNIQUEIDENTIFIER) AND ""idTipoDocumento"" IN (SELECT ""idTipoDocumento"" FROM ""documentosEmitir"" WHERE ""idDocumentoEmitir""=@idDocumentoEmitir)
                     ";
                 _facturaDto.secuencial = Convert.ToInt32(await _dapper.ExecuteScalarAsync<string>(sql, _facturaDto)).ToString("D9");
                 _facturaDto.idUsuario = new Guid(Tools.getIdUsuario(HttpContext));
@@ -278,10 +265,6 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             {
                 await Console.Out.WriteLineAsync(ex.Message);
                 throw;
-            }
-            finally
-            {
-                _dapper.Dispose();
             }
         }
 
@@ -303,13 +286,13 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
         [HttpGet]
         public async Task<IActionResult> tiposDocumentos()
         {
-            var _dapper = new NpgsqlConnection(cn);
+            IDbConnection _dapper = _context.Database.GetDbConnection();
             try
             {
                 string sql = @"
                             SELECT * FROM ""tipoDocumentos""
                             WHERE codigo in(1,0)
-                            AND activo=true
+                            AND activo=1
                             ";
                 return Ok(await _dapper.QueryAsync(sql));
             }
@@ -317,45 +300,37 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             {
                 return Problem(ex.Message);
             }
-            finally
-            {
-                _dapper.Dispose();
-            }
         }
 
         [HttpGet]
         public async Task<IActionResult> puntosEmisiones()
         {
-            var _dapper = new NpgsqlConnection(cn);
+            IDbConnection _dapper = _context.Database.GetDbConnection();
             try
             {
                 var idEmpresa = Tools.getIdEmpresa(HttpContext);
                 string sql = @"SELECT * FROM ""puntoEmisiones""
-                                WHERE ""idEmpresa""=uuid(@idEmpresa)
-                                ORDER BY NOT predeterminado;
+                                WHERE ""idEmpresa""=CAST(@idEmpresa AS UNIQUEIDENTIFIER)
+                                ORDER BY ~ predeterminado;
                             ";
                 return Ok(await _dapper.QueryAsync(sql, new { idEmpresa }));
             }
             catch (Exception ex)
             {
                 return Problem(ex.Message);
-            }
-            finally
-            {
-                _dapper.Dispose();
             }
         }
 
         [HttpGet]
         public async Task<IActionResult> establecimientos()
         {
-            var _dapper = new NpgsqlConnection(cn);
+            IDbConnection _dapper = _context.Database.GetDbConnection();
             try
             {
                 var idEmpresa = Tools.getIdEmpresa(HttpContext);
                 string sql = @"SELECT * FROM ""establecimientos""
-                                WHERE ""idEmpresa""=uuid(@idEmpresa)
-                                ORDER BY NOT predeterminado;
+                                WHERE ""idEmpresa""=CAST(@idEmpresa AS UNIQUEIDENTIFIER)
+                                ORDER BY ~ predeterminado;
 
                             ";
                 return Ok(await _dapper.QueryAsync(sql, new { idEmpresa }));
@@ -364,20 +339,16 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             {
                 return Problem(ex.Message);
             }
-            finally
-            {
-                _dapper.Dispose();
-            }
         }
 
         [HttpGet]
         public async Task<IActionResult> formaPagos()
         {
-            var _dapper = new NpgsqlConnection(cn);
+            IDbConnection _dapper = _context.Database.GetDbConnection();
             try
             {
                 string sql = @"SELECT * FROM ""formaPagos""
-                               WHERE ""activo""=true
+                               WHERE ""activo""=1
                                ORDER BY codigo;
                             ";
                 return Ok(await _dapper.QueryAsync(sql));
@@ -386,20 +357,16 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             {
                 return Problem(ex.Message);
             }
-            finally
-            {
-                _dapper.Dispose();
-            }
         }
 
         [HttpGet]
         public async Task<IActionResult> tiempoFormaPagos()
         {
-            var _dapper = new NpgsqlConnection(cn);
+            IDbConnection _dapper = _context.Database.GetDbConnection();
             try
             {
                 string sql = @"SELECT * FROM ""tiempoFormaPagos""
-                               WHERE ""activo""=true
+                               WHERE ""activo""=1
                             ";
                 return Ok(await _dapper.QueryAsync(sql));
             }
@@ -407,16 +374,12 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             {
                 return Problem(ex.Message);
             }
-            finally
-            {
-                _dapper.Dispose();
-            }
         }
 
         [HttpGet]
         public async Task<IActionResult> listaProductos()
         {
-            var _dapper = new NpgsqlConnection(cn);
+            IDbConnection _dapper = _context.Database.GetDbConnection();
             try
             {
                 var idEmpresa = Tools.getIdEmpresa(HttpContext);
@@ -427,13 +390,12 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                                 FROM productos p
                                 INNER JOIN ""detallePrecioProductos"" dt ON dt.""idProducto"" =p.""idProducto""
                                 INNER JOIN ""ivas"" i ON i.""idIva"" = dt.""idIva""
-                                AND dt.""idDetallePrecioProducto"" in(SELECT ""idDetallePrecioProducto"" FROM ""detallePrecioProductos"" dpp
+                                AND dt.""idDetallePrecioProducto"" in(SELECT TOP 1 ""idDetallePrecioProducto"" FROM ""detallePrecioProductos"" dpp
                                 WHERE dpp.""idProducto""=dt.""idProducto""
-                                ORDER BY dpp.""fechaRegistro"" ASC
-                                LIMIT 1)
-                                WHERE p.""activo""=TRUE
-                                AND p.""idEmpresa""=uuid(@idEmpresa)
-                                ORDER BY UPPER(REPLACE(regexp_replace(CAST(p.""nombre"" AS varchar),'\t|\n|\r|\s',''),' ',''));
+                                ORDER BY dpp.""fechaRegistro"" ASC)
+                                WHERE p.""activo""=1
+                                AND p.""idEmpresa""=CAST(@idEmpresa AS UNIQUEIDENTIFIER)
+                                ORDER BY p.nombre;
                             ";
                 return Ok(await _dapper.QueryAsync(sql, new { idEmpresa }));
             }
@@ -441,16 +403,12 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             {
                 return Problem(ex.Message);
             }
-            finally
-            {
-                _dapper.Dispose();
-            }
         }
 
         [HttpGet]
         public async Task<IActionResult> listaPreciosProductos()
         {
-            var _dapper = new NpgsqlConnection(cn);
+            IDbConnection _dapper = _context.Database.GetDbConnection();
             try
             {
                 var idEmpresa = Tools.getIdEmpresa(HttpContext);
@@ -461,8 +419,8 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                                 FROM ""detallePrecioProductos"" dp
                                 INNER JOIN ""productos"" p ON dp.""idProducto"" = p.""idProducto""
                                 INNER JOIN ""ivas"" i ON i.""idIva"" = dp.""idIva""
-                                WHERE p.""activo"" =TRUE AND dp.""activo""=true
-                                AND p.""idEmpresa""=uuid(@idEmpresa)
+                                WHERE p.""activo"" =1 AND dp.""activo""=1
+                                AND p.""idEmpresa""=CAST(@idEmpresa AS UNIQUEIDENTIFIER)
 
                             ";
                 return Ok(await _dapper.QueryAsync(sql, new { idEmpresa }));
@@ -471,23 +429,19 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             {
                 return Problem(ex.Message);
             }
-            finally
-            {
-                _dapper.Dispose();
-            }
         }
 
         [HttpGet]
         [Route("{identificacion}")]
         public async Task<IActionResult> buscarCliente(string identificacion)
         {
-            var _dapper = new NpgsqlConnection(cn);
+            IDbConnection _dapper = _context.Database.GetDbConnection();
             try
             {
                 var idEmpresa = Tools.getIdEmpresa(HttpContext);
                 string sql = @"SELECT * FROM ""clientes""
                             WHERE ""identificacion""=@identificacion
-                            AND ""idEmpresa""=uuid(@idEmpresa);
+                            AND ""idEmpresa""=CAST(@idEmpresa AS UNIQUEIDENTIFIER);
                             ";
                 return Ok(await _dapper.QueryFirstOrDefaultAsync(sql, new { idEmpresa, identificacion }));
             }
@@ -495,16 +449,12 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             {
                 return Problem(ex.Message);
             }
-            finally
-            {
-                _dapper.Dispose();
-            }
         }
 
         [HttpGet]
         public IActionResult verificarEstados()
         {
-            var _dapper = new NpgsqlConnection(cn);
+            IDbConnection _dapper = _context.Database.GetDbConnection();
             try
             {
                 var idEmpresa = Tools.getIdEmpresa(HttpContext);
@@ -512,13 +462,13 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                                 FROM facturas f
                                 INNER JOIN ""usuarioEmpresas"" ue ON ue.""idUsuario"" = f.""idUsuario""
                                 WHERE (""idTipoEstadoSri"" NOT IN(2,3,4,5) OR (""correoEnviado""=FALSE AND ""idTipoEstadoSri""=2))
-                                AND ""idEmpresa""= @idEmpresa::uuid";
+                                AND ""idEmpresa""= CAST(@idEmpresa AS UNIQUEIDENTIFIER)";
                 if (_dapper.ExecuteScalar<int>(sql, new { idEmpresa }) == 0) return Ok("empty");
                 sql = @"SELECT ""claveAcceso""
                               FROM facturas f
                               INNER JOIN establecimientos e ON e.""idEstablecimiento"" = f.""idEstablecimiento""
                               WHERE ""idTipoEstadoSri"" IN (1,6,0) OR (""correoEnviado""=FALSE AND ""idTipoEstadoSri""=2)
-                              AND ""idEmpresa""=uuid(@idEmpresa)
+                              AND ""idEmpresa""=CAST(@idEmpresa AS UNIQUEIDENTIFIER)
                             ;
                             ";
                 var lista = _dapper.Query<string>(sql, new { idEmpresa });
@@ -558,10 +508,10 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                                     try
                                     {
                                         var ride = _IFacturas.generaRide(ControllerContext, claveAcceso).Result;
-                                        var correoEnviado=_IFacturas.enviarCorreo(factura.ReceptorCorreo, ride, claveAcceso).Result;
+                                        var correoEnviado = _IFacturas.enviarCorreo(factura.ReceptorCorreo, ride, claveAcceso).Result;
                                         if (correoEnviado)
                                         {
-                                            sqlA += @"UPDATE facturas SET ""correoEnviado""=TRUE,""fechaAutorizacion""=@fechaAutorizacion WHERE ""claveAcceso"" =@claveAcceso;";
+                                            sqlA += @"UPDATE facturas SET ""correoEnviado""=1,""fechaAutorizacion""=@fechaAutorizacion WHERE ""claveAcceso"" =@claveAcceso;";
                                             _dapper.Execute(sqlA, new { claveAcceso, estado.fechaAutorizacion, estado.idTipoEstadoSri });
                                         }
                                     }
@@ -585,10 +535,6 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             catch (Exception ex)
             {
                 return Problem(ex.Message);
-            }
-            finally
-            {
-               _dapper.Dispose();
             }
         }
     }

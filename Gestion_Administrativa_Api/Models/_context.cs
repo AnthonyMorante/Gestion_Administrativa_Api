@@ -6,10 +6,6 @@ namespace Gestion_Administrativa_Api.Models;
 
 public partial class _context : DbContext
 {
-    public _context()
-    {
-    }
-
     public _context(DbContextOptions<_context> options)
         : base(options)
     {
@@ -125,10 +121,6 @@ public partial class _context : DbContext
 
     public virtual DbSet<Usuarios> Usuarios { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseNpgsql("Host=db-postgresql-nyc3-80363-do-user-15066668-0.c.db.ondigitalocean.com;Port=25060; Database=gestion_administrativa_pruebas; Username=doadmin; Password=AVNS_8iJ-ZvLG3sR5y9YiaBU");
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Ciudades>(entity =>
@@ -137,21 +129,20 @@ public partial class _context : DbContext
 
             entity.ToTable("ciudades");
 
-            entity.HasIndex(e => e.IdProvincia, "IX_ciudades_idProvincia");
-
             entity.Property(e => e.IdCiudad)
-                .HasDefaultValueSql("gen_random_uuid()")
+                .HasDefaultValueSql("(newid())")
                 .HasColumnName("idCiudad");
             entity.Property(e => e.Activo)
                 .HasDefaultValue(false)
                 .HasColumnName("activo");
             entity.Property(e => e.FechaRegistro)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone")
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
                 .HasColumnName("fechaRegistro");
             entity.Property(e => e.IdProvincia).HasColumnName("idProvincia");
             entity.Property(e => e.Nombre)
                 .HasMaxLength(500)
+                .IsUnicode(false)
                 .HasColumnName("nombre");
 
             entity.HasOne(d => d.IdProvinciaNavigation).WithMany(p => p.Ciudades)
@@ -165,42 +156,42 @@ public partial class _context : DbContext
 
             entity.ToTable("clientes");
 
-            entity.HasIndex(e => e.IdCiudad, "IX_clientes_idCiudad");
-
-            entity.HasIndex(e => e.IdEmpresa, "IX_clientes_idEmpresa");
-
-            entity.HasIndex(e => e.IdTipoIdentificacion, "IX_clientes_idTipoIdentificacion");
-
             entity.Property(e => e.IdCliente)
-                .HasDefaultValueSql("gen_random_uuid()")
+                .HasDefaultValueSql("(newid())")
                 .HasColumnName("idCliente");
             entity.Property(e => e.Activo)
                 .HasDefaultValue(true)
                 .HasColumnName("activo");
             entity.Property(e => e.Direccion)
                 .HasMaxLength(500)
+                .IsUnicode(false)
                 .HasColumnName("direccion");
             entity.Property(e => e.Email)
                 .HasMaxLength(500)
+                .IsUnicode(false)
                 .HasColumnName("email");
             entity.Property(e => e.FechaRegistro)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone")
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
                 .HasColumnName("fechaRegistro");
             entity.Property(e => e.IdCiudad).HasColumnName("idCiudad");
             entity.Property(e => e.IdEmpresa).HasColumnName("idEmpresa");
             entity.Property(e => e.IdTipoIdentificacion).HasColumnName("idTipoIdentificacion");
             entity.Property(e => e.Identificacion)
                 .HasMaxLength(30)
+                .IsUnicode(false)
                 .HasColumnName("identificacion");
             entity.Property(e => e.Observacion)
                 .HasMaxLength(1000)
+                .IsUnicode(false)
                 .HasColumnName("observacion");
             entity.Property(e => e.RazonSocial)
                 .HasMaxLength(500)
+                .IsUnicode(false)
                 .HasColumnName("razonSocial");
             entity.Property(e => e.Telefono)
                 .HasMaxLength(500)
+                .IsUnicode(false)
                 .HasColumnName("telefono");
 
             entity.HasOne(d => d.IdCiudadNavigation).WithMany(p => p.Clientes)
@@ -222,34 +213,32 @@ public partial class _context : DbContext
 
             entity.ToTable("detalleFacturas");
 
-            entity.HasIndex(e => e.IdFactura, "IX_detalleFacturas_idFactura");
-
             entity.Property(e => e.IdDetalleFactura)
-                .HasDefaultValueSql("gen_random_uuid()")
+                .HasDefaultValueSql("(newid())")
                 .HasColumnName("idDetalleFactura");
             entity.Property(e => e.Cantidad)
-                .HasPrecision(8, 2)
+                .HasColumnType("numeric(8, 2)")
                 .HasColumnName("cantidad");
             entity.Property(e => e.Descuento)
-                .HasPrecision(8, 2)
+                .HasColumnType("numeric(8, 2)")
                 .HasColumnName("descuento");
             entity.Property(e => e.IdFactura).HasColumnName("idFactura");
             entity.Property(e => e.IdIva).HasColumnName("idIva");
             entity.Property(e => e.IdProducto).HasColumnName("idProducto");
             entity.Property(e => e.Porcentaje)
-                .HasPrecision(8, 2)
+                .HasColumnType("numeric(8, 2)")
                 .HasColumnName("porcentaje");
             entity.Property(e => e.Precio)
-                .HasPrecision(8, 2)
+                .HasColumnType("numeric(8, 2)")
                 .HasColumnName("precio");
             entity.Property(e => e.Subtotal)
-                .HasPrecision(8, 2)
+                .HasColumnType("numeric(8, 2)")
                 .HasColumnName("subtotal");
             entity.Property(e => e.Total)
-                .HasPrecision(8, 2)
+                .HasColumnType("numeric(8, 2)")
                 .HasColumnName("total");
             entity.Property(e => e.ValorPorcentaje)
-                .HasPrecision(8, 2)
+                .HasColumnType("numeric(8, 2)")
                 .HasColumnName("valorPorcentaje");
 
             entity.HasOne(d => d.IdFacturaNavigation).WithMany(p => p.DetalleFacturas)
@@ -264,21 +253,17 @@ public partial class _context : DbContext
 
             entity.ToTable("detalleFormaPagos");
 
-            entity.HasIndex(e => e.IdFactura, "IX_detalleFormaPagos_idFactura");
-
-            entity.HasIndex(e => e.IdTiempoFormaPago, "IX_detalleFormaPagos_idTiempoFormaPago");
-
             entity.Property(e => e.IdDetalleFormaPago)
-                .HasDefaultValueSql("gen_random_uuid()")
+                .HasDefaultValueSql("(newid())")
                 .HasColumnName("idDetalleFormaPago");
             entity.Property(e => e.IdFactura).HasColumnName("idFactura");
             entity.Property(e => e.IdFormaPago).HasColumnName("idFormaPago");
             entity.Property(e => e.IdTiempoFormaPago).HasColumnName("idTiempoFormaPago");
             entity.Property(e => e.Plazo)
-                .HasPrecision(8, 2)
+                .HasColumnType("numeric(8, 2)")
                 .HasColumnName("plazo");
             entity.Property(e => e.Valor)
-                .HasPrecision(8, 2)
+                .HasColumnType("numeric(8, 2)")
                 .HasColumnName("valor");
 
             entity.HasOne(d => d.IdFacturaNavigation).WithMany(p => p.DetalleFormaPagos)
@@ -298,30 +283,26 @@ public partial class _context : DbContext
 
             entity.ToTable("detallePrecioProductos");
 
-            entity.HasIndex(e => e.IdIva, "IX_detallePrecioProductos_idIva");
-
-            entity.HasIndex(e => e.IdProducto, "IX_detallePrecioProductos_idProducto");
-
             entity.Property(e => e.IdDetallePrecioProducto)
-                .HasDefaultValueSql("gen_random_uuid()")
+                .HasDefaultValueSql("(newid())")
                 .HasColumnName("idDetallePrecioProducto");
             entity.Property(e => e.Activo)
                 .HasDefaultValue(true)
                 .HasColumnName("activo");
             entity.Property(e => e.FechaRegistro)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone")
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
                 .HasColumnName("fechaRegistro");
             entity.Property(e => e.IdIva).HasColumnName("idIva");
             entity.Property(e => e.IdProducto).HasColumnName("idProducto");
             entity.Property(e => e.Porcentaje)
-                .HasPrecision(8, 2)
+                .HasColumnType("numeric(8, 2)")
                 .HasColumnName("porcentaje");
             entity.Property(e => e.Total)
-                .HasPrecision(8, 2)
+                .HasColumnType("numeric(8, 2)")
                 .HasColumnName("total");
             entity.Property(e => e.TotalIva)
-                .HasPrecision(8, 2)
+                .HasColumnType("numeric(8, 2)")
                 .HasColumnName("totalIva");
 
             entity.HasOne(d => d.IdIvaNavigation).WithMany(p => p.DetallePrecioProductos)
@@ -339,34 +320,32 @@ public partial class _context : DbContext
 
             entity.ToTable("detalleProformas");
 
-            entity.HasIndex(e => e.IdProforma, "IX_detalleProformas_idProforma");
-
             entity.Property(e => e.IdDetalleProforma)
-                .HasDefaultValueSql("gen_random_uuid()")
+                .HasDefaultValueSql("(newid())")
                 .HasColumnName("idDetalleProforma");
             entity.Property(e => e.Cantidad)
-                .HasPrecision(8, 2)
+                .HasColumnType("numeric(8, 2)")
                 .HasColumnName("cantidad");
             entity.Property(e => e.Descuento)
-                .HasPrecision(8, 2)
+                .HasColumnType("numeric(8, 2)")
                 .HasColumnName("descuento");
             entity.Property(e => e.IdIva).HasColumnName("idIva");
             entity.Property(e => e.IdProducto).HasColumnName("idProducto");
             entity.Property(e => e.IdProforma).HasColumnName("idProforma");
             entity.Property(e => e.Porcentaje)
-                .HasPrecision(8, 2)
+                .HasColumnType("numeric(8, 2)")
                 .HasColumnName("porcentaje");
             entity.Property(e => e.Precio)
-                .HasPrecision(8, 2)
+                .HasColumnType("numeric(8, 2)")
                 .HasColumnName("precio");
             entity.Property(e => e.Subtotal)
-                .HasPrecision(8, 2)
+                .HasColumnType("numeric(8, 2)")
                 .HasColumnName("subtotal");
             entity.Property(e => e.Total)
-                .HasPrecision(8, 2)
+                .HasColumnType("numeric(8, 2)")
                 .HasColumnName("total");
             entity.Property(e => e.ValorPorcentaje)
-                .HasPrecision(8, 2)
+                .HasColumnType("numeric(8, 2)")
                 .HasColumnName("valorPorcentaje");
 
             entity.HasOne(d => d.IdProformaNavigation).WithMany(p => p.DetalleProformas)
@@ -381,21 +360,20 @@ public partial class _context : DbContext
 
             entity.ToTable("documentosEmitir");
 
-            entity.HasIndex(e => e.IdTipoDocumento, "IX_documentosEmitir_idTipoDocumento");
-
             entity.Property(e => e.IdDocumentoEmitir)
-                .HasDefaultValueSql("gen_random_uuid()")
+                .HasDefaultValueSql("(newid())")
                 .HasColumnName("idDocumentoEmitir");
             entity.Property(e => e.Activo)
                 .HasDefaultValue(false)
                 .HasColumnName("activo");
             entity.Property(e => e.FechaRegistro)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone")
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
                 .HasColumnName("fechaRegistro");
             entity.Property(e => e.IdTipoDocumento).HasColumnName("idTipoDocumento");
             entity.Property(e => e.Nombre)
                 .HasMaxLength(500)
+                .IsUnicode(false)
                 .HasColumnName("nombre");
 
             entity.HasOne(d => d.IdTipoDocumentoNavigation).WithMany(p => p.DocumentosEmitir)
@@ -409,42 +387,42 @@ public partial class _context : DbContext
 
             entity.ToTable("empleados");
 
-            entity.HasIndex(e => e.IdCiudad, "IX_empleados_idCiudad");
-
-            entity.HasIndex(e => e.IdEmpresa, "IX_empleados_idEmpresa");
-
-            entity.HasIndex(e => e.IdTipoIdentificacion, "IX_empleados_idTipoIdentificacion");
-
             entity.Property(e => e.IdEmpleado)
-                .HasDefaultValueSql("gen_random_uuid()")
+                .HasDefaultValueSql("(newid())")
                 .HasColumnName("idEmpleado");
             entity.Property(e => e.Activo)
                 .HasDefaultValue(true)
                 .HasColumnName("activo");
             entity.Property(e => e.Direccion)
                 .HasMaxLength(500)
+                .IsUnicode(false)
                 .HasColumnName("direccion");
             entity.Property(e => e.Email)
                 .HasMaxLength(500)
+                .IsUnicode(false)
                 .HasColumnName("email");
             entity.Property(e => e.FechaRegistro)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone")
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
                 .HasColumnName("fechaRegistro");
             entity.Property(e => e.IdCiudad).HasColumnName("idCiudad");
             entity.Property(e => e.IdEmpresa).HasColumnName("idEmpresa");
             entity.Property(e => e.IdTipoIdentificacion).HasColumnName("idTipoIdentificacion");
             entity.Property(e => e.Identificacion)
                 .HasMaxLength(30)
+                .IsUnicode(false)
                 .HasColumnName("identificacion");
             entity.Property(e => e.Observacion)
                 .HasMaxLength(1000)
+                .IsUnicode(false)
                 .HasColumnName("observacion");
             entity.Property(e => e.RazonSocial)
                 .HasMaxLength(500)
+                .IsUnicode(false)
                 .HasColumnName("razonSocial");
             entity.Property(e => e.Telefono)
                 .HasMaxLength(500)
+                .IsUnicode(false)
                 .HasColumnName("telefono");
 
             entity.HasOne(d => d.IdCiudadNavigation).WithMany(p => p.Empleados)
@@ -466,12 +444,8 @@ public partial class _context : DbContext
 
             entity.ToTable("empresas");
 
-            entity.HasIndex(e => e.IdInformacionFirma, "IX_empresas_idInformacionFirma");
-
-            entity.HasIndex(e => e.IdTipoNegocio, "IX_empresas_idTipoNegocio");
-
             entity.Property(e => e.IdEmpresa)
-                .HasDefaultValueSql("gen_random_uuid()")
+                .HasDefaultValueSql("(newid())")
                 .HasColumnName("idEmpresa");
             entity.Property(e => e.Activo)
                 .HasDefaultValue(true)
@@ -479,27 +453,32 @@ public partial class _context : DbContext
             entity.Property(e => e.AgenteRetencion).HasColumnName("agenteRetencion");
             entity.Property(e => e.DireccionMatriz)
                 .HasMaxLength(1000)
+                .IsUnicode(false)
                 .HasColumnName("direccionMatriz");
             entity.Property(e => e.FechaRegistro)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone")
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
                 .HasColumnName("fechaRegistro");
             entity.Property(e => e.IdInformacionFirma).HasColumnName("idInformacionFirma");
             entity.Property(e => e.IdTipoNegocio).HasColumnName("idTipoNegocio");
             entity.Property(e => e.Identificacion)
                 .HasMaxLength(30)
+                .IsUnicode(false)
                 .HasColumnName("identificacion");
             entity.Property(e => e.LlevaContabilidad).HasColumnName("llevaContabilidad");
             entity.Property(e => e.RazonSocial)
                 .HasMaxLength(500)
+                .IsUnicode(false)
                 .HasColumnName("razonSocial");
             entity.Property(e => e.RegimenMicroEmpresas).HasColumnName("regimenMicroEmpresas");
             entity.Property(e => e.RegimenRimpe).HasColumnName("regimenRimpe");
             entity.Property(e => e.ResolucionAgenteRetencion)
                 .HasMaxLength(500)
+                .IsUnicode(false)
                 .HasColumnName("resolucionAgenteRetencion");
             entity.Property(e => e.Telefono)
                 .HasMaxLength(30)
+                .IsUnicode(false)
                 .HasColumnName("telefono");
 
             entity.HasOne(d => d.IdInformacionFirmaNavigation).WithMany(p => p.Empresas)
@@ -517,23 +496,23 @@ public partial class _context : DbContext
 
             entity.ToTable("establecimientos");
 
-            entity.HasIndex(e => e.IdEmpresa, "IX_establecimientos_idEmpresa");
-
             entity.Property(e => e.IdEstablecimiento)
-                .HasDefaultValueSql("gen_random_uuid()")
+                .HasDefaultValueSql("(newid())")
                 .HasColumnName("idEstablecimiento");
             entity.Property(e => e.Activo)
                 .HasDefaultValue(true)
                 .HasColumnName("activo");
             entity.Property(e => e.Descripcion)
                 .HasMaxLength(500)
+                .IsUnicode(false)
                 .HasColumnName("descripcion");
             entity.Property(e => e.Direccion)
                 .HasMaxLength(1000)
+                .IsUnicode(false)
                 .HasColumnName("direccion");
             entity.Property(e => e.FechaRegistro)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone")
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
                 .HasColumnName("fechaRegistro");
             entity.Property(e => e.IdEmpresa).HasColumnName("idEmpresa");
             entity.Property(e => e.Nombre).HasColumnName("nombre");
@@ -552,28 +531,24 @@ public partial class _context : DbContext
 
             entity.ToTable("facturas");
 
-            entity.HasIndex(e => e.IdTipoEstadoDocumento, "IX_facturas_idTipoEstadoDocumento");
-
-            entity.HasIndex(e => e.IdTipoEstadoSri, "IX_facturas_idTipoEstadoSri");
-
-            entity.HasIndex(e => e.IdUsuario, "IX_facturas_idUsuario");
-
             entity.Property(e => e.IdFactura)
-                .HasDefaultValueSql("gen_random_uuid()")
+                .HasDefaultValueSql("(newid())")
                 .HasColumnName("idFactura");
             entity.Property(e => e.AgenteRetencion)
                 .HasDefaultValue(false)
                 .HasColumnName("agenteRetencion");
             entity.Property(e => e.Ambiente).HasColumnName("ambiente");
             entity.Property(e => e.Cambio)
-                .HasPrecision(8, 2)
+                .HasColumnType("numeric(8, 2)")
                 .HasColumnName("cambio");
             entity.Property(e => e.ClaveAcceso)
                 .HasMaxLength(50)
+                .IsUnicode(false)
                 .HasColumnName("claveAcceso");
             entity.Property(e => e.CodigoDocModificado).HasColumnName("codigoDocModificado");
             entity.Property(e => e.ContribuyenteEspecial)
                 .HasMaxLength(20)
+                .IsUnicode(false)
                 .HasColumnName("contribuyenteEspecial");
             entity.Property(e => e.ContribuyenteRimpe)
                 .HasDefaultValue(false)
@@ -583,34 +558,38 @@ public partial class _context : DbContext
                 .HasColumnName("correoEnviado");
             entity.Property(e => e.DireccionEstablecimiento)
                 .HasMaxLength(300)
+                .IsUnicode(false)
                 .HasColumnName("direccionEstablecimiento");
             entity.Property(e => e.DireccionMatriz)
                 .HasMaxLength(300)
+                .IsUnicode(false)
                 .HasColumnName("direccionMatriz");
             entity.Property(e => e.EmisorRazonSocial)
                 .HasMaxLength(300)
+                .IsUnicode(false)
                 .HasColumnName("emisorRazonSocial");
             entity.Property(e => e.EmisorRuc)
                 .HasMaxLength(20)
+                .IsUnicode(false)
                 .HasColumnName("emisorRuc");
             entity.Property(e => e.Establecimiento).HasColumnName("establecimiento");
             entity.Property(e => e.ExentoIva)
-                .HasPrecision(8, 2)
+                .HasColumnType("numeric(8, 2)")
                 .HasColumnName("exentoIva");
             entity.Property(e => e.FechaAutorizacion)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone")
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
                 .HasColumnName("fechaAutorizacion");
             entity.Property(e => e.FechaEmision)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone")
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
                 .HasColumnName("fechaEmision");
             entity.Property(e => e.FechaRegistro)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone")
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
                 .HasColumnName("fechaRegistro");
             entity.Property(e => e.Ice)
-                .HasPrecision(8, 2)
+                .HasColumnType("numeric(8, 2)")
                 .HasColumnName("ice");
             entity.Property(e => e.IdCiudad).HasColumnName("idCiudad");
             entity.Property(e => e.IdCliente).HasColumnName("idCliente");
@@ -621,70 +600,81 @@ public partial class _context : DbContext
             entity.Property(e => e.IdTipoEstadoSri).HasColumnName("idTipoEstadoSri");
             entity.Property(e => e.IdUsuario).HasColumnName("idUsuario");
             entity.Property(e => e.Irbpnr)
-                .HasPrecision(8, 2)
+                .HasColumnType("numeric(8, 2)")
                 .HasColumnName("irbpnr");
             entity.Property(e => e.Isd)
-                .HasPrecision(8, 2)
+                .HasColumnType("numeric(8, 2)")
                 .HasColumnName("isd");
             entity.Property(e => e.Iva12)
-                .HasPrecision(8, 2)
+                .HasColumnType("numeric(8, 2)")
                 .HasColumnName("iva12");
-            entity.Property(e => e.Mensaje).HasColumnName("mensaje");
+            entity.Property(e => e.Mensaje)
+                .IsUnicode(false)
+                .HasColumnName("mensaje");
             entity.Property(e => e.Moneda)
                 .HasMaxLength(10)
+                .IsUnicode(false)
                 .HasColumnName("moneda");
             entity.Property(e => e.ObligadoContabilidad).HasColumnName("obligadoContabilidad");
             entity.Property(e => e.PuntoEmision).HasColumnName("puntoEmision");
             entity.Property(e => e.ReceptorCorreo)
                 .HasMaxLength(400)
+                .IsUnicode(false)
                 .HasColumnName("receptorCorreo");
             entity.Property(e => e.ReceptorDireccion)
                 .HasMaxLength(500)
+                .IsUnicode(false)
                 .HasColumnName("receptorDireccion");
             entity.Property(e => e.ReceptorRazonSocial)
                 .HasMaxLength(500)
+                .IsUnicode(false)
                 .HasColumnName("receptorRazonSocial");
             entity.Property(e => e.ReceptorRuc)
                 .HasMaxLength(20)
+                .IsUnicode(false)
                 .HasColumnName("receptorRuc");
             entity.Property(e => e.ReceptorTelefono)
                 .HasMaxLength(30)
+                .IsUnicode(false)
                 .HasColumnName("receptorTelefono");
             entity.Property(e => e.ReceptorTipoIdentificacion).HasColumnName("receptorTipoIdentificacion");
             entity.Property(e => e.RegimenMicroempresas).HasColumnName("regimenMicroempresas");
             entity.Property(e => e.RegimenRimpe).HasColumnName("regimenRimpe");
             entity.Property(e => e.ResolucionAgenteRetencion)
                 .HasMaxLength(500)
+                .IsUnicode(false)
                 .HasColumnName("resolucionAgenteRetencion");
             entity.Property(e => e.Ruta)
                 .HasMaxLength(1000)
+                .IsUnicode(false)
                 .HasColumnName("ruta");
             entity.Property(e => e.Saldo)
-                .HasPrecision(8, 2)
+                .HasColumnType("numeric(8, 2)")
                 .HasColumnName("saldo");
             entity.Property(e => e.Secuencial).HasColumnName("secuencial");
             entity.Property(e => e.Subtotal0)
-                .HasPrecision(8, 2)
+                .HasColumnType("numeric(8, 2)")
                 .HasColumnName("subtotal0");
             entity.Property(e => e.Subtotal12)
-                .HasPrecision(8, 2)
+                .HasColumnType("numeric(8, 2)")
                 .HasColumnName("subtotal12");
             entity.Property(e => e.TipoDocumento).HasColumnName("tipoDocumento");
             entity.Property(e => e.TipoEmision).HasColumnName("tipoEmision");
             entity.Property(e => e.TotalDescuento)
-                .HasPrecision(8, 2)
+                .HasColumnType("numeric(8, 2)")
                 .HasColumnName("totalDescuento");
             entity.Property(e => e.TotalImporte)
-                .HasPrecision(8, 2)
+                .HasColumnType("numeric(8, 2)")
                 .HasColumnName("totalImporte");
             entity.Property(e => e.TotalSinImpuesto)
-                .HasPrecision(8, 2)
+                .HasColumnType("numeric(8, 2)")
                 .HasColumnName("totalSinImpuesto");
             entity.Property(e => e.ValorRecibido)
-                .HasPrecision(8, 2)
+                .HasColumnType("numeric(8, 2)")
                 .HasColumnName("valorRecibido");
             entity.Property(e => e.VersionXml)
                 .HasMaxLength(10)
+                .IsUnicode(false)
                 .HasColumnName("versionXml");
 
             entity.HasOne(d => d.IdTipoEstadoDocumentoNavigation).WithMany(p => p.Facturas)
@@ -709,7 +699,7 @@ public partial class _context : DbContext
             entity.ToTable("formaPagos");
 
             entity.Property(e => e.IdFormaPago)
-                .HasDefaultValueSql("gen_random_uuid()")
+                .HasDefaultValueSql("(newid())")
                 .HasColumnName("idFormaPago");
             entity.Property(e => e.Activo)
                 .HasDefaultValue(true)
@@ -717,13 +707,15 @@ public partial class _context : DbContext
             entity.Property(e => e.Codigo).HasColumnName("codigo");
             entity.Property(e => e.Descripcion)
                 .HasMaxLength(500)
+                .IsUnicode(false)
                 .HasColumnName("descripcion");
             entity.Property(e => e.FechaRegistro)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone")
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
                 .HasColumnName("fechaRegistro");
             entity.Property(e => e.Nombre)
                 .HasMaxLength(500)
+                .IsUnicode(false)
                 .HasColumnName("nombre");
         });
 
@@ -734,32 +726,33 @@ public partial class _context : DbContext
             entity.ToTable("impuestoRetenciones");
 
             entity.Property(e => e.IdImpuestoRetencion)
-                .HasDefaultValueSql("gen_random_uuid()")
+                .HasDefaultValueSql("(newid())")
                 .HasColumnName("idImpuestoRetencion");
             entity.Property(e => e.BaseImponible)
-                .HasPrecision(8, 2)
+                .HasColumnType("numeric(8, 2)")
                 .HasColumnName("baseImponible");
             entity.Property(e => e.CodDocSustento)
-                .HasPrecision(8, 2)
+                .HasColumnType("numeric(8, 2)")
                 .HasColumnName("codDocSustento");
             entity.Property(e => e.FechaEmisionDocSustento)
                 .HasMaxLength(50)
+                .IsUnicode(false)
                 .HasColumnName("fechaEmisionDocSustento");
             entity.Property(e => e.FechaRegistro)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone")
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
                 .HasColumnName("fechaRegistro");
             entity.Property(e => e.IdPorcentajeImpuestoRetencion).HasColumnName("idPorcentajeImpuestoRetencion");
             entity.Property(e => e.IdRetencion).HasColumnName("idRetencion");
             entity.Property(e => e.IdTipoValorRetencion).HasColumnName("idTipoValorRetencion");
             entity.Property(e => e.NumDocSustento)
-                .HasPrecision(8, 2)
+                .HasColumnType("numeric(8, 2)")
                 .HasColumnName("numDocSustento");
             entity.Property(e => e.PorcentajeRetener)
-                .HasPrecision(8, 2)
+                .HasColumnType("numeric(8, 2)")
                 .HasColumnName("porcentajeRetener");
             entity.Property(e => e.ValorRetenido)
-                .HasPrecision(8, 2)
+                .HasColumnType("numeric(8, 2)")
                 .HasColumnName("valorRetenido");
 
             entity.HasOne(d => d.IdPorcentajeImpuestoRetencionNavigation).WithMany(p => p.ImpuestoRetenciones)
@@ -784,17 +777,17 @@ public partial class _context : DbContext
 
             entity.ToTable("informacionAdicional");
 
-            entity.HasIndex(e => e.IdFactura, "IX_informacionAdicional_idFactura");
-
             entity.Property(e => e.IdInformacionAdicional)
-                .HasDefaultValueSql("gen_random_uuid()")
+                .HasDefaultValueSql("(newid())")
                 .HasColumnName("idInformacionAdicional");
             entity.Property(e => e.IdFactura).HasColumnName("idFactura");
             entity.Property(e => e.Nombre)
                 .HasMaxLength(500)
+                .IsUnicode(false)
                 .HasColumnName("nombre");
             entity.Property(e => e.Valor)
                 .HasMaxLength(500)
+                .IsUnicode(false)
                 .HasColumnName("valor");
 
             entity.HasOne(d => d.IdFacturaNavigation).WithMany(p => p.InformacionAdicional)
@@ -810,14 +803,16 @@ public partial class _context : DbContext
             entity.ToTable("informacionAdicionalRetencion");
 
             entity.Property(e => e.IdInformacionAdicionalRetencion)
-                .HasDefaultValueSql("gen_random_uuid()")
+                .HasDefaultValueSql("(newid())")
                 .HasColumnName("idInformacionAdicionalRetencion");
             entity.Property(e => e.IdRetencion).HasColumnName("idRetencion");
             entity.Property(e => e.Nombre)
                 .HasMaxLength(500)
+                .IsUnicode(false)
                 .HasColumnName("nombre");
             entity.Property(e => e.Valor)
                 .HasMaxLength(500)
+                .IsUnicode(false)
                 .HasColumnName("valor");
 
             entity.HasOne(d => d.IdRetencionNavigation).WithMany(p => p.InformacionAdicionalRetencion)
@@ -833,26 +828,30 @@ public partial class _context : DbContext
             entity.ToTable("informacionFirmas");
 
             entity.Property(e => e.IdInformacionFirma)
-                .HasDefaultValueSql("gen_random_uuid()")
+                .HasDefaultValueSql("(newid())")
                 .HasColumnName("idInformacionFirma");
             entity.Property(e => e.Activo)
                 .HasDefaultValue(true)
                 .HasColumnName("activo");
             entity.Property(e => e.Codigo)
                 .HasMaxLength(500)
+                .IsUnicode(false)
                 .HasColumnName("codigo");
             entity.Property(e => e.FechaRegistro)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone")
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
                 .HasColumnName("fechaRegistro");
             entity.Property(e => e.Identificacion)
                 .HasMaxLength(20)
+                .IsUnicode(false)
                 .HasColumnName("identificacion");
             entity.Property(e => e.RazonSocial)
                 .HasMaxLength(500)
+                .IsUnicode(false)
                 .HasColumnName("razonSocial");
             entity.Property(e => e.Ruta)
                 .HasMaxLength(1000)
+                .IsUnicode(false)
                 .HasColumnName("ruta");
         });
 
@@ -863,7 +862,7 @@ public partial class _context : DbContext
             entity.ToTable("ivas");
 
             entity.Property(e => e.IdIva)
-                .HasDefaultValueSql("gen_random_uuid()")
+                .HasDefaultValueSql("(newid())")
                 .HasColumnName("idIva");
             entity.Property(e => e.Activo)
                 .HasDefaultValue(true)
@@ -871,16 +870,18 @@ public partial class _context : DbContext
             entity.Property(e => e.Codigo).HasColumnName("codigo");
             entity.Property(e => e.Descripcion)
                 .HasMaxLength(500)
+                .IsUnicode(false)
                 .HasColumnName("descripcion");
             entity.Property(e => e.FechaRegistro)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone")
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
                 .HasColumnName("fechaRegistro");
             entity.Property(e => e.Nombre)
                 .HasMaxLength(500)
+                .IsUnicode(false)
                 .HasColumnName("nombre");
             entity.Property(e => e.Valor)
-                .HasPrecision(8, 2)
+                .HasColumnType("numeric(8, 2)")
                 .HasColumnName("valor");
         });
 
@@ -890,13 +891,15 @@ public partial class _context : DbContext
 
             entity.ToTable("lotes");
 
-            entity.Property(e => e.IdLote).HasColumnName("idLote");
+            entity.Property(e => e.IdLote)
+                .ValueGeneratedNever()
+                .HasColumnName("idLote");
             entity.Property(e => e.Cantidad)
-                .HasPrecision(8, 2)
+                .HasColumnType("numeric(8, 2)")
                 .HasColumnName("cantidad");
             entity.Property(e => e.FechaRegistro)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone")
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
                 .HasColumnName("fechaRegistro");
             entity.Property(e => e.IdProducto).HasColumnName("idProducto");
             entity.Property(e => e.IdUsuario).HasColumnName("idUsuario");
@@ -917,7 +920,7 @@ public partial class _context : DbContext
             entity.ToTable("porcentajeImpuestosRetenciones");
 
             entity.Property(e => e.IdPorcentajeImpuestoRetencion)
-                .HasDefaultValueSql("gen_random_uuid()")
+                .HasDefaultValueSql("(newid())")
                 .HasColumnName("idPorcentajeImpuestoRetencion");
             entity.Property(e => e.Activo)
                 .HasDefaultValue(true)
@@ -925,17 +928,19 @@ public partial class _context : DbContext
             entity.Property(e => e.Codigo).HasColumnName("codigo");
             entity.Property(e => e.Descripcion)
                 .HasMaxLength(500)
+                .IsUnicode(false)
                 .HasColumnName("descripcion");
             entity.Property(e => e.FechaRegistro)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone")
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
                 .HasColumnName("fechaRegistro");
             entity.Property(e => e.IdTipoValorRetencion).HasColumnName("idTipoValorRetencion");
             entity.Property(e => e.Nombre)
                 .HasMaxLength(500)
+                .IsUnicode(false)
                 .HasColumnName("nombre");
             entity.Property(e => e.Valor)
-                .HasPrecision(8, 2)
+                .HasColumnType("numeric(8, 2)")
                 .HasColumnName("valor");
 
             entity.HasOne(d => d.IdTipoValorRetencionNavigation).WithMany(p => p.PorcentajeImpuestosRetenciones)
@@ -950,12 +955,8 @@ public partial class _context : DbContext
 
             entity.ToTable("productos");
 
-            entity.HasIndex(e => e.IdEmpresa, "IX_productos_idEmpresa");
-
-            entity.HasIndex(e => e.IdIva, "IX_productos_idIva");
-
             entity.Property(e => e.IdProducto)
-                .HasDefaultValueSql("gen_random_uuid()")
+                .HasDefaultValueSql("(newid())")
                 .HasColumnName("idProducto");
             entity.Property(e => e.Activo)
                 .HasDefaultValue(true)
@@ -964,28 +965,31 @@ public partial class _context : DbContext
                 .HasDefaultValue(true)
                 .HasColumnName("activoProducto");
             entity.Property(e => e.Cantidad)
-                .HasPrecision(8, 2)
+                .HasColumnType("numeric(8, 2)")
                 .HasColumnName("cantidad");
             entity.Property(e => e.Codigo)
                 .HasMaxLength(500)
+                .IsUnicode(false)
                 .HasColumnName("codigo");
             entity.Property(e => e.Descripcion)
                 .HasMaxLength(500)
+                .IsUnicode(false)
                 .HasColumnName("descripcion");
             entity.Property(e => e.FechaRegistro)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone")
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
                 .HasColumnName("fechaRegistro");
             entity.Property(e => e.IdEmpresa).HasColumnName("idEmpresa");
             entity.Property(e => e.IdIva).HasColumnName("idIva");
             entity.Property(e => e.Nombre)
                 .HasMaxLength(500)
+                .IsUnicode(false)
                 .HasColumnName("nombre");
             entity.Property(e => e.Precio)
-                .HasPrecision(8, 2)
+                .HasColumnType("numeric(8, 2)")
                 .HasColumnName("precio");
             entity.Property(e => e.TotalIva)
-                .HasPrecision(8, 2)
+                .HasColumnType("numeric(8, 2)")
                 .HasColumnName("totalIva");
 
             entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.Productos)
@@ -999,19 +1003,21 @@ public partial class _context : DbContext
 
         modelBuilder.Entity<ProductosProveedores>(entity =>
         {
-            entity.HasKey(e => e.IdProductoProveedor).HasName("ProductosProveedores_pkey");
+            entity.HasKey(e => e.IdProductoProveedor).HasName("PK__Producto__358285855AECBB43");
 
             entity.Property(e => e.IdProductoProveedor).HasColumnName("idProductoProveedor");
             entity.Property(e => e.CodigoPrincipal)
                 .HasMaxLength(20)
+                .IsUnicode(false)
                 .HasColumnName("codigoPrincipal");
             entity.Property(e => e.FechaRegistro)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone")
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
                 .HasColumnName("fechaRegistro");
             entity.Property(e => e.IdProducto).HasColumnName("idProducto");
             entity.Property(e => e.Identificacion)
                 .HasMaxLength(20)
+                .IsUnicode(false)
                 .HasColumnName("identificacion");
 
             entity.HasOne(d => d.IdProductoNavigation).WithMany(p => p.ProductosProveedores)
@@ -1029,56 +1035,56 @@ public partial class _context : DbContext
 
             entity.ToTable("proformas");
 
-            entity.HasIndex(e => e.IdEstablecimiento, "IX_proformas_idEstablecimiento");
-
-            entity.HasIndex(e => e.IdPuntoEmision, "IX_proformas_idPuntoEmision");
-
-            entity.HasIndex(e => e.IdUsuario, "IX_proformas_idUsuario");
-
             entity.Property(e => e.IdProforma)
-                .HasDefaultValueSql("gen_random_uuid()")
+                .HasDefaultValueSql("(newid())")
                 .HasColumnName("idProforma");
             entity.Property(e => e.Ambiente).HasColumnName("ambiente");
             entity.Property(e => e.Establecimiento).HasColumnName("establecimiento");
             entity.Property(e => e.FechaRegistro)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone")
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
                 .HasColumnName("fechaRegistro");
             entity.Property(e => e.IdEstablecimiento).HasColumnName("idEstablecimiento");
             entity.Property(e => e.IdPuntoEmision).HasColumnName("idPuntoEmision");
             entity.Property(e => e.IdUsuario).HasColumnName("idUsuario");
             entity.Property(e => e.Moneda)
                 .HasMaxLength(10)
+                .IsUnicode(false)
                 .HasColumnName("moneda");
             entity.Property(e => e.PuntoEmision).HasColumnName("puntoEmision");
             entity.Property(e => e.ReceptorCorreo)
                 .HasMaxLength(400)
+                .IsUnicode(false)
                 .HasColumnName("receptorCorreo");
             entity.Property(e => e.ReceptorDireccion)
                 .HasMaxLength(500)
+                .IsUnicode(false)
                 .HasColumnName("receptorDireccion");
             entity.Property(e => e.ReceptorRazonSocial)
                 .HasMaxLength(500)
+                .IsUnicode(false)
                 .HasColumnName("receptorRazonSocial");
             entity.Property(e => e.ReceptorRuc)
                 .HasMaxLength(20)
+                .IsUnicode(false)
                 .HasColumnName("receptorRuc");
             entity.Property(e => e.ReceptorTelefono)
                 .HasMaxLength(30)
+                .IsUnicode(false)
                 .HasColumnName("receptorTelefono");
             entity.Property(e => e.ReceptorTipoIdentificacion).HasColumnName("receptorTipoIdentificacion");
             entity.Property(e => e.Secuencial).HasColumnName("secuencial");
             entity.Property(e => e.Subtotal12)
-                .HasPrecision(8, 2)
+                .HasColumnType("numeric(8, 2)")
                 .HasColumnName("subtotal12");
             entity.Property(e => e.TotalDescuento)
-                .HasPrecision(8, 2)
+                .HasColumnType("numeric(8, 2)")
                 .HasColumnName("totalDescuento");
             entity.Property(e => e.TotalImporte)
-                .HasPrecision(8, 2)
+                .HasColumnType("numeric(8, 2)")
                 .HasColumnName("totalImporte");
             entity.Property(e => e.TotalSinImpuesto)
-                .HasPrecision(8, 2)
+                .HasColumnType("numeric(8, 2)")
                 .HasColumnName("totalSinImpuesto");
 
             entity.HasOne(d => d.IdEstablecimientoNavigation).WithMany(p => p.Proformas)
@@ -1103,48 +1109,50 @@ public partial class _context : DbContext
 
             entity.ToTable("proveedores");
 
-            entity.HasIndex(e => e.IdCiudad, "IX_proveedores_idCiudad");
-
-            entity.HasIndex(e => e.IdEmpresa, "IX_proveedores_idEmpresa");
-
-            entity.HasIndex(e => e.IdTipoIdentificacion, "IX_proveedores_idTipoIdentificacion");
-
             entity.Property(e => e.IdProveedor)
-                .HasDefaultValueSql("gen_random_uuid()")
+                .HasDefaultValueSql("(newid())")
                 .HasColumnName("idProveedor");
             entity.Property(e => e.Activo)
                 .HasDefaultValue(true)
                 .HasColumnName("activo");
             entity.Property(e => e.Direccion)
                 .HasMaxLength(500)
+                .IsUnicode(false)
                 .HasColumnName("direccion");
             entity.Property(e => e.Email)
                 .HasMaxLength(500)
+                .IsUnicode(false)
                 .HasColumnName("email");
             entity.Property(e => e.FechaRegistro)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone")
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
                 .HasColumnName("fechaRegistro");
             entity.Property(e => e.IdCiudad).HasColumnName("idCiudad");
             entity.Property(e => e.IdEmpresa).HasColumnName("idEmpresa");
             entity.Property(e => e.IdTipoIdentificacion).HasColumnName("idTipoIdentificacion");
             entity.Property(e => e.Identificacion)
                 .HasMaxLength(30)
+                .IsUnicode(false)
                 .HasColumnName("identificacion");
             entity.Property(e => e.Observacion)
                 .HasMaxLength(1000)
+                .IsUnicode(false)
                 .HasColumnName("observacion");
             entity.Property(e => e.PaginaWeb)
                 .HasMaxLength(1000)
+                .IsUnicode(false)
                 .HasColumnName("paginaWeb");
             entity.Property(e => e.RazonSocial)
                 .HasMaxLength(500)
+                .IsUnicode(false)
                 .HasColumnName("razonSocial");
             entity.Property(e => e.Representante)
                 .HasMaxLength(30)
+                .IsUnicode(false)
                 .HasColumnName("representante");
             entity.Property(e => e.Telefono)
                 .HasMaxLength(500)
+                .IsUnicode(false)
                 .HasColumnName("telefono");
 
             entity.HasOne(d => d.IdCiudadNavigation).WithMany(p => p.Proveedores)
@@ -1167,17 +1175,18 @@ public partial class _context : DbContext
             entity.ToTable("provincias");
 
             entity.Property(e => e.IdProvincia)
-                .HasDefaultValueSql("gen_random_uuid()")
+                .HasDefaultValueSql("(newid())")
                 .HasColumnName("idProvincia");
             entity.Property(e => e.Activo)
                 .HasDefaultValue(false)
                 .HasColumnName("activo");
             entity.Property(e => e.FechaRegistro)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone")
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
                 .HasColumnName("fechaRegistro");
             entity.Property(e => e.Nombre)
                 .HasMaxLength(500)
+                .IsUnicode(false)
                 .HasColumnName("nombre");
         });
 
@@ -1187,23 +1196,23 @@ public partial class _context : DbContext
 
             entity.ToTable("puntoEmisiones");
 
-            entity.HasIndex(e => e.IdEmpresa, "IX_puntoEmisiones_idEmpresa");
-
             entity.Property(e => e.IdPuntoEmision)
-                .HasDefaultValueSql("gen_random_uuid()")
+                .HasDefaultValueSql("(newid())")
                 .HasColumnName("idPuntoEmision");
             entity.Property(e => e.Activo)
                 .HasDefaultValue(true)
                 .HasColumnName("activo");
             entity.Property(e => e.Descripcion)
                 .HasMaxLength(500)
+                .IsUnicode(false)
                 .HasColumnName("descripcion");
             entity.Property(e => e.Direccion)
                 .HasMaxLength(1000)
+                .IsUnicode(false)
                 .HasColumnName("direccion");
             entity.Property(e => e.FechaRegistro)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone")
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
                 .HasColumnName("fechaRegistro");
             entity.Property(e => e.IdEmpresa).HasColumnName("idEmpresa");
             entity.Property(e => e.Nombre).HasColumnName("nombre");
@@ -1223,32 +1232,38 @@ public partial class _context : DbContext
             entity.ToTable("retenciones");
 
             entity.Property(e => e.IdRetencion)
-                .HasDefaultValueSql("gen_random_uuid()")
+                .HasDefaultValueSql("(newid())")
                 .HasColumnName("idRetencion");
             entity.Property(e => e.AgenteRetencion)
                 .HasMaxLength(300)
+                .IsUnicode(false)
                 .HasColumnName("agenteRetencion");
             entity.Property(e => e.Ambiente).HasColumnName("ambiente");
             entity.Property(e => e.ClaveAcceso)
                 .HasMaxLength(50)
+                .IsUnicode(false)
                 .HasColumnName("claveAcceso");
             entity.Property(e => e.CodigoDocumento).HasColumnName("codigoDocumento");
             entity.Property(e => e.DireccionMatriz)
                 .HasMaxLength(300)
+                .IsUnicode(false)
                 .HasColumnName("direccionMatriz");
             entity.Property(e => e.EmisorNombreComercial)
                 .HasMaxLength(300)
+                .IsUnicode(false)
                 .HasColumnName("emisorNombreComercial");
             entity.Property(e => e.EmisorRazonSocial)
                 .HasMaxLength(300)
+                .IsUnicode(false)
                 .HasColumnName("emisorRazonSocial");
             entity.Property(e => e.EmisorRuc)
                 .HasMaxLength(20)
+                .IsUnicode(false)
                 .HasColumnName("emisorRuc");
             entity.Property(e => e.Establecimiento).HasColumnName("establecimiento");
             entity.Property(e => e.FechaEmision)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone")
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
                 .HasColumnName("fechaEmision");
             entity.Property(e => e.IdDocumentoEmitir).HasColumnName("idDocumentoEmitir");
             entity.Property(e => e.IdEmpresa).HasColumnName("idEmpresa");
@@ -1260,26 +1275,32 @@ public partial class _context : DbContext
             entity.Property(e => e.IdUsuario).HasColumnName("idUsuario");
             entity.Property(e => e.IdentificacionSujetoRetenido)
                 .HasMaxLength(20)
+                .IsUnicode(false)
                 .HasColumnName("identificacionSujetoRetenido");
             entity.Property(e => e.ObligadoContabilidad).HasColumnName("obligadoContabilidad");
             entity.Property(e => e.PeriodoFiscal)
                 .HasMaxLength(20)
+                .IsUnicode(false)
                 .HasColumnName("periodoFiscal");
             entity.Property(e => e.PuntoEmision).HasColumnName("puntoEmision");
             entity.Property(e => e.RazonSocialSujetoRetenido)
                 .HasMaxLength(500)
+                .IsUnicode(false)
                 .HasColumnName("razonSocialSujetoRetenido");
             entity.Property(e => e.Ruta)
                 .HasMaxLength(1000)
+                .IsUnicode(false)
                 .HasColumnName("ruta");
             entity.Property(e => e.Secuencial).HasColumnName("secuencial");
             entity.Property(e => e.TipoDocumento).HasColumnName("tipoDocumento");
             entity.Property(e => e.TipoEmision).HasColumnName("tipoEmision");
             entity.Property(e => e.TipoIdentificacionSujetoRetenido)
                 .HasMaxLength(20)
+                .IsUnicode(false)
                 .HasColumnName("tipoIdentificacionSujetoRetenido");
             entity.Property(e => e.VersionXml)
                 .HasMaxLength(10)
+                .IsUnicode(false)
                 .HasColumnName("versionXml");
 
             entity.HasOne(d => d.IdDocumentoEmitirNavigation).WithMany(p => p.Retenciones)
@@ -1318,19 +1339,15 @@ public partial class _context : DbContext
 
             entity.ToTable("secuenciales");
 
-            entity.HasIndex(e => e.IdEmpresa, "IX_secuenciales_idEmpresa");
-
-            entity.HasIndex(e => e.IdTipoDocumento, "IX_secuenciales_idTipoDocumento");
-
             entity.Property(e => e.IdSecuencial)
-                .HasDefaultValueSql("gen_random_uuid()")
+                .HasDefaultValueSql("(newid())")
                 .HasColumnName("idSecuencial");
             entity.Property(e => e.Activo)
                 .HasDefaultValue(true)
                 .HasColumnName("activo");
             entity.Property(e => e.FechaRegistro)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone")
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
                 .HasColumnName("fechaRegistro");
             entity.Property(e => e.IdEmpresa).HasColumnName("idEmpresa");
             entity.Property(e => e.IdTipoDocumento).HasColumnName("idTipoDocumento");
@@ -1351,19 +1368,15 @@ public partial class _context : DbContext
 
             entity.ToTable("secuencialesProformas");
 
-            entity.HasIndex(e => e.IdEmpresa, "IX_secuencialesProformas_idEmpresa");
-
-            entity.HasIndex(e => e.IdTipoDocumento, "IX_secuencialesProformas_idTipoDocumento");
-
             entity.Property(e => e.IdSecuencialesProforma)
-                .HasDefaultValueSql("gen_random_uuid()")
+                .HasDefaultValueSql("(newid())")
                 .HasColumnName("idSecuencialesProforma");
             entity.Property(e => e.Activo)
                 .HasDefaultValue(true)
                 .HasColumnName("activo");
             entity.Property(e => e.FechaRegistro)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone")
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
                 .HasColumnName("fechaRegistro");
             entity.Property(e => e.IdEmpresa).HasColumnName("idEmpresa");
             entity.Property(e => e.IdTipoDocumento).HasColumnName("idTipoDocumento");
@@ -1380,30 +1393,34 @@ public partial class _context : DbContext
 
         modelBuilder.Entity<SriAmbientes>(entity =>
         {
-            entity.HasKey(e => e.Codigo).HasName("SriAmbientes_pkey");
+            entity.HasKey(e => e.Codigo).HasName("PK__SriAmbie__40F9A20795A36BD9");
 
             entity.Property(e => e.Codigo)
-                .HasMaxLength(3)
+                .HasMaxLength(5)
+                .IsUnicode(false)
                 .HasColumnName("codigo");
             entity.Property(e => e.Activo)
                 .HasDefaultValue(true)
                 .HasColumnName("activo");
             entity.Property(e => e.Ambiente)
                 .HasMaxLength(50)
+                .IsUnicode(false)
                 .HasColumnName("ambiente");
         });
 
         modelBuilder.Entity<SriCamposAdicionales>(entity =>
         {
-            entity.HasKey(e => e.IdCampoAdicional).HasName("SriCamposAdicionales_pkey");
+            entity.HasKey(e => e.IdCampoAdicional).HasName("PK__SriCampo__745B4250D651D0DE");
 
             entity.Property(e => e.IdCampoAdicional).HasColumnName("idCampoAdicional");
             entity.Property(e => e.IdFactura).HasColumnName("idFactura");
             entity.Property(e => e.Nombre)
                 .HasMaxLength(300)
+                .IsUnicode(false)
                 .HasColumnName("nombre");
             entity.Property(e => e.Text)
                 .HasMaxLength(300)
+                .IsUnicode(false)
                 .HasColumnName("text");
 
             entity.HasOne(d => d.IdFacturaNavigation).WithMany(p => p.SriCamposAdicionales)
@@ -1413,31 +1430,33 @@ public partial class _context : DbContext
 
         modelBuilder.Entity<SriDetallesFacturas>(entity =>
         {
-            entity.HasKey(e => e.IdDetalleFactura).HasName("SriDetallesFacturas_pkey");
+            entity.HasKey(e => e.IdDetalleFactura).HasName("PK__SriDetal__DFF38252565B8160");
 
             entity.Property(e => e.IdDetalleFactura).HasColumnName("idDetalleFactura");
             entity.Property(e => e.Cantidad)
-                .HasPrecision(10, 2)
+                .HasColumnType("decimal(10, 2)")
                 .HasColumnName("cantidad");
             entity.Property(e => e.CodigoPrincipal)
                 .HasMaxLength(50)
+                .IsUnicode(false)
                 .HasColumnName("codigoPrincipal");
             entity.Property(e => e.Descripcion)
                 .HasMaxLength(200)
+                .IsUnicode(false)
                 .HasColumnName("descripcion");
             entity.Property(e => e.Descuento)
-                .HasPrecision(10, 2)
+                .HasColumnType("decimal(10, 2)")
                 .HasColumnName("descuento");
             entity.Property(e => e.IdFactura).HasColumnName("idFactura");
             entity.Property(e => e.IdProducto).HasColumnName("idProducto");
             entity.Property(e => e.PrecioTotalConImpuesto)
-                .HasPrecision(10, 2)
+                .HasColumnType("decimal(10, 2)")
                 .HasColumnName("precioTotalConImpuesto");
             entity.Property(e => e.PrecioTotalSinImpuesto)
-                .HasPrecision(10, 2)
+                .HasColumnType("decimal(10, 2)")
                 .HasColumnName("precioTotalSinImpuesto");
             entity.Property(e => e.PrecioUnitario)
-                .HasPrecision(10, 2)
+                .HasColumnType("decimal(10, 2)")
                 .HasColumnName("precioUnitario");
 
             entity.HasOne(d => d.IdFacturaNavigation).WithMany(p => p.SriDetallesFacturas)
@@ -1451,24 +1470,26 @@ public partial class _context : DbContext
 
         modelBuilder.Entity<SriDetallesFacturasImpuestos>(entity =>
         {
-            entity.HasKey(e => e.IdDetalleFacturaImpuesto).HasName("SriDetallesFacturasImpuestos_pkey");
+            entity.HasKey(e => e.IdDetalleFacturaImpuesto).HasName("PK__SriDetal__5383C987320853EA");
 
             entity.Property(e => e.IdDetalleFacturaImpuesto).HasColumnName("idDetalleFacturaImpuesto");
             entity.Property(e => e.BaseImponible)
-                .HasPrecision(10, 2)
+                .HasColumnType("decimal(10, 2)")
                 .HasColumnName("baseImponible");
             entity.Property(e => e.Codigo)
                 .HasMaxLength(5)
+                .IsUnicode(false)
                 .HasColumnName("codigo");
             entity.Property(e => e.CodigoPorcentaje)
                 .HasMaxLength(5)
+                .IsUnicode(false)
                 .HasColumnName("codigoPorcentaje");
             entity.Property(e => e.IdDetalleFactura).HasColumnName("idDetalleFactura");
             entity.Property(e => e.Tarifa)
-                .HasPrecision(5, 2)
+                .HasColumnType("numeric(5, 2)")
                 .HasColumnName("tarifa");
             entity.Property(e => e.Valor)
-                .HasPrecision(10, 2)
+                .HasColumnType("decimal(10, 2)")
                 .HasColumnName("valor");
 
             entity.HasOne(d => d.CodigoPorcentajeNavigation).WithMany(p => p.SriDetallesFacturasImpuestos)
@@ -1482,7 +1503,7 @@ public partial class _context : DbContext
 
         modelBuilder.Entity<SriEstados>(entity =>
         {
-            entity.HasKey(e => e.Codigo).HasName("SriEstados_pkey");
+            entity.HasKey(e => e.Codigo).HasName("PK__SriEstad__40F9A207020C3F18");
 
             entity.Property(e => e.Codigo)
                 .ValueGeneratedNever()
@@ -1492,22 +1513,26 @@ public partial class _context : DbContext
                 .HasColumnName("activo");
             entity.Property(e => e.Estado)
                 .HasMaxLength(50)
+                .IsUnicode(false)
                 .HasColumnName("estado");
         });
 
         modelBuilder.Entity<SriFacturas>(entity =>
         {
-            entity.HasKey(e => e.IdFactura).HasName("SriFacturas_pkey");
+            entity.HasKey(e => e.IdFactura).HasName("PK__SriFactu__3CD5687EDC14F968");
 
             entity.Property(e => e.IdFactura).HasColumnName("idFactura");
             entity.Property(e => e.Ambiente)
                 .HasMaxLength(5)
+                .IsUnicode(false)
                 .HasColumnName("ambiente");
             entity.Property(e => e.ClaveAcceso)
                 .HasMaxLength(64)
+                .IsUnicode(false)
                 .HasColumnName("claveAcceso");
             entity.Property(e => e.CodDoc)
                 .HasMaxLength(5)
+                .IsUnicode(false)
                 .HasColumnName("codDoc");
             entity.Property(e => e.CodigoEstado)
                 .HasDefaultValue(0)
@@ -1517,74 +1542,90 @@ public partial class _context : DbContext
                 .HasColumnName("compra");
             entity.Property(e => e.ContribuyenteEspecial)
                 .HasMaxLength(5)
+                .IsUnicode(false)
                 .HasColumnName("contribuyenteEspecial");
             entity.Property(e => e.DirEstablecimiento)
                 .HasMaxLength(300)
+                .IsUnicode(false)
                 .HasColumnName("dirEstablecimiento");
             entity.Property(e => e.DirMatriz)
                 .HasMaxLength(300)
+                .IsUnicode(false)
                 .HasColumnName("dirMatriz");
             entity.Property(e => e.Estab)
                 .HasMaxLength(5)
+                .IsUnicode(false)
                 .HasColumnName("estab");
             entity.Property(e => e.FechaAutorizacion)
-                .HasColumnType("timestamp without time zone")
+                .HasColumnType("datetime")
                 .HasColumnName("fechaAutorizacion");
             entity.Property(e => e.FechaEmision).HasColumnName("fechaEmision");
             entity.Property(e => e.FechaRegistro)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone")
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
                 .HasColumnName("fechaRegistro");
             entity.Property(e => e.Id)
                 .HasMaxLength(50)
+                .IsUnicode(false)
                 .HasColumnName("id");
             entity.Property(e => e.IdEmpresa).HasColumnName("idEmpresa");
             entity.Property(e => e.IdUsuario).HasColumnName("idUsuario");
             entity.Property(e => e.IdentificacionComprador)
                 .HasMaxLength(20)
+                .IsUnicode(false)
                 .HasColumnName("identificacionComprador");
             entity.Property(e => e.ImporteTotal)
-                .HasPrecision(10, 2)
+                .HasColumnType("decimal(10, 2)")
                 .HasColumnName("importeTotal");
             entity.Property(e => e.Moneda)
                 .HasMaxLength(20)
+                .IsUnicode(false)
                 .HasColumnName("moneda");
             entity.Property(e => e.NombreComercial)
                 .HasMaxLength(200)
+                .IsUnicode(false)
                 .HasColumnName("nombreComercial");
             entity.Property(e => e.ObligadoContabilidad)
                 .HasMaxLength(5)
+                .IsUnicode(false)
                 .HasColumnName("obligadoContabilidad");
             entity.Property(e => e.Propina)
-                .HasPrecision(10, 2)
-                .HasDefaultValueSql("0")
+                .HasDefaultValue(0m)
+                .HasColumnType("decimal(10, 2)")
                 .HasColumnName("propina");
             entity.Property(e => e.PtoEmi)
                 .HasMaxLength(5)
+                .IsUnicode(false)
                 .HasColumnName("ptoEmi");
             entity.Property(e => e.RazonSocial)
                 .HasMaxLength(200)
+                .IsUnicode(false)
                 .HasColumnName("razonSocial");
             entity.Property(e => e.RazonSocialComprador)
                 .HasMaxLength(200)
+                .IsUnicode(false)
                 .HasColumnName("razonSocialComprador");
             entity.Property(e => e.Ruc)
                 .HasMaxLength(20)
+                .IsUnicode(false)
                 .HasColumnName("ruc");
             entity.Property(e => e.Secuencial)
                 .HasMaxLength(12)
+                .IsUnicode(false)
                 .HasColumnName("secuencial");
             entity.Property(e => e.TipoIdentificacionComprador)
                 .HasMaxLength(5)
+                .IsUnicode(false)
                 .HasColumnName("tipoIdentificacionComprador");
             entity.Property(e => e.TotalDescuento)
-                .HasPrecision(10, 2)
+                .HasColumnType("decimal(10, 2)")
                 .HasColumnName("totalDescuento");
             entity.Property(e => e.TotalSinImpuesto)
-                .HasPrecision(10, 2)
+                .HasColumnType("decimal(10, 2)")
                 .HasColumnName("totalSinImpuesto");
             entity.Property(e => e.Version)
                 .HasMaxLength(10)
+                .IsUnicode(false)
                 .HasColumnName("version");
 
             entity.HasOne(d => d.AmbienteNavigation).WithMany(p => p.SriFacturas)
@@ -1602,25 +1643,28 @@ public partial class _context : DbContext
 
         modelBuilder.Entity<SriFormasPagos>(entity =>
         {
-            entity.HasKey(e => e.Codigo).HasName("SriFormasPagos_pkey");
+            entity.HasKey(e => e.Codigo).HasName("PK__SriForma__40F9A207FDC79B7D");
 
             entity.Property(e => e.Codigo)
                 .HasMaxLength(5)
+                .IsUnicode(false)
                 .HasColumnName("codigo");
             entity.Property(e => e.Activo)
                 .HasDefaultValue(true)
                 .HasColumnName("activo");
             entity.Property(e => e.FormaPago)
                 .HasMaxLength(200)
+                .IsUnicode(false)
                 .HasColumnName("formaPago");
         });
 
         modelBuilder.Entity<SriMonedas>(entity =>
         {
-            entity.HasKey(e => e.Moneda).HasName("srimonedas_pkey");
+            entity.HasKey(e => e.Moneda).HasName("PK__SriMoned__93B33AA15A7813C3");
 
             entity.Property(e => e.Moneda)
                 .HasMaxLength(20)
+                .IsUnicode(false)
                 .HasColumnName("moneda");
             entity.Property(e => e.Activo)
                 .HasDefaultValue(true)
@@ -1629,19 +1673,21 @@ public partial class _context : DbContext
 
         modelBuilder.Entity<SriPagos>(entity =>
         {
-            entity.HasKey(e => e.IdPago).HasName("SriPagos_pkey");
+            entity.HasKey(e => e.IdPago).HasName("PK__SriPagos__BD2295ADA7885B83");
 
             entity.Property(e => e.IdPago).HasColumnName("idPago");
             entity.Property(e => e.FormaPago)
                 .HasMaxLength(5)
+                .IsUnicode(false)
                 .HasColumnName("formaPago");
             entity.Property(e => e.IdFactura).HasColumnName("idFactura");
             entity.Property(e => e.Plazo).HasColumnName("plazo");
             entity.Property(e => e.Total)
-                .HasPrecision(10, 2)
+                .HasColumnType("decimal(10, 2)")
                 .HasColumnName("total");
             entity.Property(e => e.UnidadTiempo)
                 .HasMaxLength(10)
+                .IsUnicode(false)
                 .HasColumnName("unidadTiempo");
 
             entity.HasOne(d => d.FormaPagoNavigation).WithMany(p => p.SriPagos)
@@ -1659,38 +1705,46 @@ public partial class _context : DbContext
 
         modelBuilder.Entity<SriPersonas>(entity =>
         {
-            entity.HasKey(e => e.Identificacion).HasName("SriPersonas_pkey");
+            entity.HasKey(e => e.Identificacion).HasName("PK__SriPerso__C196DEC6AE40344B");
 
             entity.Property(e => e.Identificacion)
                 .HasMaxLength(20)
+                .IsUnicode(false)
                 .HasColumnName("identificacion");
             entity.Property(e => e.Apellidos)
                 .HasMaxLength(100)
+                .IsUnicode(false)
                 .HasColumnName("apellidos");
             entity.Property(e => e.Direccion)
                 .HasMaxLength(300)
+                .IsUnicode(false)
                 .HasColumnName("direccion");
             entity.Property(e => e.Email)
                 .HasMaxLength(100)
+                .IsUnicode(false)
                 .HasColumnName("email");
             entity.Property(e => e.FechaRegistro)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone")
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
                 .HasColumnName("fechaRegistro");
             entity.Property(e => e.Nombres)
                 .HasMaxLength(100)
+                .IsUnicode(false)
                 .HasColumnName("nombres");
             entity.Property(e => e.Proveedor)
                 .HasDefaultValue(false)
                 .HasColumnName("proveedor");
             entity.Property(e => e.RazonSocial)
                 .HasMaxLength(200)
+                .IsUnicode(false)
                 .HasColumnName("razonSocial");
             entity.Property(e => e.Telefono)
                 .HasMaxLength(20)
+                .IsUnicode(false)
                 .HasColumnName("telefono");
             entity.Property(e => e.TipoIdentificacion)
                 .HasMaxLength(5)
+                .IsUnicode(false)
                 .HasColumnName("tipoIdentificacion");
 
             entity.HasOne(d => d.TipoIdentificacionNavigation).WithMany(p => p.SriPersonas)
@@ -1700,27 +1754,28 @@ public partial class _context : DbContext
 
         modelBuilder.Entity<SriPrecios>(entity =>
         {
-            entity.HasKey(e => e.IdPrecio).HasName("SriPrecios_pkey");
+            entity.HasKey(e => e.IdPrecio).HasName("PK__SriPreci__BF8B120CC62B3C36");
 
             entity.Property(e => e.IdPrecio).HasColumnName("idPrecio");
             entity.Property(e => e.Activo)
                 .HasDefaultValue(true)
                 .HasColumnName("activo");
             entity.Property(e => e.BaseImponible)
-                .HasPrecision(10, 2)
+                .HasColumnType("decimal(10, 2)")
                 .HasColumnName("baseImponible");
             entity.Property(e => e.Codigo)
                 .HasMaxLength(5)
+                .IsUnicode(false)
                 .HasColumnName("codigo");
             entity.Property(e => e.IdProducto).HasColumnName("idProducto");
             entity.Property(e => e.Tarifa)
-                .HasPrecision(5, 2)
+                .HasColumnType("numeric(5, 2)")
                 .HasColumnName("tarifa");
             entity.Property(e => e.TotalConImpuestos)
-                .HasPrecision(10, 2)
+                .HasColumnType("decimal(10, 2)")
                 .HasColumnName("totalConImpuestos");
             entity.Property(e => e.Valor)
-                .HasPrecision(10, 2)
+                .HasColumnType("decimal(10, 2)")
                 .HasColumnName("valor");
 
             entity.HasOne(d => d.CodigoNavigation).WithMany(p => p.SriPrecios)
@@ -1734,7 +1789,7 @@ public partial class _context : DbContext
 
         modelBuilder.Entity<SriProductos>(entity =>
         {
-            entity.HasKey(e => e.IdProducto).HasName("SriProductos_pkey");
+            entity.HasKey(e => e.IdProducto).HasName("PK__SriProdu__07F4A1327F54DC9C");
 
             entity.Property(e => e.IdProducto).HasColumnName("idProducto");
             entity.Property(e => e.Activo)
@@ -1742,6 +1797,7 @@ public partial class _context : DbContext
                 .HasColumnName("activo");
             entity.Property(e => e.CodigoPrincipal)
                 .HasMaxLength(50)
+                .IsUnicode(false)
                 .HasColumnName("codigoPrincipal");
             entity.Property(e => e.Disponible)
                 .HasDefaultValue(true)
@@ -1749,15 +1805,17 @@ public partial class _context : DbContext
             entity.Property(e => e.IdEmpresa).HasColumnName("idEmpresa");
             entity.Property(e => e.Identificacion)
                 .HasMaxLength(20)
+                .IsUnicode(false)
                 .HasColumnName("identificacion");
             entity.Property(e => e.PrecioCompra)
-                .HasPrecision(10, 2)
+                .HasColumnType("decimal(10, 2)")
                 .HasColumnName("precioCompra");
             entity.Property(e => e.Producto)
                 .HasMaxLength(200)
+                .IsUnicode(false)
                 .HasColumnName("producto");
             entity.Property(e => e.Stock)
-                .HasPrecision(10, 2)
+                .HasColumnType("decimal(10, 2)")
                 .HasColumnName("stock");
 
             entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.SriProductos)
@@ -1771,75 +1829,85 @@ public partial class _context : DbContext
 
         modelBuilder.Entity<SriTarifasImpuestos>(entity =>
         {
-            entity.HasKey(e => e.Codigo).HasName("SriTarifasImpuestos_pkey");
+            entity.HasKey(e => e.Codigo).HasName("PK__SriTarif__40F9A207A42C4BA1");
 
             entity.Property(e => e.Codigo)
                 .HasMaxLength(5)
+                .IsUnicode(false)
                 .HasColumnName("codigo");
             entity.Property(e => e.Activo)
                 .HasDefaultValue(true)
                 .HasColumnName("activo");
             entity.Property(e => e.Nombre)
                 .HasMaxLength(100)
+                .IsUnicode(false)
                 .HasColumnName("nombre");
             entity.Property(e => e.Tarifa)
-                .HasPrecision(5, 2)
+                .HasColumnType("numeric(5, 2)")
                 .HasColumnName("tarifa");
             entity.Property(e => e.Valor)
-                .HasPrecision(5, 2)
+                .HasColumnType("numeric(5, 2)")
                 .HasColumnName("valor");
         });
 
         modelBuilder.Entity<SriTiposDocumentos>(entity =>
         {
-            entity.HasKey(e => e.CodDoc).HasName("SriTiposDocumentos_pkey");
+            entity.HasKey(e => e.CodDoc).HasName("PK__SriTipos__9FE736F2AC209630");
 
             entity.Property(e => e.CodDoc)
                 .HasMaxLength(5)
+                .IsUnicode(false)
                 .HasColumnName("codDoc");
             entity.Property(e => e.Activo)
                 .HasDefaultValue(true)
                 .HasColumnName("activo");
             entity.Property(e => e.TipoDocumento)
                 .HasMaxLength(50)
+                .IsUnicode(false)
                 .HasColumnName("tipoDocumento");
         });
 
         modelBuilder.Entity<SriTiposIdentificaciones>(entity =>
         {
-            entity.HasKey(e => e.Codigo).HasName("SriTiposIdentificaciones_pkey");
+            entity.HasKey(e => e.Codigo).HasName("PK__SriTipos__40F9A207CE71EE3D");
 
             entity.Property(e => e.Codigo)
                 .HasMaxLength(5)
+                .IsUnicode(false)
                 .HasColumnName("codigo");
             entity.Property(e => e.Activo)
                 .HasDefaultValue(true)
                 .HasColumnName("activo");
             entity.Property(e => e.TipoIdentificacion)
                 .HasMaxLength(50)
+                .IsUnicode(false)
                 .HasColumnName("tipoIdentificacion");
         });
 
         modelBuilder.Entity<SriTotalesConImpuestos>(entity =>
         {
-            entity.HasKey(e => e.IdTotalConImpuesto).HasName("SriTotalesConImpuestos_pkey");
+            entity.HasKey(e => e.IdTotalConImpuesto).HasName("PK__SriTotal__22EAEE70E9C7E9E7");
 
-            entity.Property(e => e.IdTotalConImpuesto).HasColumnName("idTotalConImpuesto");
+            entity.Property(e => e.IdTotalConImpuesto)
+                .ValueGeneratedNever()
+                .HasColumnName("idTotalConImpuesto");
             entity.Property(e => e.BaseImponible)
-                .HasPrecision(10, 2)
+                .HasColumnType("decimal(10, 2)")
                 .HasColumnName("baseImponible");
             entity.Property(e => e.Codigo)
                 .HasMaxLength(5)
+                .IsUnicode(false)
                 .HasColumnName("codigo");
             entity.Property(e => e.CodigoPorcentaje)
                 .HasMaxLength(5)
+                .IsUnicode(false)
                 .HasColumnName("codigoPorcentaje");
             entity.Property(e => e.DescuentoAdicional)
-                .HasPrecision(10, 2)
+                .HasColumnType("decimal(10, 2)")
                 .HasColumnName("descuentoAdicional");
             entity.Property(e => e.IdFactura).HasColumnName("idFactura");
             entity.Property(e => e.Valor)
-                .HasPrecision(10, 2)
+                .HasColumnType("decimal(10, 2)")
                 .HasColumnName("valor");
 
             entity.HasOne(d => d.CodigoPorcentajeNavigation).WithMany(p => p.SriTotalesConImpuestos)
@@ -1856,10 +1924,12 @@ public partial class _context : DbContext
             entity.HasKey(e => e.UnidadTiempo).HasName("SriUnidadesTiempos_pkey");
 
             entity.Property(e => e.UnidadTiempo)
-                .HasMaxLength(50)
+                .HasMaxLength(10)
+                .IsUnicode(false)
                 .HasColumnName("unidadTiempo");
             entity.Property(e => e.Codigo)
-                .HasMaxLength(5)
+                .HasMaxLength(10)
+                .IsUnicode(false)
                 .HasColumnName("codigo");
         });
 
@@ -1870,7 +1940,7 @@ public partial class _context : DbContext
             entity.ToTable("tiempoFormaPagos");
 
             entity.Property(e => e.IdTiempoFormaPago)
-                .HasDefaultValueSql("gen_random_uuid()")
+                .HasDefaultValueSql("(newid())")
                 .HasColumnName("idTiempoFormaPago");
             entity.Property(e => e.Activo)
                 .HasDefaultValue(true)
@@ -1878,13 +1948,15 @@ public partial class _context : DbContext
             entity.Property(e => e.Codigo).HasColumnName("codigo");
             entity.Property(e => e.Descripcion)
                 .HasMaxLength(500)
+                .IsUnicode(false)
                 .HasColumnName("descripcion");
             entity.Property(e => e.FechaRegistro)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone")
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
                 .HasColumnName("fechaRegistro");
             entity.Property(e => e.Nombre)
                 .HasMaxLength(500)
+                .IsUnicode(false)
                 .HasColumnName("nombre");
         });
 
@@ -1895,7 +1967,7 @@ public partial class _context : DbContext
             entity.ToTable("tipoDocumentos");
 
             entity.Property(e => e.IdTipoDocumento)
-                .HasDefaultValueSql("gen_random_uuid()")
+                .HasDefaultValueSql("(newid())")
                 .HasColumnName("idTipoDocumento");
             entity.Property(e => e.Activo)
                 .HasDefaultValue(true)
@@ -1903,13 +1975,15 @@ public partial class _context : DbContext
             entity.Property(e => e.Codigo).HasColumnName("codigo");
             entity.Property(e => e.Descripcion)
                 .HasMaxLength(500)
+                .IsUnicode(false)
                 .HasColumnName("descripcion");
             entity.Property(e => e.FechaRegistro)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone")
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
                 .HasColumnName("fechaRegistro");
             entity.Property(e => e.Nombre)
                 .HasMaxLength(500)
+                .IsUnicode(false)
                 .HasColumnName("nombre");
         });
 
@@ -1919,20 +1993,24 @@ public partial class _context : DbContext
 
             entity.ToTable("tipoEstadoDocumentos");
 
-            entity.Property(e => e.IdTipoEstadoDocumento).HasColumnName("idTipoEstadoDocumento");
+            entity.Property(e => e.IdTipoEstadoDocumento)
+                .ValueGeneratedNever()
+                .HasColumnName("idTipoEstadoDocumento");
             entity.Property(e => e.Activo)
                 .HasDefaultValue(false)
                 .HasColumnName("activo");
             entity.Property(e => e.Codigo).HasColumnName("codigo");
             entity.Property(e => e.Descripcion)
                 .HasMaxLength(500)
+                .IsUnicode(false)
                 .HasColumnName("descripcion");
             entity.Property(e => e.FechaRegistro)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone")
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
                 .HasColumnName("fechaRegistro");
             entity.Property(e => e.Nombre)
                 .HasMaxLength(500)
+                .IsUnicode(false)
                 .HasColumnName("nombre");
         });
 
@@ -1942,20 +2020,24 @@ public partial class _context : DbContext
 
             entity.ToTable("tipoEstadoSri");
 
-            entity.Property(e => e.IdTipoEstadoSri).HasColumnName("idTipoEstadoSri");
+            entity.Property(e => e.IdTipoEstadoSri)
+                .ValueGeneratedNever()
+                .HasColumnName("idTipoEstadoSri");
             entity.Property(e => e.Activo)
                 .HasDefaultValue(false)
                 .HasColumnName("activo");
             entity.Property(e => e.Codigo).HasColumnName("codigo");
             entity.Property(e => e.Descripcion)
                 .HasMaxLength(500)
+                .IsUnicode(false)
                 .HasColumnName("descripcion");
             entity.Property(e => e.FechaRegistro)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone")
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
                 .HasColumnName("fechaRegistro");
             entity.Property(e => e.Nombre)
                 .HasMaxLength(500)
+                .IsUnicode(false)
                 .HasColumnName("nombre");
         });
 
@@ -1966,7 +2048,7 @@ public partial class _context : DbContext
             entity.ToTable("tipoIdentificaciones");
 
             entity.Property(e => e.IdTipoIdentificacion)
-                .HasDefaultValueSql("gen_random_uuid()")
+                .HasDefaultValueSql("(newid())")
                 .HasColumnName("idTipoIdentificacion");
             entity.Property(e => e.Activo)
                 .HasDefaultValue(false)
@@ -1974,13 +2056,15 @@ public partial class _context : DbContext
             entity.Property(e => e.Codigo).HasColumnName("codigo");
             entity.Property(e => e.Descripcion)
                 .HasMaxLength(500)
+                .IsUnicode(false)
                 .HasColumnName("descripcion");
             entity.Property(e => e.FechaRegistro)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone")
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
                 .HasColumnName("fechaRegistro");
             entity.Property(e => e.Nombre)
                 .HasMaxLength(500)
+                .IsUnicode(false)
                 .HasColumnName("nombre");
         });
 
@@ -1991,7 +2075,7 @@ public partial class _context : DbContext
             entity.ToTable("tipoIdentificacionesGeneracionDocumentos");
 
             entity.Property(e => e.IdTipoIdentificacionesGeneracionDocumentos)
-                .HasDefaultValueSql("gen_random_uuid()")
+                .HasDefaultValueSql("(newid())")
                 .HasColumnName("idTipoIdentificacionesGeneracionDocumentos");
             entity.Property(e => e.Activo)
                 .HasDefaultValue(true)
@@ -1999,13 +2083,15 @@ public partial class _context : DbContext
             entity.Property(e => e.Codigo).HasColumnName("codigo");
             entity.Property(e => e.Descripcion)
                 .HasMaxLength(500)
+                .IsUnicode(false)
                 .HasColumnName("descripcion");
             entity.Property(e => e.FechaRegistro)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone")
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
                 .HasColumnName("fechaRegistro");
             entity.Property(e => e.Nombre)
                 .HasMaxLength(500)
+                .IsUnicode(false)
                 .HasColumnName("nombre");
         });
 
@@ -2016,23 +2102,26 @@ public partial class _context : DbContext
             entity.ToTable("tipoNegocios");
 
             entity.Property(e => e.IdTipoNegocio)
-                .HasDefaultValueSql("gen_random_uuid()")
+                .HasDefaultValueSql("(newid())")
                 .HasColumnName("idTipoNegocio");
             entity.Property(e => e.Activo)
                 .HasDefaultValue(false)
                 .HasColumnName("activo");
             entity.Property(e => e.Codigo)
                 .HasMaxLength(500)
+                .IsUnicode(false)
                 .HasColumnName("codigo");
             entity.Property(e => e.Descripcion)
                 .HasMaxLength(500)
+                .IsUnicode(false)
                 .HasColumnName("descripcion");
             entity.Property(e => e.FechaRegistro)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone")
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
                 .HasColumnName("fechaRegistro");
             entity.Property(e => e.Nombre)
                 .HasMaxLength(500)
+                .IsUnicode(false)
                 .HasColumnName("nombre");
         });
 
@@ -2043,7 +2132,7 @@ public partial class _context : DbContext
             entity.ToTable("tipoValorRetenciones");
 
             entity.Property(e => e.IdTipoValorRetencion)
-                .HasDefaultValueSql("gen_random_uuid()")
+                .HasDefaultValueSql("(newid())")
                 .HasColumnName("idTipoValorRetencion");
             entity.Property(e => e.Activo)
                 .HasDefaultValue(true)
@@ -2051,13 +2140,15 @@ public partial class _context : DbContext
             entity.Property(e => e.Codigo).HasColumnName("codigo");
             entity.Property(e => e.Descripcion)
                 .HasMaxLength(500)
+                .IsUnicode(false)
                 .HasColumnName("descripcion");
             entity.Property(e => e.FechaRegistro)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone")
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
                 .HasColumnName("fechaRegistro");
             entity.Property(e => e.Nombre)
                 .HasMaxLength(500)
+                .IsUnicode(false)
                 .HasColumnName("nombre");
         });
 
@@ -2067,19 +2158,15 @@ public partial class _context : DbContext
 
             entity.ToTable("usuarioEmpresas");
 
-            entity.HasIndex(e => e.IdEmpresa, "IX_usuarioEmpresas_idEmpresa");
-
-            entity.HasIndex(e => e.IdUsuario, "IX_usuarioEmpresas_idUsuario");
-
             entity.Property(e => e.IdUsuarioEmpresas)
-                .HasDefaultValueSql("gen_random_uuid()")
+                .HasDefaultValueSql("(newid())")
                 .HasColumnName("idUsuarioEmpresas");
             entity.Property(e => e.Activo)
                 .HasDefaultValue(true)
                 .HasColumnName("activo");
             entity.Property(e => e.FechaRegistro)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone")
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
                 .HasColumnName("fechaRegistro");
             entity.Property(e => e.IdEmpresa).HasColumnName("idEmpresa");
             entity.Property(e => e.IdUsuario).HasColumnName("idUsuario");
@@ -2102,20 +2189,22 @@ public partial class _context : DbContext
             entity.ToTable("usuarios");
 
             entity.Property(e => e.IdUsuario)
-                .HasDefaultValueSql("gen_random_uuid()")
+                .HasDefaultValueSql("(newid())")
                 .HasColumnName("idUsuario");
             entity.Property(e => e.Activo)
                 .HasDefaultValue(true)
                 .HasColumnName("activo");
             entity.Property(e => e.Clave)
                 .HasMaxLength(500)
+                .IsUnicode(false)
                 .HasColumnName("clave");
             entity.Property(e => e.FechaRegistro)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone")
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
                 .HasColumnName("fechaRegistro");
             entity.Property(e => e.Nombre)
                 .HasMaxLength(500)
+                .IsUnicode(false)
                 .HasColumnName("nombre");
         });
 

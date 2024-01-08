@@ -1,6 +1,4 @@
-﻿using Gestion_Administrativa_Api.Dtos.Interfaz;
-using Gestion_Administrativa_Api.Interfaces.Interfaz;
-using Gestion_Administrativa_Api.Models;
+﻿using Gestion_Administrativa_Api.Models;
 using Gestion_Administrativa_Api.Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -49,9 +47,9 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                 string sql = @"SELECT identificacion,""razonSocial"",direccion,telefono,proveedor,email
                                FROM ""SriPersonas""
                                WHERE identificacion IN (SELECT ruc FROM ""SriFacturas""
-                               WHERE compra=TRUE AND ""idEmpresa""=@idEmpresa::uuid
+                               WHERE compra=1 AND ""idEmpresa""=CAST(@idEmpresa AS UNIQUEIDENTIFIER)
                                )";
-                return Ok(await Tools.DataTablePostgresSql(new Tools.DataTableParams
+                return Ok(await Tools.DataTableSql(new Tools.DataTableParams
                 {
                     parameters = new { idEmpresa },
                     query = sql,
@@ -83,7 +81,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
         {
             try
             {
-                _data.Proveedor= true;
+                _data.Proveedor = true;
                 _context.SriPersonas.Update(_data);
                 await _context.SaveChangesAsync();
                 return Ok();

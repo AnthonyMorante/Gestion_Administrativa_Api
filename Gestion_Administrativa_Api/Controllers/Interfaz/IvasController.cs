@@ -1,7 +1,5 @@
 ﻿using Gestion_Administrativa_Api.Interfaces.Interfaz;
-using Gestion_Administrativa_Api.Models;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gestion_Administrativa_Api.Controllers.Interfaz
@@ -15,11 +13,8 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
 
         public IvasController(IIvas IIvas)
         {
-
             _IIvas = IIvas;
-
         }
-
 
         [HttpGet]
         [Route("[action]")]
@@ -27,19 +22,13 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
         {
             try
             {
-
                 var consulta = await _IIvas.listar();
                 return StatusCode(200, consulta);
-
-
             }
             catch (Exception ex)
             {
                 return BadRequest(new { error = "error", exc = ex });
             }
-
         }
-
-
     }
 }

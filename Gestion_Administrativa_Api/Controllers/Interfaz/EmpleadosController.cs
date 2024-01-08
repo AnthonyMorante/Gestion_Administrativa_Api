@@ -56,8 +56,8 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             {
                 var idEmpresa = Tools.getIdEmpresa(HttpContext);
                 string sql = @"SELECT ""idEmpleado"", identificacion, ""razonSocial"", direccion, email, telefono,""idEmpresa"", activo
-                               FROM Empleados WHERE ""idEmpresa""=uuid(@idEmpresa) AND activo=true";
-                return Ok(await Tools.DataTablePostgresSql(new Tools.DataTableParams
+                               FROM Empleados WHERE ""idEmpresa""=CAST(@idEmpresa AS UNIQUEIDENTIFIER) AND activo=1";
+                return Ok(await Tools.DataTableSql(new Tools.DataTableParams
                 {
                     parameters = new { idEmpresa },
                     query = sql,

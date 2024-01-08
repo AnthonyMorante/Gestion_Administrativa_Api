@@ -62,7 +62,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
         public async Task<IActionResult> guardar(FacturaDto? _facturaDto)
         {
             var result = new ObjectResult("");
-            var _dapper = new NpgsqlConnection(cn);
+            IDbConnection _dapper = _context.Database.GetDbConnection();
             try
             {
                 var consultaEmpresa = await _context.Empresas.FindAsync(_facturaDto.idEmpresa);
@@ -134,15 +134,11 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                 result.Value = ex.Message;
                 return result;
             }
-            finally
-            {
-                _dapper.Dispose();
-            }
         }
 
         private async Task<Facturas> _Facturas(string claveAcceso)
         {
-            var _dapper = new NpgsqlConnection(cn);
+            IDbConnection _dapper = _context.Database.GetDbConnection();
             try
             {
                 string sql = @"SELECT * FROM facturas
@@ -165,15 +161,11 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                 await Console.Out.WriteLineAsync(ex.Message);
                 return new Facturas();
             }
-            finally
-            {
-                 _dapper.Dispose();
-            }
         }
 
         private async Task<FacturaDto> _FacturaDto(string claveAcceso)
         {
-            var _dapper = new NpgsqlConnection(cn);
+            IDbConnection _dapper = _context.Database.GetDbConnection();
             try
             {
                 string sql = @"SELECT ""tipoDocumento"" AS ""TipoDocumento"",
@@ -231,10 +223,6 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
             {
                 await Console.Out.WriteLineAsync(ex.Message);
                 return new FacturaDto();
-            }
-            finally
-            {
-                _dapper.Dispose();
             }
         }
 
@@ -307,7 +295,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
 
         public async Task<XmlDocument?> firmarXml(string claveAcceso)
         {
-            var _dapper = new NpgsqlConnection(cn);
+            IDbConnection _dapper = _context.Database.GetDbConnection();
             try
             {
                 var documento = await generarXml(claveAcceso);
@@ -328,10 +316,6 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
             {
                 Console.WriteLine(ex.Message);
                 return null;
-            }
-            finally
-            {
-                _dapper.Dispose();
             }
         }
 

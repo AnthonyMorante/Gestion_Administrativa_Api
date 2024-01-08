@@ -31,10 +31,9 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                                FROM ""lotes"" l
                                INNER JOIN productos p ON p.""idProducto"" = l.""idProducto""
                                INNER JOIN usuarios u ON u.""idUsuario"" = l.""idUsuario""
-                               WHERE p.""idEmpresa""=uuid(@idEmpresa)
-                               ORDER BY ""fechaRegistro"" desc
+                               WHERE p.""idEmpresa""=CAST(@idEmpresa AS UNIQUEIDENTIFIER)
                                 ";
-                return Ok(await Tools.DataTablePostgresSql(new Tools.DataTableParams
+                return Ok(await Tools.DataTableSql(new Tools.DataTableParams
                 {
                     parameters = new { idEmpresa },
                     query = sql,
@@ -56,9 +55,9 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                 var idEmpresa = Guid.Parse(Tools.getIdEmpresa(HttpContext));
                 string sql = @"SELECT p.""idProducto"", p.codigo, p.nombre,p.cantidad
                                 FROM productos p
-                                WHERE p.""activo""=TRUE
-                                AND p.""idEmpresa""=uuid(@idEmpresa)
-                                ORDER BY UPPER(REPLACE(regexp_replace(CAST(p.""nombre"" AS varchar),'\t|\n|\r|\s',''),' ',''))";
+                                WHERE p.""activo""=1
+                                AND p.""idEmpresa""=CAST(@idEmpresa AS UNIQUEIDENTIFIER)
+                                ORDER BY p.nombre";
                 return Ok(await _dapper.QueryAsync(sql, new { idEmpresa }));
             }
             catch (Exception ex)

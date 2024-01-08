@@ -62,7 +62,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                             e.""razonSocial"",e.""telefono"",""ruta"",codigo,e.""idInformacionFirma"",e.""direccionMatriz""
                             FROM empresas e
                             LEFT JOIN ""informacionFirmas"" i ON i.""idInformacionFirma"" = e.""idInformacionFirma""
-                            WHERE ""idEmpresa"" = @idEmpresa::UUID";
+                            WHERE ""idEmpresa"" = CAST(@idEmpresa AS UNIQUEIDENTIFIER)";
                 return await _dapper.QueryFirstOrDefaultAsync<datosSri>(sql, new { idEmpresa });
             }
             catch (Exception ex)

@@ -62,6 +62,7 @@ namespace Gestion_Administrativa_Api.Utilities
             public List<Column> columns { get; set; }
             public Search search { get; set; }
             public List<Order> order { get; set; }
+            public string? parametros { get; set; }
         }
 
         public class Order
@@ -480,76 +481,78 @@ namespace Gestion_Administrativa_Api.Utilities
 
         public static async Task<DataTableResponse> DataTableSql(DataTableParams _dataParams)
         {
-            var _params = _dataParams.dataTableModel;
-            var _dapper = _dataParams.dapperConnection;
-            var busqueda = _params.search.value != null ? _params.search.value : "";
-            var filtro = "";
-            //string sql = $@"SELECT TOP 1 * FROM({_dataParams.query}) as t_t_jclc_f";
-            //var _fila = _dapper.QueryFirstOrDefault(sql);
-            IEnumerable<string> queryParams = _dataParams.dataTableModel.columns.Select(x => x.data).ToList();
-            //if (_fila != null)
-            //{
-            //    IDictionary<string, object> columnas = (IDictionary<string, object>)_fila;
-            //    queryParams= columnas.Keys;
-            //}
+            IDbConnection _dapper = _dataParams.dapperConnection;
+            SqlMapper.Settings.CommandTimeout = 1900;
+            try
+            {
+                var _params = _dataParams.dataTableModel;
+                var busqueda = _params.search.value != null ? _params.search.value : "";
+                var filtro = "";
+                IEnumerable<string> queryParams = _dataParams.dataTableModel.columns.Select(x => x.data).ToList();
+                var orderBy = queryParams.FirstOrDefault();
+                var orderDirection = "";
+                if (_params.order.Count > 0)
+                {
+                    orderBy = _params.columns[_params.order[0].column].data;
+                    orderDirection = _params.order[0].dir;
+                }
+                if (!string.IsNullOrEmpty(busqueda.Trim()))
+                {
+                    busqueda = $"%{busqueda}%";
+                    foreach (var item in queryParams)
+                    {
+                        filtro += filtro == "" ? $" WHERE cast({item} as varchar) COLLATE Latin1_general_CI_AI LIKE @busqueda COLLATE Latin1_general_CI_AI" : $" OR cast({item} as varchar) COLLATE Latin1_general_CI_AI LIKE @busqueda COLLATE Latin1_general_CI_AI ";
+                    }
+                }
+                var parameters = new DynamicParameters();
+                if (!string.IsNullOrEmpty(_dataParams.dataTableModel.parametros))
+                {
+                    foreach (var item in JsonConvert.DeserializeObject<dynamic>(_dataParams.dataTableModel.parametros)) parameters.Add(item.Name, item.Value.Value);
+                }
 
-            var orderBy = queryParams.FirstOrDefault();
-            var orderDirection = "";
-            if (_params.order.Count > 0)
-            {
-                orderBy = _params.columns[_params.order[0].column].data;
-                orderDirection = _params.order[0].dir;
-            }
-            if (!string.IsNullOrEmpty(busqueda.Trim()))
-            {
-                busqueda = $"%{busqueda}%";
-                foreach (var item in queryParams)
+                parameters.Add("busqueda", busqueda);
+                if (_dataParams.parameters != null)
                 {
-                    filtro += filtro == "" ? $" WHERE cast({item} as varchar) COLLATE Latin1_general_CI_AI LIKE @busqueda COLLATE Latin1_general_CI_AI" : $" OR cast({item} as varchar) COLLATE Latin1_general_CI_AI LIKE @busqueda COLLATE Latin1_general_CI_AI ";
+                    var properties = _dataParams.parameters.GetType().GetProperties();
+                    foreach (var property in properties)
+                    {
+                        var key = property.Name;
+                        var value = _dataParams.parameters.GetType().GetProperty(property.Name).GetValue(_dataParams.parameters, null);
+                        parameters.Add(key, value);
+                    }
                 }
-            }
-            var parameters = new DynamicParameters();
-            parameters.Add("busqueda", busqueda);
-            if (_dataParams.parameters != null)
-            {
-                var properties = _dataParams.parameters.GetType().GetProperties();
-                foreach (var property in properties)
-                {
-                    var key = property.Name;
-                    var value = _dataParams.parameters.GetType().GetProperty(property.Name).GetValue(_dataParams.parameters, null);
-                    parameters.Add(key, value);
-                }
-            }
-            string sql = $@"
-                            SELECT TOP {_params.length}  * FROM (
+                string sql = $@"
+                            SELECT * FROM (
                             SELECT ROW_NUMBER() over(order by {orderBy} {orderDirection}) as row,* from(
                             {_dataParams.query}
                             ) as t_t_t_jclc {filtro}
                             ) as t_t_t_jclc_tf
-                            WHERE row >{_params.start}
+                            WHERE row BETWEEN {_params.start} AND {_params.start + _params.length}
                             ";
-
-            var lista = await _dapper.QueryAsync(sql, parameters);
-            //Total Global
-            sql = $@"SELECT COUNT(*)
+                var lista = await _dapper.QueryAsync(sql, parameters);
+                //Total Global
+                sql = $@"SELECT COUNT(*)
                          FROM ({_dataParams.query}) t_t_t_jclc";
-            var recordsTotal = await _dapper.ExecuteScalarAsync<int>(sql, parameters);
-            //Total Filtrado
-            sql = $@" SELECT COUNT(*) FROM (
-                            SELECT ROW_NUMBER() over(order by {orderBy} {orderDirection}) as row,* from(
+                var recordsTotal = await _dapper.ExecuteScalarAsync<int>(sql, parameters);
+                //Total Filtrado
+                sql = $@" SELECT COUNT(*) from(
                             {_dataParams.query}
-                            ) as t_t_t_jclc {filtro}
-                            ) as t_t_t_jclc_tf
+                            ) as t_t_t_jclc_tf {filtro}
                         ";
-            var recordsFiltered = await _dapper.ExecuteScalarAsync<int>(sql, parameters);
-            //Modelo DataTable Server Side
-            return new DataTableResponse
+                var recordsFiltered = await _dapper.ExecuteScalarAsync<int>(sql, parameters);
+                //Modelo DataTable Server Side
+                return new DataTableResponse
+                {
+                    draw = Convert.ToInt32(_params.draw),
+                    recordsTotal = recordsTotal,
+                    data = lista,
+                    recordsFiltered = recordsFiltered,
+                };
+            }
+            catch (Exception)
             {
-                draw = Convert.ToInt32(_params.draw),
-                recordsTotal = recordsTotal,
-                data = lista,
-                recordsFiltered = recordsFiltered,
-            };
+                throw;
+            }
         }
 
         public static async Task<DataTableResponse> DataTablePostgresSql(DataTableParams _dataParams)
