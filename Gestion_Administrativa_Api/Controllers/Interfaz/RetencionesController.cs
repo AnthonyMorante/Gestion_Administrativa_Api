@@ -5,6 +5,7 @@ using Gestion_Administrativa_Api.Models;
 using Gestion_Administrativa_Api.Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Data;
 
 namespace Gestion_Administrativa_Api.Controllers
@@ -17,10 +18,10 @@ namespace Gestion_Administrativa_Api.Controllers
         private readonly IDbConnection _dapper;
         private readonly _context _context;
 
-        public RetencionesController(IRetenciones IRetenciones, IDbConnection db, _context context)
+        public RetencionesController(IRetenciones IRetenciones, _context context)
         {
             _IRetenciones = IRetenciones;
-            _dapper = db;
+            _dapper = context.Database.GetDbConnection();
             _context = context;
         }
 

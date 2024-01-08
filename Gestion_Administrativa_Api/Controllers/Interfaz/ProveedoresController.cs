@@ -2,6 +2,7 @@
 using Gestion_Administrativa_Api.Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Data;
 
 namespace Gestion_Administrativa_Api.Controllers.Interfaz
@@ -14,10 +15,10 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
         private readonly _context _context;
         private readonly IDbConnection _dapper;
 
-        public ProveedoresController(_context context, IDbConnection db)
+        public ProveedoresController(_context context)
         {
-            _dapper = db;
             _context = context;
+            _dapper = context.Database.GetDbConnection();
         }
 
         //[HttpPost]

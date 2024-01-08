@@ -19,10 +19,10 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
         private readonly IDbConnection _dapper;
         private readonly _context _context;
 
-        public ProductosController(IProductos IProductos, IDbConnection dapper, _context context)
+        public ProductosController(IProductos IProductos, _context context)
         {
             _IProductos = IProductos;
-            _dapper = dapper;
+            _dapper = context.Database.GetDbConnection();
             _context = context;
         }
 

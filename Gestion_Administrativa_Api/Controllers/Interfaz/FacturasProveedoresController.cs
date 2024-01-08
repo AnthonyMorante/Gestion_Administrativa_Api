@@ -12,18 +12,17 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
     public class FacturasProveedoresController : ControllerBase
     {
         private readonly _context _context;
-        private readonly string cn;
+        private readonly IDbConnection _dapper;
 
         public FacturasProveedoresController(_context context)
         {
             _context = context;
-            cn = Tools.config!.GetConnectionString("cn")!;
+            _dapper = context.Database.GetDbConnection();
         }
 
         [HttpPost]
         public async Task<IActionResult> listar([FromBody] Tools.DataTableModel? _params)
         {
-            IDbConnection _dapper = _context.Database.GetDbConnection();
             try
             {
                 var idEmpresa = Guid.Parse(Tools.getIdEmpresa(HttpContext));
@@ -94,7 +93,6 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
         [HttpPost]
         public async Task<IActionResult> guardar(FacturaProveedor _data)
         {
-            IDbConnection _dapper = _context.Database.GetDbConnection();
             try
             {
                 var _factura = _data.factura;
@@ -197,10 +195,6 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             catch (Exception ex)
             {
                 return Tools.handleError(ex);
-            }
-            finally
-            {
-                _dapper.Close();
             }
         }
 

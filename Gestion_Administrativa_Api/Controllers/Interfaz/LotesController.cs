@@ -3,6 +3,7 @@ using Gestion_Administrativa_Api.Models;
 using Gestion_Administrativa_Api.Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Data;
 
 namespace Gestion_Administrativa_Api.Controllers.Interfaz
@@ -15,10 +16,10 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
         private readonly _context _context;
         private readonly IDbConnection _dapper;
 
-        public LotesController(_context context, IDbConnection dapper)
+        public LotesController(_context context)
         {
             _context = context;
-            _dapper = dapper;
+            _dapper = context.Database.GetDbConnection();
         }
 
         [HttpPost]

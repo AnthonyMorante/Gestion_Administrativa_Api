@@ -43,6 +43,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                 return Tools.handleError(ex);
             }
         }
+
         [HttpGet]
         public async Task<IActionResult> aperturaDia()
         {
@@ -51,7 +52,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                 var idEmpresa = Guid.Parse(Tools.getIdEmpresa(HttpContext));
                 string sql = @"SELECT COUNT(*) FROM Cajas WHERE idEmpresa=@idEmpresa
                             AND CAST(fechaRegistro AS DATE)=CAST(getdate() AS DATE)";
-                return Ok(await _dapper.ExecuteScalarAsync<int>(sql, new {idEmpresa}) > 0);
+                return Ok(await _dapper.ExecuteScalarAsync<int>(sql, new { idEmpresa }) > 0);
             }
             catch (Exception ex)
             {
@@ -70,11 +71,11 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                                 CASE WHEN dc.total IS NULL THEN 0 ELSE dc.total END  AS total,
                                 CASE WHEN dc.cantidad IS NULL THEN 0 ELSE dc.cantidad END AS cantidad
                                 FROM DenominacionesDinero d
-                                INNER JOIN TiposDenominacionesDinero t ON t.idTipoDenominacion = d.idTipoDenominacion 
+                                INNER JOIN TiposDenominacionesDinero t ON t.idTipoDenominacion = d.idTipoDenominacion
                                 LEFT JOIN DetallesCajas dc ON dc.idDenominacion = d.idDenominacion AND dc.idCaja = @idCaja
                                 WHERE d.activo = 1
                                 ORDER BY d.valor";
-                return Ok(await _dapper.QueryAsync(sql, new {idCaja}));
+                return Ok(await _dapper.QueryAsync(sql, new { idCaja }));
             }
             catch (Exception ex)
             {
@@ -92,13 +93,13 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                                 CASE WHEN dc.total IS NULL THEN 0 ELSE dc.total END  AS total,
                                 CASE WHEN dc.cantidad IS NULL THEN 0 ELSE dc.cantidad END AS cantidad
                                 FROM DenominacionesDinero d
-                                INNER JOIN TiposDenominacionesDinero t ON t.idTipoDenominacion = d.idTipoDenominacion 
+                                INNER JOIN TiposDenominacionesDinero t ON t.idTipoDenominacion = d.idTipoDenominacion
                                 LEFT JOIN DetallesCajas dc ON dc.idDenominacion = d.idDenominacion AND dc.idCaja = @idCaja
                                 WHERE d.activo = 1
                                 ORDER BY d.valor";
                 var detalleCaja = await _dapper.QueryAsync(sql, new { idCaja });
-                var caja = await _context.Cajas.AsNoTracking().Where(x=>x.IdCaja==idCaja).FirstOrDefaultAsync();
-                return Ok(new {detalleCaja,caja});
+                var caja = await _context.Cajas.AsNoTracking().Where(x => x.IdCaja == idCaja).FirstOrDefaultAsync();
+                return Ok(new { detalleCaja, caja });
             }
             catch (Exception ex)
             {
@@ -111,22 +112,21 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
         {
             try
             {
-                _data.IdEmpresa= Guid.Parse(Tools.getIdEmpresa(HttpContext));
+                _data.IdEmpresa = Guid.Parse(Tools.getIdEmpresa(HttpContext));
                 _data.FechaRegistro = DateTime.Now;
-                if(_data.IdCaja==0) _context.Cajas.Add(_data);
+                if (_data.IdCaja == 0) _context.Cajas.Add(_data);
                 else _context.Cajas.Update(_data);
                 await _context.SaveChangesAsync();
                 return Ok();
             }
             catch (Exception ex)
             {
-
                 return Tools.handleError(ex);
             }
         }
 
         [HttpPost]
-        public async Task<IActionResult> guardarCierre([FromBody]Cajas _data)
+        public async Task<IActionResult> guardarCierre([FromBody] Cajas _data)
         {
             try
             {
@@ -140,7 +140,6 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             }
             catch (Exception ex)
             {
-
                 return Tools.handleError(ex);
             }
         }
@@ -150,9 +149,9 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
         {
             try
             {
-                string sql = @"DELETE FROM DetallesCajas 
+                string sql = @"DELETE FROM DetallesCajas
                                 WHERE idCaja=@idCaja;
-                                DELETE FROM Cajas 
+                                DELETE FROM Cajas
                                 WHERE idCaja=@idCaja;
                                 ";
                 await _dapper.ExecuteAsync(sql, new { idCaja });
@@ -160,10 +159,8 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             }
             catch (Exception ex)
             {
-
                 return Tools.handleError(ex);
             }
         }
-    
     }
 }

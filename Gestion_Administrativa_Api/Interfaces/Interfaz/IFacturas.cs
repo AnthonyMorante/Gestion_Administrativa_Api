@@ -6,19 +6,14 @@ using Gestion_Administrativa_Api.Models;
 using Gestion_Administrativa_Api.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using NetBarcode;
 using Rotativa.AspNetCore;
 using System.Data;
-using System.Drawing;
+using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Serialization;
 using static Gestion_Administrativa_Api.Documents_Models.Factura.factura_V100;
-using NetBarcode;
-using Microsoft.CodeAnalysis.FlowAnalysis.DataFlow;
-using System.Security.Cryptography.Xml;
-using Microsoft.AspNetCore.Http.HttpResults;
-using System.Text;
-using Npgsql;
 
 namespace Gestion_Administrativa_Api.Interfaces.Interfaz
 {
@@ -48,7 +43,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
         private readonly IUtilidades _IUtilidades;
         private readonly IConfiguration _configuration;
         private factura_V1_0_0? _factura_V1_0_0;
-        private readonly string cn;
+        private readonly IDbConnection _dapper;
 
         public FacturasI(_context context, IMapper mapper, IUtilidades iUtilidades, IConfiguration configuration)
         {
@@ -56,13 +51,12 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
             _mapper = mapper;
             _IUtilidades = iUtilidades;
             _configuration = configuration;
-            cn = Tools.config!.GetConnectionString("cn")!;
+            _dapper = context.Database.GetDbConnection();
         }
 
         public async Task<IActionResult> guardar(FacturaDto? _facturaDto)
         {
             var result = new ObjectResult("");
-            IDbConnection _dapper = _context.Database.GetDbConnection();
             try
             {
                 var consultaEmpresa = await _context.Empresas.FindAsync(_facturaDto.idEmpresa);
@@ -138,7 +132,6 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
 
         private async Task<Facturas> _Facturas(string claveAcceso)
         {
-            IDbConnection _dapper = _context.Database.GetDbConnection();
             try
             {
                 string sql = @"SELECT * FROM facturas
@@ -165,7 +158,6 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
 
         private async Task<FacturaDto> _FacturaDto(string claveAcceso)
         {
-            IDbConnection _dapper = _context.Database.GetDbConnection();
             try
             {
                 string sql = @"SELECT ""tipoDocumento"" AS ""TipoDocumento"",
@@ -295,7 +287,6 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
 
         public async Task<XmlDocument?> firmarXml(string claveAcceso)
         {
-            IDbConnection _dapper = _context.Database.GetDbConnection();
             try
             {
                 var documento = await generarXml(claveAcceso);

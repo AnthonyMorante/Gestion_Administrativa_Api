@@ -49,7 +49,7 @@ IConfiguration config = new ConfigurationBuilder()
 builder.Services.AddDbContextPool<_context>(options =>
 options.UseSqlServer(config.GetConnectionString("cn")));
 
-builder.Services.AddScoped<IDbConnection>(db => new SqlConnection(config.GetConnectionString("cn")));
+//builder.Services.AddScoped<IDbConnection>(db => new SqlConnection(config.GetConnectionString("cn")));
 
 // Add services to the container.
 

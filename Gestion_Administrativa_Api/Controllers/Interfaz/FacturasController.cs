@@ -19,21 +19,19 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
         private readonly IFacturas _IFacturas;
         private readonly IUtilidades _IUtilidades;
         private readonly _context _context;
-        private readonly string cn;
+        private readonly IDbConnection _dapper;
 
         public FacturasController(IFacturas IFacturas, _context context, IUtilidades IUtilidades)
         {
             _IFacturas = IFacturas;
             _context = context;
             _IUtilidades = IUtilidades;
-            cn = Tools.config!.GetConnectionString("cn")!;
+            _dapper = _context.Database.GetDbConnection();
         }
 
         [HttpPost]
         public async Task<IActionResult> listar([FromBody] Tools.DataTableModel? _params)
         {
-            IDbConnection _dapper = _context.Database.GetDbConnection();
-
             try
             {
                 var idEmpresa = Tools.getIdEmpresa(HttpContext);
@@ -69,7 +67,6 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
         [HttpGet]
         public async Task<IActionResult> secuenciales()
         {
-            IDbConnection _dapper = _context.Database.GetDbConnection();
             try
             {
                 var idEmpresa = Tools.getIdEmpresa(HttpContext);
@@ -110,7 +107,6 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
         [HttpGet("{claveAcceso}")]
         public async Task<IActionResult> reenviar(string claveAcceso)
         {
-            IDbConnection _dapper = _context.Database.GetDbConnection();
             try
             {
                 var enviado = await _IFacturas.enviarSri(claveAcceso);
@@ -196,7 +192,6 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
 
         private async Task<FacturaDto> procesarFactura(FacturaDto? _facturaDto)
         {
-            IDbConnection _dapper = _context.Database.GetDbConnection();
             try
             {
                 _facturaDto.idEmpresa = new Guid(Tools.getIdEmpresa(HttpContext));
@@ -286,7 +281,6 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
         [HttpGet]
         public async Task<IActionResult> tiposDocumentos()
         {
-            IDbConnection _dapper = _context.Database.GetDbConnection();
             try
             {
                 string sql = @"
@@ -305,7 +299,6 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
         [HttpGet]
         public async Task<IActionResult> puntosEmisiones()
         {
-            IDbConnection _dapper = _context.Database.GetDbConnection();
             try
             {
                 var idEmpresa = Tools.getIdEmpresa(HttpContext);
@@ -324,7 +317,6 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
         [HttpGet]
         public async Task<IActionResult> establecimientos()
         {
-            IDbConnection _dapper = _context.Database.GetDbConnection();
             try
             {
                 var idEmpresa = Tools.getIdEmpresa(HttpContext);
@@ -344,7 +336,6 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
         [HttpGet]
         public async Task<IActionResult> formaPagos()
         {
-            IDbConnection _dapper = _context.Database.GetDbConnection();
             try
             {
                 string sql = @"SELECT * FROM ""formaPagos""
@@ -362,7 +353,6 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
         [HttpGet]
         public async Task<IActionResult> tiempoFormaPagos()
         {
-            IDbConnection _dapper = _context.Database.GetDbConnection();
             try
             {
                 string sql = @"SELECT * FROM ""tiempoFormaPagos""
@@ -379,7 +369,6 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
         [HttpGet]
         public async Task<IActionResult> listaProductos()
         {
-            IDbConnection _dapper = _context.Database.GetDbConnection();
             try
             {
                 var idEmpresa = Tools.getIdEmpresa(HttpContext);
@@ -408,7 +397,6 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
         [HttpGet]
         public async Task<IActionResult> listaPreciosProductos()
         {
-            IDbConnection _dapper = _context.Database.GetDbConnection();
             try
             {
                 var idEmpresa = Tools.getIdEmpresa(HttpContext);
@@ -435,7 +423,6 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
         [Route("{identificacion}")]
         public async Task<IActionResult> buscarCliente(string identificacion)
         {
-            IDbConnection _dapper = _context.Database.GetDbConnection();
             try
             {
                 var idEmpresa = Tools.getIdEmpresa(HttpContext);
@@ -454,7 +441,6 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
         [HttpGet]
         public IActionResult verificarEstados()
         {
-            IDbConnection _dapper = _context.Database.GetDbConnection();
             try
             {
                 var idEmpresa = Tools.getIdEmpresa(HttpContext);
