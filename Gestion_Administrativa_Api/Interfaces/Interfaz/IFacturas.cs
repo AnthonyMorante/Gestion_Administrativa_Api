@@ -200,7 +200,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                         INNER JOIN ""tiempoFormaPagos"" tfp ON dfp.""idTiempoFormaPago"" =tfp.""idTiempoFormaPago""
                         WHERE dfp.""idFactura""=@idFactura;";
                 factura.formaPago = await _dapper.QueryAsync<formaPagoDto>(sql, new { idFactura });
-                sql = @"SELECT cast(""idDetalleFactura"" AS varchar) AS ""idDetallePrecioProducto"",
+                sql = @"SELECT cast(""idDetalleFactura"" AS varchar(max)) AS ""idDetallePrecioProducto"",
                         df.""idIva"",df.""idProducto"",
                         p.nombre,i.nombre  AS ""nombrePorcentaje"",
                         df.cantidad,i.codigo,df.descuento,
@@ -222,7 +222,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
             catch (Exception ex)
             {
                 await Console.Out.WriteLineAsync(ex.Message);
-                return new FacturaDto();
+                throw;
             }
         }
 
@@ -315,7 +315,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                return null;
+                throw;
             }
         }
 
@@ -344,7 +344,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                return "";
+                throw;
             }
         }
 
@@ -383,6 +383,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 throw;
             }
         }

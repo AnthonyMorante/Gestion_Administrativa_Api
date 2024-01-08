@@ -11,9 +11,13 @@ public partial class _context : DbContext
     {
     }
 
+    public virtual DbSet<Cajas> Cajas { get; set; }
+
     public virtual DbSet<Ciudades> Ciudades { get; set; }
 
     public virtual DbSet<Clientes> Clientes { get; set; }
+
+    public virtual DbSet<DenominacionesDinero> DenominacionesDinero { get; set; }
 
     public virtual DbSet<DetalleFacturas> DetalleFacturas { get; set; }
 
@@ -22,6 +26,10 @@ public partial class _context : DbContext
     public virtual DbSet<DetallePrecioProductos> DetallePrecioProductos { get; set; }
 
     public virtual DbSet<DetalleProformas> DetalleProformas { get; set; }
+
+    public virtual DbSet<DetallesCajas> DetallesCajas { get; set; }
+
+    public virtual DbSet<DetallesCajasCierres> DetallesCajasCierres { get; set; }
 
     public virtual DbSet<DocumentosEmitir> DocumentosEmitir { get; set; }
 
@@ -117,12 +125,44 @@ public partial class _context : DbContext
 
     public virtual DbSet<TipoValorRetenciones> TipoValorRetenciones { get; set; }
 
+    public virtual DbSet<TiposDenominacionesDinero> TiposDenominacionesDinero { get; set; }
+
     public virtual DbSet<UsuarioEmpresas> UsuarioEmpresas { get; set; }
 
     public virtual DbSet<Usuarios> Usuarios { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.UseCollation("Modern_Spanish_CI_AS");
+
+        modelBuilder.Entity<Cajas>(entity =>
+        {
+            entity.HasKey(e => e.IdCaja).HasName("PK__Cajas__8BC79B34440E38E5");
+
+            entity.Property(e => e.IdCaja).HasColumnName("idCaja");
+            entity.Property(e => e.Detallado)
+                .HasDefaultValue(false)
+                .HasColumnName("detallado");
+            entity.Property(e => e.FechaCierre)
+                .HasColumnType("datetime")
+                .HasColumnName("fechaCierre");
+            entity.Property(e => e.FechaRegistro)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
+                .HasColumnName("fechaRegistro");
+            entity.Property(e => e.IdEmpresa).HasColumnName("idEmpresa");
+            entity.Property(e => e.TotalApertura)
+                .HasColumnType("decimal(10, 2)")
+                .HasColumnName("totalApertura");
+            entity.Property(e => e.TotalCierre)
+                .HasColumnType("decimal(10, 2)")
+                .HasColumnName("totalCierre");
+
+            entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.Cajas)
+                .HasForeignKey(d => d.IdEmpresa)
+                .HasConstraintName("FK__Cajas__idEmpresa__3AB788A8");
+        });
+
         modelBuilder.Entity<Ciudades>(entity =>
         {
             entity.HasKey(e => e.IdCiudad).HasName("ciudades_pkey");
@@ -205,6 +245,31 @@ public partial class _context : DbContext
             entity.HasOne(d => d.IdTipoIdentificacionNavigation).WithMany(p => p.Clientes)
                 .HasForeignKey(d => d.IdTipoIdentificacion)
                 .HasConstraintName("clientes_idTipoIdentificacion_fkey");
+        });
+
+        modelBuilder.Entity<DenominacionesDinero>(entity =>
+        {
+            entity.HasKey(e => e.IdDenominacion).HasName("PK__Denomina__80C12401D636482D");
+
+            entity.Property(e => e.IdDenominacion).HasColumnName("idDenominacion");
+            entity.Property(e => e.Activo)
+                .HasDefaultValue(true)
+                .HasColumnName("activo");
+            entity.Property(e => e.IdTipoDenominacion)
+                .HasMaxLength(1)
+                .IsUnicode(false)
+                .HasColumnName("idTipoDenominacion");
+            entity.Property(e => e.Nombre)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("nombre");
+            entity.Property(e => e.Valor)
+                .HasColumnType("decimal(5, 2)")
+                .HasColumnName("valor");
+
+            entity.HasOne(d => d.IdTipoDenominacionNavigation).WithMany(p => p.DenominacionesDinero)
+                .HasForeignKey(d => d.IdTipoDenominacion)
+                .HasConstraintName("FK__Denominac__idTip__4BE214AA");
         });
 
         modelBuilder.Entity<DetalleFacturas>(entity =>
@@ -352,6 +417,48 @@ public partial class _context : DbContext
                 .HasForeignKey(d => d.IdProforma)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("idProforma");
+        });
+
+        modelBuilder.Entity<DetallesCajas>(entity =>
+        {
+            entity.HasKey(e => e.IdDetalleCaja).HasName("PK__Detalles__0D031FF916F49A74");
+
+            entity.Property(e => e.IdDetalleCaja).HasColumnName("idDetalleCaja");
+            entity.Property(e => e.Cantidad).HasColumnName("cantidad");
+            entity.Property(e => e.IdCaja).HasColumnName("idCaja");
+            entity.Property(e => e.IdDenominacion).HasColumnName("idDenominacion");
+            entity.Property(e => e.Total)
+                .HasColumnType("decimal(10, 2)")
+                .HasColumnName("total");
+
+            entity.HasOne(d => d.IdCajaNavigation).WithMany(p => p.DetallesCajas)
+                .HasForeignKey(d => d.IdCaja)
+                .HasConstraintName("FK__DetallesC__idCaj__4EBE8155");
+
+            entity.HasOne(d => d.IdDenominacionNavigation).WithMany(p => p.DetallesCajas)
+                .HasForeignKey(d => d.IdDenominacion)
+                .HasConstraintName("FK__DetallesC__idDen__4FB2A58E");
+        });
+
+        modelBuilder.Entity<DetallesCajasCierres>(entity =>
+        {
+            entity.HasKey(e => e.IdDetalleCajaCierre).HasName("PK__Detalles__B96398E0F455CA0C");
+
+            entity.Property(e => e.IdDetalleCajaCierre).HasColumnName("idDetalleCajaCierre");
+            entity.Property(e => e.Cantidad).HasColumnName("cantidad");
+            entity.Property(e => e.IdCaja).HasColumnName("idCaja");
+            entity.Property(e => e.IdDenominacion).HasColumnName("idDenominacion");
+            entity.Property(e => e.Total)
+                .HasColumnType("decimal(10, 2)")
+                .HasColumnName("total");
+
+            entity.HasOne(d => d.IdCajaNavigation).WithMany(p => p.DetallesCajasCierres)
+                .HasForeignKey(d => d.IdCaja)
+                .HasConstraintName("FK__DetallesC__idCaj__528F1239");
+
+            entity.HasOne(d => d.IdDenominacionNavigation).WithMany(p => p.DetallesCajasCierres)
+                .HasForeignKey(d => d.IdDenominacion)
+                .HasConstraintName("FK__DetallesC__idDen__53833672");
         });
 
         modelBuilder.Entity<DocumentosEmitir>(entity =>
@@ -2150,6 +2257,23 @@ public partial class _context : DbContext
                 .HasMaxLength(500)
                 .IsUnicode(false)
                 .HasColumnName("nombre");
+        });
+
+        modelBuilder.Entity<TiposDenominacionesDinero>(entity =>
+        {
+            entity.HasKey(e => e.IdTipoDenominacion).HasName("PK__TiposDen__438C6E7F112628AC");
+
+            entity.Property(e => e.IdTipoDenominacion)
+                .HasMaxLength(1)
+                .IsUnicode(false)
+                .HasColumnName("idTipoDenominacion");
+            entity.Property(e => e.Activo)
+                .HasDefaultValue(true)
+                .HasColumnName("activo");
+            entity.Property(e => e.Tipo)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .HasColumnName("tipo");
         });
 
         modelBuilder.Entity<UsuarioEmpresas>(entity =>
