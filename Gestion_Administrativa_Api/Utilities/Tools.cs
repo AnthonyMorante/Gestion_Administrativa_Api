@@ -501,7 +501,7 @@ namespace Gestion_Administrativa_Api.Utilities
                     busqueda = $"%{busqueda}%";
                     foreach (var item in queryParams)
                     {
-                        filtro += filtro == "" ? $" WHERE cast({item} as varchar(max)) COLLATE Latin1_general_CI_AI LIKE @busqueda COLLATE Latin1_general_CI_AI" : $" OR cast({item} as varchar(max)) COLLATE Latin1_general_CI_AI LIKE @busqueda COLLATE Latin1_general_CI_AI ";
+                        filtro += filtro == "" ? $" WHERE replace(replace(replace(cast({item} as varchar(max)),char(9),''),char(13),''),char(10),'') COLLATE Latin1_general_CI_AI LIKE @busqueda COLLATE Latin1_general_CI_AI" : $" OR replace(replace(replace(cast({item} as varchar(max)),char(9),''),char(13),''),char(10),'') COLLATE Latin1_general_CI_AI LIKE @busqueda COLLATE Latin1_general_CI_AI ";
                     }
                 }
                 var parameters = new DynamicParameters();
