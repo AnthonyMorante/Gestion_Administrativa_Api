@@ -44,7 +44,7 @@ namespace Gestion_Administrativa_Api.Dtos.Interfaz
             public decimal? baseImponible { get; set; }
             public decimal? porcentajeRetener { get; set; }
             public decimal? valorRetenido { get; set; }
-            public string? codDocSustento { get; set; }
+            public string? codDocSustento { get; set; } = "01";
             public string? numDocSustento { get; set; }
             public string? fechaEmisionDocSustento { get; set; }
         }

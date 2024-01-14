@@ -4,6 +4,7 @@ using Gestion_Administrativa_Api.Documents_Models.Retencion;
 using Gestion_Administrativa_Api.Dtos.Interfaz;
 using Gestion_Administrativa_Api.Models;
 using static Gestion_Administrativa_Api.Documents_Models.Factura.factura_V100;
+using static Gestion_Administrativa_Api.Dtos.Interfaz.RetencionDto;
 
 namespace Gestion_Administrativa_Api.AutoMapper
 {
@@ -252,7 +253,24 @@ namespace Gestion_Administrativa_Api.AutoMapper
             .ForMember(dest => dest.CodigoDocumento, opt => opt.MapFrom(src => 7))
             .ForMember(dest => dest.RazonSocialSujetoRetenido, opt => opt.MapFrom(src => src.razonSocialSujetoRetenido))
             .ForMember(dest => dest.ObligadoContabilidad, opt => opt.MapFrom(src => true));
+
             #endregion
+
+            #region InformacionAdicionalRetenciones
+
+            CreateMap<InfoAdicional, InformacionAdicionalRetencion>();
+
+            #endregion
+
+
+            #region InformacionAdicionalRetenciones
+
+            CreateMap<Impuesto, ImpuestoRetenciones>();
+
+            #endregion
+
+
+
 
         }
 
