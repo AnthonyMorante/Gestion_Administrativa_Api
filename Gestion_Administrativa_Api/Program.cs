@@ -10,12 +10,9 @@ using Gestion_Administrativa_Api.Utilities;
 using IdentityServer4.Models;
 using IdentityServer4.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Npgsql;
 using Rotativa.AspNetCore;
-using System.Data;
 using System.Security.Cryptography;
 using System.Text.Json.Serialization;
 using Wkhtmltopdf.NetCore;
@@ -101,7 +98,7 @@ builder.Services.AddAuthentication(options =>
 {
     options.Authority = config.GetConnectionString("IdentityServerAuthentication");
     options.RequireHttpsMetadata = false;
-    options.JwtValidationClockSkew = TimeSpan.FromHours(5);
+    options.JwtValidationClockSkew = TimeSpan.FromHours(24);
 });
 
 builder.Services.AddScoped<IProfileService, ProfileService>();
@@ -153,6 +150,6 @@ app.UseAuthorization();
 app.UseIdentityServer();
 app.MapControllers();
 app.UseCors("cors");
-string wwwroot = app.Environment.WebRootPath;
-RotativaConfiguration.Setup(wwwroot, "Rotativa/Windows");
+//string wwwroot = app.Environment.WebRootPath;
+RotativaConfiguration.Setup(app.Environment.WebRootPath);
 app.Run();

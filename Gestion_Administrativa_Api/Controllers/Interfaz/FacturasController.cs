@@ -232,15 +232,15 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
 
                 await _context.SaveChangesAsync();
                 _facturaDto.idCliente = cliente.IdCliente;
-                _facturaDto.idDocumentoEmitir = (await _context.DocumentosEmitir.AsNoTracking().Where(x => x.IdTipoDocumento == _facturaDto.idTipoDocumento).FirstOrDefaultAsync()).IdDocumentoEmitir;
+                _facturaDto.idDocumentoEmitir = (await _context.DocumentosEmitir.AsNoTracking().Where(x => x.IdTipoDocumento == _facturaDto.idTipoDocumento && x.Activo==true).FirstOrDefaultAsync()).IdDocumentoEmitir;
                 sql = @"SELECT ""nombre""
                         FROM ""establecimientos""
-                        WHERE ""idEstablecimiento""=uuid(@idEstablecimiento)
+                        WHERE ""idEstablecimiento""=@idEstablecimiento
                         ";
                 _facturaDto.establecimiento = Convert.ToInt32(await _dapper.ExecuteScalarAsync<string>(sql, _facturaDto)).ToString("D3");
                 sql = @"SELECT ""nombre""
                     FROM ""puntoEmisiones""
-                    WHERE ""idPuntoEmision""=uuid(@idPuntoEmision)
+                    WHERE ""idPuntoEmision""=@idPuntoEmision
                     ";
                 _facturaDto.puntoEmision = Convert.ToInt32(await _dapper.ExecuteScalarAsync<string>(sql, _facturaDto)).ToString("D3");
                 sql = @"SELECT ""nombre""
@@ -252,7 +252,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                 _facturaDto.idFormaPago = _facturaDto.formaPago.FirstOrDefault().idFormaPago;
                 sql = @"SELECT codigo FROM clientes c
                    INNER JOIN ""tipoIdentificaciones"" ti ON ti.""idTipoIdentificacion""=c.""idTipoIdentificacion""
-                   WHERE ""idCliente""=uuid(@idCliente);";
+                   WHERE ""idCliente""=@idCliente;";
                 _facturaDto.codigoTipoIdentificacion = await _dapper.ExecuteScalarAsync<int>(sql, _facturaDto);
                 return _facturaDto;
             }
@@ -287,6 +287,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                             SELECT * FROM ""tipoDocumentos""
                             WHERE codigo in(1,0)
                             AND activo=1
+                            ORDER BY codigo DESC
                             ";
                 return Ok(await _dapper.QueryAsync(sql));
             }
@@ -447,13 +448,13 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                 string sql = @"SELECT COUNT(""claveAcceso"")
                                 FROM facturas f
                                 INNER JOIN ""usuarioEmpresas"" ue ON ue.""idUsuario"" = f.""idUsuario""
-                                WHERE (""idTipoEstadoSri"" NOT IN(2,3,4,5) OR (""correoEnviado""=FALSE AND ""idTipoEstadoSri""=2))
+                                WHERE (""idTipoEstadoSri"" NOT IN(2,3,4,5) OR (""correoEnviado""=0 AND ""idTipoEstadoSri""=2))
                                 AND ""idEmpresa""= CAST(@idEmpresa AS UNIQUEIDENTIFIER)";
                 if (_dapper.ExecuteScalar<int>(sql, new { idEmpresa }) == 0) return Ok("empty");
                 sql = @"SELECT ""claveAcceso""
                               FROM facturas f
                               INNER JOIN establecimientos e ON e.""idEstablecimiento"" = f.""idEstablecimiento""
-                              WHERE ""idTipoEstadoSri"" IN (1,6,0) OR (""correoEnviado""=FALSE AND ""idTipoEstadoSri""=2)
+                              WHERE ""idTipoEstadoSri"" IN (1,6,0) OR (""correoEnviado""=0 AND ""idTipoEstadoSri""=2)
                               AND ""idEmpresa""=CAST(@idEmpresa AS UNIQUEIDENTIFIER)
                             ;
                             ";
