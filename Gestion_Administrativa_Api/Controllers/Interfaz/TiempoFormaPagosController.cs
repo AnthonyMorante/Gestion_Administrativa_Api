@@ -1,5 +1,4 @@
 ﻿using Gestion_Administrativa_Api.Interfaces.Interfaz;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gestion_Administrativa_Api.Controllers.Interfaz
@@ -8,16 +7,12 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
     [ApiController]
     public class TiempoFormaPagosController : ControllerBase
     {
-
         private readonly ITiempoFormaPagos _ITiempoFormaPagos;
 
         public TiempoFormaPagosController(ITiempoFormaPagos ITiempoFormaPagos)
         {
-
             _ITiempoFormaPagos = ITiempoFormaPagos;
-
         }
-
 
         [HttpGet]
         [Route("[action]")]
@@ -25,17 +20,13 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
         {
             try
             {
-
                 var consulta = await _ITiempoFormaPagos.listar();
                 return StatusCode(200, consulta);
-
-
             }
             catch (Exception ex)
             {
                 return BadRequest(new { error = "error", exc = ex });
             }
-
         }
     }
 }

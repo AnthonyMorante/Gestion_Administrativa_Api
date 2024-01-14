@@ -4,6 +4,7 @@ using Gestion_Administrativa_Api.Models;
 using Gestion_Administrativa_Api.Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Data;
 
 namespace Gestion_Administrativa_Api.Controllers.Interfaz
@@ -16,10 +17,10 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
         private readonly IClientes _IClientes;
         private readonly IDbConnection _dapper;
 
-        public ClientesController(IClientes IClientes, IDbConnection dapper)
+        public ClientesController(IClientes IClientes, _context context)
         {
             _IClientes = IClientes;
-            _dapper = dapper;
+            _dapper = context.Database.GetDbConnection();
         }
 
         [HttpPost]
@@ -52,8 +53,8 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             {
                 var idEmpresa = Tools.getIdEmpresa(HttpContext);
                 string sql = @"SELECT ""idCliente"", identificacion, ""razonSocial"", direccion, email, telefono,""idEmpresa"", activo
-                               FROM Clientes WHERE ""idEmpresa""=uuid(@idEmpresa) AND activo=true";
-                return Ok(await Tools.DataTablePostgresSql(new Tools.DataTableParams
+                               FROM Clientes WHERE ""idEmpresa""=CAST(@idEmpresa AS UNIQUEIDENTIFIER) AND activo=1";
+                return Ok(await Tools.DataTableSql(new Tools.DataTableParams
                 {
                     parameters = new { idEmpresa },
                     query = sql,

@@ -6,18 +6,14 @@ using Gestion_Administrativa_Api.Models;
 using Gestion_Administrativa_Api.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using NetBarcode;
 using Rotativa.AspNetCore;
 using System.Data;
-using System.Drawing;
+using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Serialization;
 using static Gestion_Administrativa_Api.Documents_Models.Factura.factura_V100;
-using NetBarcode;
-using Microsoft.CodeAnalysis.FlowAnalysis.DataFlow;
-using System.Security.Cryptography.Xml;
-using Microsoft.AspNetCore.Http.HttpResults;
-using System.Text;
 
 namespace Gestion_Administrativa_Api.Interfaces.Interfaz
 {
@@ -46,16 +42,16 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
         private readonly IMapper _mapper;
         private readonly IUtilidades _IUtilidades;
         private readonly IConfiguration _configuration;
-        private readonly IDbConnection _dapper;
         private factura_V1_0_0? _factura_V1_0_0;
+        private readonly IDbConnection _dapper;
 
-        public FacturasI(_context context, IMapper mapper, IUtilidades iUtilidades, IConfiguration configuration, IDbConnection dapper)
+        public FacturasI(_context context, IMapper mapper, IUtilidades iUtilidades, IConfiguration configuration)
         {
             _context = context;
             _mapper = mapper;
             _IUtilidades = iUtilidades;
             _configuration = configuration;
-            _dapper = dapper;
+            _dapper = context.Database.GetDbConnection();
         }
 
         public async Task<IActionResult> guardar(FacturaDto? _facturaDto)
@@ -196,7 +192,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                         INNER JOIN ""tiempoFormaPagos"" tfp ON dfp.""idTiempoFormaPago"" =tfp.""idTiempoFormaPago""
                         WHERE dfp.""idFactura""=@idFactura;";
                 factura.formaPago = await _dapper.QueryAsync<formaPagoDto>(sql, new { idFactura });
-                sql = @"SELECT cast(""idDetalleFactura"" AS varchar) AS ""idDetallePrecioProducto"",
+                sql = @"SELECT cast(""idDetalleFactura"" AS varchar(max)) AS ""idDetallePrecioProducto"",
                         df.""idIva"",df.""idProducto"",
                         p.nombre,i.nombre  AS ""nombrePorcentaje"",
                         df.cantidad,i.codigo,df.descuento,
@@ -218,7 +214,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
             catch (Exception ex)
             {
                 await Console.Out.WriteLineAsync(ex.Message);
-                return new FacturaDto();
+                throw;
             }
         }
 
@@ -310,7 +306,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                return null;
+                throw;
             }
         }
 
@@ -339,7 +335,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                return "";
+                throw;
             }
         }
 
@@ -378,6 +374,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 throw;
             }
         }

@@ -19,10 +19,10 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
         private readonly IDbConnection _dapper;
         private readonly _context _context;
 
-        public ProductosController(IProductos IProductos, IDbConnection dapper, _context context)
+        public ProductosController(IProductos IProductos, _context context)
         {
             _IProductos = IProductos;
-            _dapper = dapper;
+            _dapper = context.Database.GetDbConnection();
             _context = context;
         }
 
@@ -39,7 +39,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                     _producto.Activo = producto.Activo;
                     _producto.FechaRegistro = DateTime.Now;
                     _producto.ActivoProducto = producto.ActivoProducto;
-                    string sql = @"DELETE FROM ""detallePrecioProductos"" WHERE ""idProducto""=uuid(@idProducto);";
+                    string sql = @"DELETE FROM ""detallePrecioProductos"" WHERE ""idProducto""=CAST(@idProducto AS UNIQUEIDENTIFIER);";
                     await _dapper.ExecuteAsync(sql, _producto);
                     _producto.DetallePrecioProductos.Select(x => { x.FechaRegistro = DateTime.Now; return x; });
                     _context.Productos.Update(_producto);
@@ -69,8 +69,8 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                 string sql = @"SELECT p.*,i.""nombre"" as iva
                                 FROM productos p
                                 INNER JOIN ivas i ON i.""idIva"" =p.""idIva""
-                                WHERE ""idEmpresa""=uuid(@idEmpresa)";
-                return Ok(await Tools.DataTablePostgresSql(new Tools.DataTableParams
+                                WHERE ""idEmpresa""=CAST(@idEmpresa AS UNIQUEIDENTIFIER)";
+                return Ok(await Tools.DataTableSql(new Tools.DataTableParams
                 {
                     parameters = new { idEmpresa },
                     query = sql,
@@ -92,14 +92,13 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                 var idEmpresa = new Guid(Tools.getIdEmpresa(HttpContext));
                 string sql = @"SELECT * FROM ""detallePrecioProductos""
                                 WHERE ""idProducto"" in(
-                                SELECT ""idProducto"" FROM ""productos"" 
-                                WHERE ""idEmpresa""=uuid(@idEmpresa)
+                                SELECT ""idProducto"" FROM ""productos""
+                                WHERE ""idEmpresa""=CAST(@idEmpresa AS UNIQUEIDENTIFIER)
                                 )";
                 return Ok(await _dapper.QueryAsync(sql, new { idEmpresa }));
             }
             catch (Exception ex)
             {
-
                 return Tools.handleError(ex);
             }
         }
@@ -111,8 +110,8 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             try
             {
                 string sql = @"UPDATE productos
-                                SET ""activoProducto""  = not""activoProducto""
-                                WHERE ""idProducto"" = uuid(@idProducto);
+                                SET ""activoProducto""  = ~""activoProducto""
+                                WHERE ""idProducto"" = CAST(@idProducto AS UNIQUEIDENTIFIER);
                                 ";
                 await _dapper.ExecuteAsync(sql, new { idProducto });
                 return Ok();
@@ -130,8 +129,8 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             try
             {
                 string sql = @"UPDATE productos
-                                SET ""activo""  = not""activo""
-                                WHERE ""idProducto"" = uuid(@idProducto);
+                                SET ""activo""  = ~""activo""
+                                WHERE ""idProducto"" = CAST(@idProducto AS UNIQUEIDENTIFIER);
                                 ";
                 await _dapper.ExecuteAsync(sql, new { idProducto });
                 return Ok();
@@ -164,11 +163,11 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             try
             {
                 string sql = @"SELECT * FROM Productos
-                                 WHERE ""idProducto"" = uuid(@idProducto);
+                                 WHERE ""idProducto"" = CAST(@idProducto AS UNIQUEIDENTIFIER);
                                ";
                 var producto = await _dapper.QueryFirstOrDefaultAsync(sql, new { idProducto });
                 sql = @"SELECT * FROM ""detallePrecioProductos""
-                        WHERE ""idProducto"" = uuid(@idProducto);
+                        WHERE ""idProducto"" = CAST(@idProducto AS UNIQUEIDENTIFIER);
                         ";
                 var detallePrecios = await _dapper.QueryAsync(sql, new { idProducto });
 
@@ -222,7 +221,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
         {
             try
             {
-                string sql = @"DELETE FROM ""detallePrecioProductos"" WHERE ""idDetallePrecioProducto""=uuid(@idDetallePrecioProducto);";
+                string sql = @"DELETE FROM ""detallePrecioProductos"" WHERE ""idDetallePrecioProducto""=CAST(@idDetallePrecioProducto AS UNIQUEIDENTIFIER);";
                 await _dapper.ExecuteAsync(sql, new { idDetallePrecioProducto });
                 return Ok();
             }

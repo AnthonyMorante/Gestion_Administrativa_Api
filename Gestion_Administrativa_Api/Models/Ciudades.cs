@@ -22,6 +22,4 @@ public partial class Ciudades
     public virtual Provincias? IdProvinciaNavigation { get; set; }
 
     public virtual ICollection<Proveedores> Proveedores { get; set; } = new List<Proveedores>();
-
-    public virtual ICollection<Retenciones> Retenciones { get; set; } = new List<Retenciones>();
 }

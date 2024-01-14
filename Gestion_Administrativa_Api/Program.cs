@@ -10,6 +10,7 @@ using Gestion_Administrativa_Api.Utilities;
 using IdentityServer4.Models;
 using IdentityServer4.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Npgsql;
@@ -45,11 +46,10 @@ IConfiguration config = new ConfigurationBuilder()
       .AddEnvironmentVariables()
       .Build();
 
-builder.Services.AddDbContext<_context>(options =>
-options.UseNpgsql(config.GetConnectionString("cn")));
+builder.Services.AddDbContextPool<_context>(options =>
+options.UseSqlServer(config.GetConnectionString("cn")));
 
-builder.Services.AddScoped<IDbConnection>(db => new NpgsqlConnection(
-config.GetConnectionString("cn")));
+//builder.Services.AddScoped<IDbConnection>(db => new SqlConnection(config.GetConnectionString("cn")));
 
 // Add services to the container.
 
@@ -125,7 +125,6 @@ builder.Services.AddScoped<ITiempoFormaPagos, TiempoFormaPagosI>();
 builder.Services.AddScoped<IFacturas, FacturasI>();
 builder.Services.AddScoped<IUtilidades, UtilidadesI>();
 builder.Services.AddScoped<IRetenciones, RetencionesI>();
-
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

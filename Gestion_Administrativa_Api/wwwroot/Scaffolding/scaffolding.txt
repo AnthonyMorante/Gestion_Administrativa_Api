@@ -1,1 +1,2 @@
 Scaffold-DbContext name=cn Npgsql.EntityFrameworkCore.PostgreSQL -OutputDir Models -f -NoPluralize -Context _context
+Scaffold-DbContext name=cn Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models -f -NoPluralize -NoOnConfiguring -Context _context

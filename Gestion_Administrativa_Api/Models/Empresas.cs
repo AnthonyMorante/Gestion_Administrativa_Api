@@ -33,6 +33,8 @@ public partial class Empresas
 
     public string? ResolucionAgenteRetencion { get; set; }
 
+    public virtual ICollection<Cajas> Cajas { get; set; } = new List<Cajas>();
+
     public virtual ICollection<Clientes> Clientes { get; set; } = new List<Clientes>();
 
     public virtual ICollection<Empleados> Empleados { get; set; } = new List<Empleados>();
