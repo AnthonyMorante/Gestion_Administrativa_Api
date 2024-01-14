@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 using Gestion_Administrativa_Api.Interfaces.Utilidades;
 using Microsoft.EntityFrameworkCore;
 using static Gestion_Administrativa_Api.Utilities.Tools;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Gestion_Administrativa_Api.Interfaces.Interfaz
 {
@@ -49,14 +50,20 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                 if (consultaEstablecimiento == null) throw new Exception("No se ha encontrado el establecimiento");
                 var retenciones = _mapper.Map<Retenciones>(_retencionDto);
                 var claveAcceso = await _IUtilidades.claveAccesoRetencion(retenciones);
+                retenciones.ClaveAcceso = claveAcceso;
                 retenciones.ObligadoContabilidad = consultaEmpresa.LlevaContabilidad;
                 retenciones.EmisorRuc = consultaEmpresa.Identificacion;
                 retenciones.DireccionMatriz = consultaEmpresa.DireccionMatriz;
                 retenciones.EmisorNombreComercial = consultaEmpresa.RazonSocial;
                 retenciones.EmisorRazonSocial = consultaEmpresa.RazonSocial;
+                retenciones.PeriodoFiscal = _retencionDto?.fechaEmision!.Value.ToString("MM-yyyy");
+                var informacionAdicionales = _mapper.Map<List<InformacionAdicionalRetencion>>(_retencionDto?.infoAdicional);
+                var impuestos = _mapper.Map<List<ImpuestoRetenciones>>(_retencionDto?.impuestos);
+                retenciones.InformacionAdicionalRetencion = informacionAdicionales;
+                retenciones.ImpuestoRetenciones = impuestos;
                 //var detalle = _mapper.Map<List<DetalleFacturas>>(_retencionDto.detalleFactura);
                 //var detallePagos = _mapper.Map<List<DetalleFormaPagos>>(_retencionDto.formaPago);
-                //var detalleAdicional = _mapper.Map<List<InformacionAdicional>>(_retencionDto.informacionAdicional);
+
                 result.StatusCode = 200;
                 return result;
 
