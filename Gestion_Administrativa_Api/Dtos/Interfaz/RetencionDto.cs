@@ -6,7 +6,6 @@ namespace Gestion_Administrativa_Api.Dtos.Interfaz
     {
 
 
-
         public Guid? idUsuario { get; set; }
         public Guid? idEmpresa { get; set; }
         public Guid? idTipoDocumento { get; set; } = Guid.Parse("13edf7b1-0a10-4eef-a095-11519bd15138");
@@ -39,6 +38,7 @@ namespace Gestion_Administrativa_Api.Dtos.Interfaz
 
         public class Impuesto
         {
+            public string? tipoRetencion { get; set; }
             public int? codigo { get; set; }
             public int? codigoRetencion { get; set; }
             public decimal? baseImponible { get; set; }
@@ -47,6 +47,7 @@ namespace Gestion_Administrativa_Api.Dtos.Interfaz
             public string? codDocSustento { get; set; } = "01";
             public string? numDocSustento { get; set; }
             public string? fechaEmisionDocSustento { get; set; }
+            public Guid idPorcentajeImpuestoRetencion { get; set; }
         }
 
         public class InfoAdicional

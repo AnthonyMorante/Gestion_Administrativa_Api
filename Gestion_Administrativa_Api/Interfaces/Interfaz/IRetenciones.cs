@@ -44,8 +44,8 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
             try
             {
                 var result = new ObjectResult(null);
-                var consultaEmpresa = await _context.Empresas.FindAsync(_retencionDto.idEmpresa);
-                var consultaEstablecimiento = await _context.Establecimientos.FindAsync(_retencionDto.idEstablecimiento);
+                var consultaEmpresa = await _context.Empresas.FindAsync(_retencionDto?.idEmpresa);
+                var consultaEstablecimiento = await _context.Establecimientos.FindAsync(_retencionDto?.idEstablecimiento);
                 if (consultaEmpresa == null) throw new Exception("No se ha encontrado la empresa");
                 if (consultaEstablecimiento == null) throw new Exception("No se ha encontrado el establecimiento");
                 var retenciones = _mapper.Map<Retenciones>(_retencionDto);
@@ -61,9 +61,8 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                 var impuestos = _mapper.Map<List<ImpuestoRetenciones>>(_retencionDto?.impuestos);
                 retenciones.InformacionAdicionalRetencion = informacionAdicionales;
                 retenciones.ImpuestoRetenciones = impuestos;
-                //var detalle = _mapper.Map<List<DetalleFacturas>>(_retencionDto.detalleFactura);
-                //var detallePagos = _mapper.Map<List<DetalleFormaPagos>>(_retencionDto.formaPago);
-
+                await _context.AddAsync(retenciones);
+                await _context.SaveChangesAsync();
                 result.StatusCode = 200;
                 return result;
 
