@@ -281,6 +281,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
             catch (Exception ex)
             {
                 await Console.Out.WriteLineAsync(ex.Message);
+                Tools.logError(ex);
                 throw;
             }
         }
@@ -306,6 +307,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
+                Tools.logError(ex);
                 throw;
             }
         }
@@ -321,6 +323,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
             catch (Exception ex)
             {
                 await Console.Out.WriteLineAsync(ex.Message);
+                Tools.logError(ex);
                 return false;
             }
         }

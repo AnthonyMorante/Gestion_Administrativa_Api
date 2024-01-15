@@ -155,7 +155,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                 return Ok();
             }
         }
-
+        [AllowAnonymous]
         [HttpGet("{claveAcceso}")]
         public async Task<IActionResult> descargarXml(string claveAcceso)
         {

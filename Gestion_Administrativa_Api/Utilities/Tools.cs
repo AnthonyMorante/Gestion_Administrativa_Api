@@ -1,24 +1,18 @@
 ﻿using Dapper;
 using Gestion_Administrativa_Api.Models;
-using Humanizer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Data.SqlClient;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.Blazor;
 using Newtonsoft.Json;
 using System.Data;
 using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
-using System.Net.Http;
 using System.Security.Claims;
 using System.Text;
 using System.Web;
 using System.Xml;
-using System.Xml.Linq;
 using System.Xml.Serialization;
-using static Gestion_Administrativa_Api.Dtos.Interfaz.RetencionDto;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace Gestion_Administrativa_Api.Utilities
 {
@@ -88,34 +82,45 @@ namespace Gestion_Administrativa_Api.Utilities
         [XmlRoot(ElementName = "factura")]
         public class Factura
         {
-
             [XmlElement(ElementName = "infoTributaria")]
             public InfoTributaria InfoTributaria { get; set; }
+
             [XmlElement(ElementName = "infoFactura")]
             public InfoFactura InfoFactura { get; set; }
+
             [XmlElement(ElementName = "detalles")]
             public Detalles Detalles { get; set; }
+
             [XmlElement(ElementName = "infoAdicional")]
             public InfoAdicional InfoAdicional { get; set; }
+
             [XmlAttribute(AttributeName = "id")]
             public string Id { get; set; }
+
             [XmlAttribute(AttributeName = "version")]
             public string Version { get; set; }
         }
+
         public class Detalle
         {
             [XmlElement(ElementName = "codigoPrincipal")]
             public string CodigoPrincipal { get; set; }
+
             [XmlElement(ElementName = "descripcion")]
             public string Descripcion { get; set; }
+
             [XmlElement(ElementName = "cantidad")]
             public string Cantidad { get; set; }
+
             [XmlElement(ElementName = "precioUnitario")]
             public string PrecioUnitario { get; set; }
+
             [XmlElement(ElementName = "descuento")]
             public string Descuento { get; set; }
+
             [XmlElement(ElementName = "precioTotalSinImpuesto")]
             public string PrecioTotalSinImpuesto { get; set; }
+
             [XmlElement(ElementName = "impuestos")]
             public Impuestos Impuestos { get; set; }
         }
@@ -126,136 +131,182 @@ namespace Gestion_Administrativa_Api.Utilities
             [XmlElement(ElementName = "detalle")]
             public List<Detalle> Detalle { get; set; }
         }
+
         [XmlRoot(ElementName = "impuesto")]
         public class Impuesto
         {
             [XmlElement(ElementName = "codigo")]
             public string Codigo { get; set; }
+
             [XmlElement(ElementName = "codigoPorcentaje")]
             public string CodigoPorcentaje { get; set; }
+
             [XmlElement(ElementName = "tarifa")]
             public string Tarifa { get; set; }
+
             [XmlElement(ElementName = "baseImponible")]
             public string BaseImponible { get; set; }
+
             [XmlElement(ElementName = "valor")]
             public string Valor { get; set; }
         }
+
         [XmlRoot(ElementName = "impuestos")]
         public class Impuestos
         {
             [XmlElement(ElementName = "impuesto")]
             public List<Impuesto> Impuesto { get; set; }
         }
+
         [XmlRoot(ElementName = "infoAdicional")]
         public class InfoAdicional
         {
             [XmlElement(ElementName = "campoAdicional")]
             public List<CampoAdicional> CampoAdicional { get; set; }
         }
+
         [XmlRoot(ElementName = "campoAdicional")]
         public class CampoAdicional
         {
             [XmlAttribute(AttributeName = "nombre")]
             public string Nombre { get; set; }
+
             [XmlText]
             public string Text { get; set; }
         }
+
         [XmlRoot(ElementName = "infoFactura")]
         public class InfoFactura
         {
             [XmlElement(ElementName = "fechaEmision")]
             public string FechaEmision { get; set; }
+
             [XmlElement(ElementName = "dirEstablecimiento")]
             public string DirEstablecimiento { get; set; }
+
             [XmlElement(ElementName = "contribuyenteEspecial")]
             public string ContribuyenteEspecial { get; set; }
+
             [XmlElement(ElementName = "obligadoContabilidad")]
             public string ObligadoContabilidad { get; set; }
+
             [XmlElement(ElementName = "tipoIdentificacionComprador")]
             public string TipoIdentificacionComprador { get; set; }
+
             [XmlElement(ElementName = "razonSocialComprador")]
             public string RazonSocialComprador { get; set; }
+
             [XmlElement(ElementName = "identificacionComprador")]
             public string IdentificacionComprador { get; set; }
+
             [XmlElement(ElementName = "totalSinImpuestos")]
             public string TotalSinImpuestos { get; set; }
+
             [XmlElement(ElementName = "totalDescuento")]
             public string TotalDescuento { get; set; }
+
             [XmlElement(ElementName = "totalConImpuestos")]
             public TotalConImpuestos TotalConImpuestos { get; set; }
+
             [XmlElement(ElementName = "propina")]
             public string Propina { get; set; }
+
             [XmlElement(ElementName = "importeTotal")]
             public string ImporteTotal { get; set; }
+
             [XmlElement(ElementName = "moneda")]
             public string Moneda { get; set; }
+
             [XmlElement(ElementName = "pagos")]
             public Pagos Pagos { get; set; }
         }
+
         [XmlRoot(ElementName = "infoTributaria")]
         public class InfoTributaria
         {
             [XmlElement(ElementName = "ambiente")]
             public string Ambiente { get; set; }
+
             [XmlElement(ElementName = "tipoEmision")]
             public string TipoEmision { get; set; }
+
             [XmlElement(ElementName = "razonSocial")]
             public string RazonSocial { get; set; }
+
             [XmlElement(ElementName = "nombreComercial")]
             public string NombreComercial { get; set; }
+
             [XmlElement(ElementName = "ruc")]
             public string Ruc { get; set; }
+
             [XmlElement(ElementName = "claveAcceso")]
             public string ClaveAcceso { get; set; }
+
             [XmlElement(ElementName = "codDoc")]
             public string CodDoc { get; set; }
+
             [XmlElement(ElementName = "estab")]
             public string Estab { get; set; }
+
             [XmlElement(ElementName = "ptoEmi")]
             public string PtoEmi { get; set; }
+
             [XmlElement(ElementName = "secuencial")]
             public string Secuencial { get; set; }
+
             [XmlElement(ElementName = "dirMatriz")]
             public string DirMatriz { get; set; }
         }
+
         [XmlRoot(ElementName = "pago")]
         public class Pago
         {
             [XmlElement(ElementName = "formaPago")]
             public string FormaPago { get; set; }
+
             [XmlElement(ElementName = "total")]
             public string Total { get; set; }
+
             [XmlElement(ElementName = "plazo")]
             public string Plazo { get; set; }
+
             [XmlElement(ElementName = "unidadTiempo")]
             public string UnidadTiempo { get; set; }
         }
+
         [XmlRoot(ElementName = "pagos")]
         public class Pagos
         {
             [XmlElement(ElementName = "pago")]
             public List<Pago> Pago { get; set; }
         }
+
         [XmlRoot(ElementName = "totalConImpuestos")]
         public class TotalConImpuestos
         {
             [XmlElement(ElementName = "totalImpuesto")]
             public List<TotalImpuesto> TotalImpuesto { get; set; }
         }
+
         [XmlRoot(ElementName = "totalImpuesto")]
         public class TotalImpuesto
         {
             [XmlElement(ElementName = "codigo")]
             public string Codigo { get; set; }
+
             [XmlElement(ElementName = "codigoPorcentaje")]
             public string CodigoPorcentaje { get; set; }
+
             [XmlElement(ElementName = "descuentoAdicional")]
             public string DescuentoAdicional { get; set; }
+
             [XmlElement(ElementName = "baseImponible")]
             public string BaseImponible { get; set; }
+
             [XmlElement(ElementName = "valor")]
             public string Valor { get; set; }
         }
+
         public static string getIdEmpresa(HttpContext _httpContext)
         {
             try
@@ -426,9 +477,9 @@ namespace Gestion_Administrativa_Api.Utilities
             }
         }
 
-        private static void logError(Exception _error)
+        public static void logError(Exception _error)
         {
-            var dapper = new SqlConnection(config.GetConnectionString("angular_test"));
+            IDbConnection dapper = new SqlConnection(config.GetConnectionString("cn"));
             try
             {
                 var path = $@"{rootPath}/_errors.txt";
@@ -635,22 +686,22 @@ namespace Gestion_Administrativa_Api.Utilities
         }
 
         public static Factura XmlToFacturaModel(Stream fileStream)
-            {
+        {
             var encoded = "";
             using (StreamReader reader = new StreamReader(fileStream, Encoding.ASCII)) encoded = HttpUtility.HtmlDecode(reader.ReadToEnd());
             encoded = encoded.Replace("<![CDATA[", "");
             encoded = encoded.Replace("]]>", "");
             encoded = encoded.Replace("</br>", "\n").Replace("<br>", "\n");
             var arreglo = encoded.Split(new string[] { "<comprobante>" }, StringSplitOptions.None);
-            if(arreglo.Length > 1)
+            if (arreglo.Length > 1)
             {
                 encoded = encoded.Split(new string[] { "<comprobante>" }, StringSplitOptions.None)[1];
-                encoded= encoded.Split(new string[] { "</comprobante>" }, StringSplitOptions.None)[0];
+                encoded = encoded.Split(new string[] { "</comprobante>" }, StringSplitOptions.None)[0];
             }
             return ConvertStringToObject<Tools.Factura>(encoded);
         }
 
-        static T ConvertStringToObject<T>(string xmlString)
+        private static T ConvertStringToObject<T>(string xmlString)
         {
             using (StringReader stringReader = new StringReader(xmlString))
             {
@@ -659,7 +710,7 @@ namespace Gestion_Administrativa_Api.Utilities
             }
         }
 
-        static string SerializeObjectToXml<T>(T obj)
+        private static string SerializeObjectToXml<T>(T obj)
         {
             XmlSerializer serializer = new XmlSerializer(typeof(T));
             using (StringWriter stringWriter = new StringWriter())
@@ -672,9 +723,9 @@ namespace Gestion_Administrativa_Api.Utilities
             }
         }
 
-        public static SriFacturas XmlToFacturaDbModel(Stream fileStream,bool? compra)
+        public static SriFacturas XmlToFacturaDbModel(Stream fileStream, bool? compra)
         {
-            return ToFacturaDbModel(fileStream,compra);
+            return ToFacturaDbModel(fileStream, compra);
         }
 
         public static SriFacturas ToFacturaDbModel(Stream fileStream, bool? compra)
@@ -682,9 +733,9 @@ namespace Gestion_Administrativa_Api.Utilities
             try
             {
                 var _factura = XmlToFacturaModel(fileStream);
-                var _f=new SriFacturas();
-                _f.Compra= compra;
-                _f.Id=_factura.Id;
+                var _f = new SriFacturas();
+                _f.Compra = compra;
+                _f.Id = _factura.Id;
                 _f.Secuencial = _factura.InfoTributaria.Secuencial;
                 _f.FechaEmision = DateOnly.ParseExact(_factura.InfoFactura.FechaEmision, "dd/MM/yyyy", CultureInfo.InvariantCulture);
                 _f.ClaveAcceso = _factura.InfoTributaria.ClaveAcceso;
@@ -692,18 +743,18 @@ namespace Gestion_Administrativa_Api.Utilities
                 _f.ObligadoContabilidad = _factura.InfoFactura.ObligadoContabilidad;
                 _f.Ambiente = _factura.InfoTributaria.Ambiente;
                 _f.DirMatriz = _factura.InfoTributaria.DirMatriz;
-                _f.Estab=_factura.InfoTributaria.Estab;
+                _f.Estab = _factura.InfoTributaria.Estab;
                 _f.NombreComercial = _factura.InfoTributaria.NombreComercial;
                 _f.PtoEmi = _factura.InfoTributaria.PtoEmi;
                 _f.RazonSocial = _factura.InfoTributaria.RazonSocial;
-                _f.Ruc=_factura.InfoTributaria.Ruc;
+                _f.Ruc = _factura.InfoTributaria.Ruc;
                 _f.Version = _factura.Version;
                 _f.ContribuyenteEspecial = _factura.InfoFactura.ContribuyenteEspecial;
                 _f.DirEstablecimiento = _factura.InfoFactura.DirEstablecimiento;
                 _f.IdentificacionComprador = _factura.InfoFactura.IdentificacionComprador;
                 _f.RazonSocialComprador = _factura.InfoFactura.RazonSocialComprador;
                 _f.TipoIdentificacionComprador = _factura.InfoFactura.TipoIdentificacionComprador;
-                _f.Moneda=_factura.InfoFactura.Moneda;
+                _f.Moneda = _factura.InfoFactura.Moneda;
                 _f.Propina = Convert.ToDecimal(_factura.InfoFactura.Propina, CultureInfo.InvariantCulture);
                 _f.TotalDescuento = Convert.ToDecimal(_factura.InfoFactura.TotalDescuento, CultureInfo.InvariantCulture);
                 _f.TotalSinImpuesto = Convert.ToDecimal(_factura.InfoFactura.TotalSinImpuestos, CultureInfo.InvariantCulture);
@@ -711,24 +762,23 @@ namespace Gestion_Administrativa_Api.Utilities
                 _f.SriDetallesFacturas = (from item in _factura.Detalles.Detalle
                                           select new SriDetallesFacturas()
                                           {
-                                              Cantidad = Convert.ToDecimal(item.Cantidad,CultureInfo.InvariantCulture),
+                                              Cantidad = Convert.ToDecimal(item.Cantidad, CultureInfo.InvariantCulture),
                                               CodigoPrincipal = item.CodigoPrincipal,
                                               Descripcion = item.Descripcion,
                                               Descuento = Convert.ToDecimal(item.Descuento, CultureInfo.InvariantCulture),
                                               PrecioTotalSinImpuesto = Convert.ToDecimal(item.PrecioTotalSinImpuesto, CultureInfo.InvariantCulture),
                                               PrecioUnitario = Convert.ToDecimal(item.PrecioUnitario, CultureInfo.InvariantCulture),
-                                              PrecioTotalConImpuesto = item.Impuestos.Impuesto.Aggregate(Convert.ToDecimal("0"),(acc,x)=>acc+Convert.ToDecimal(x.Valor, CultureInfo.InvariantCulture)),
+                                              PrecioTotalConImpuesto = item.Impuestos.Impuesto.Aggregate(Convert.ToDecimal("0"), (acc, x) => acc + Convert.ToDecimal(x.Valor, CultureInfo.InvariantCulture)),
                                               SriDetallesFacturasImpuestos = (from impuesto in item.Impuestos.Impuesto
                                                                               select new SriDetallesFacturasImpuestos()
                                                                               {
-                                                                                  Codigo=impuesto.CodigoPorcentaje,
-                                                                                  CodigoPorcentaje=impuesto.CodigoPorcentaje,
-                                                                                  BaseImponible=Convert.ToDecimal(impuesto.BaseImponible, CultureInfo.InvariantCulture),
-                                                                                  Tarifa=Convert.ToDecimal(impuesto.Tarifa, CultureInfo.InvariantCulture),
-                                                                                  Valor=Convert.ToDecimal(impuesto.Valor, CultureInfo.InvariantCulture)
+                                                                                  Codigo = impuesto.CodigoPorcentaje,
+                                                                                  CodigoPorcentaje = impuesto.CodigoPorcentaje,
+                                                                                  BaseImponible = Convert.ToDecimal(impuesto.BaseImponible, CultureInfo.InvariantCulture),
+                                                                                  Tarifa = Convert.ToDecimal(impuesto.Tarifa, CultureInfo.InvariantCulture),
+                                                                                  Valor = Convert.ToDecimal(impuesto.Valor, CultureInfo.InvariantCulture)
                                                                               }
                                                                             ).ToList(),
-
                                           }).ToList();
                 foreach (var total in _factura.InfoFactura.TotalConImpuestos.TotalImpuesto)
                 {
@@ -743,12 +793,13 @@ namespace Gestion_Administrativa_Api.Utilities
                 _f.SriPagos = (from item in _factura.InfoFactura.Pagos.Pago
                                select new SriPagos
                                {
-                                   Plazo=Convert.ToInt32(item.Plazo),
-                                   FormaPago=item.FormaPago,
-                                   Total=Convert.ToDecimal(item.Total, CultureInfo.InvariantCulture),
-                                   UnidadTiempo=item.UnidadTiempo
+                                   Plazo = Convert.ToInt32(item.Plazo),
+                                   FormaPago = item.FormaPago,
+                                   Total = Convert.ToDecimal(item.Total, CultureInfo.InvariantCulture),
+                                   UnidadTiempo = item.UnidadTiempo
                                }).ToList();
-                if (_factura.InfoAdicional!=null){
+                if (_factura.InfoAdicional != null)
+                {
                     _f.SriCamposAdicionales = (from item in _factura.InfoAdicional.CampoAdicional
                                                select new SriCamposAdicionales
                                                {

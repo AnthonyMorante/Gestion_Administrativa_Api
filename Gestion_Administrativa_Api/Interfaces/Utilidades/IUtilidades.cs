@@ -1,22 +1,16 @@
-﻿using Dapper;
-using FirmaXadesNetCore;
+﻿using FirmaXadesNetCore;
 using FirmaXadesNetCore.Crypto;
 using FirmaXadesNetCore.Signature;
 using FirmaXadesNetCore.Signature.Parameters;
-using Gestion_Administrativa_Api.Dtos.Interfaz;
-using Gestion_Administrativa_Api.Interfaces.Interfaz;
 using Gestion_Administrativa_Api.Models;
 using Gestion_Administrativa_Api.Utilities;
-using System.Data;
 using System.Net.Mail;
-using System.Runtime.CompilerServices;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Serialization;
 using wsSriRecepcion;
-using static Gestion_Administrativa_Api.Documents_Models.Factura.factura_V100;
 using static Gestion_Administrativa_Api.Interfaces.Utilidades.UtilidadesI;
 
 namespace Gestion_Administrativa_Api.Interfaces.Utilidades
@@ -26,6 +20,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Utilidades
         Task<string> modulo11(string claveAcceso);
 
         Task<string> claveAcceso(Facturas? _factura);
+
         Task<string> claveAccesoRetencion(Retenciones? _retencion);
 
         Task<SignatureDocument> firmar(string codigo, string rutaFirma, XDocument documento);
@@ -36,6 +31,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Utilidades
 
         Task<bool> envioCorreo(string email, byte[] archivo, byte[] xml, string nombreArchivo);
     }
+
     public class UtilidadesI : IUtilidades
     {
         public async Task<string> modulo11(string claveAcceso)
@@ -102,14 +98,12 @@ namespace Gestion_Administrativa_Api.Interfaces.Utilidades
             }
         }
 
-
-
         public async Task<string> claveAccesoRetencion(Retenciones? _retencion)
         {
             try
             {
                 string fechaFormateada = _retencion.FechaEmision?.ToString("ddMMyyyy");
-                string tipoDocumento =  _retencion.TipoDocumento.ToString().PadLeft(2, '0');
+                string tipoDocumento = _retencion.TipoDocumento.ToString().PadLeft(2, '0');
                 string ruc = _retencion.EmisorRuc;
                 int ambiente = Convert.ToInt16(Tools.config!["SRI:ambiente"]);
                 string establecimiento = _retencion.Establecimiento.ToString().PadLeft(3, '0');
@@ -154,7 +148,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Utilidades
         {
             try
             {
-                var cert = new X509Certificate2(rutaFirma, codigo);
+                var cert = new X509Certificate2(rutaFirma, codigo, X509KeyStorageFlags.MachineKeySet);
                 XadesService xadesService = new XadesService();
                 SignatureParameters parametros = new SignatureParameters();
                 parametros.SignaturePolicyInfo = new SignaturePolicyInfo();
@@ -175,10 +169,12 @@ namespace Gestion_Administrativa_Api.Interfaces.Utilidades
             catch (Exception exc)
             {
                 await Console.Out.WriteLineAsync(exc.Message);
-                return null;
+                Tools.logError(new Exception($"Error al firmar ruta: {rutaFirma} {exc.Message}"));
+                throw;
             }
         }
-        public async Task<bool> envioCorreo(string email, byte[] archivo, byte[]xml, string nombreArchivo)
+
+        public async Task<bool> envioCorreo(string email, byte[] archivo, byte[] xml, string nombreArchivo)
         {
             try
             {
