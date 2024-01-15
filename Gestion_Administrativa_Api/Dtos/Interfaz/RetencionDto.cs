@@ -5,7 +5,7 @@ namespace Gestion_Administrativa_Api.Dtos.Interfaz
     public class RetencionDto
     {
 
-
+        public int? idFactura { get; set; }
         public Guid? idUsuario { get; set; }
         public Guid? idEmpresa { get; set; }
         public Guid? idTipoDocumento { get; set; } = Guid.Parse("13edf7b1-0a10-4eef-a095-11519bd15138");
@@ -26,11 +26,13 @@ namespace Gestion_Administrativa_Api.Dtos.Interfaz
         public string? direccionMatriz { get; set; }
         public string? agenteRetencion { get; set; }
         public DateTime? fechaEmision { get; set; }
+        public DateTime? fechaEmisionDocSustento { get; set; }
         public string? obligadoContabilidad { get; set; }
         public string? tipoIdentificacionSujetoRetenido { get; set; }
         public string? razonSocialSujetoRetenido { get; set; }
         public string? identificacionSujetoRetenido { get; set; }
         public string? periodoFiscal { get; set; }
+        public string? numAutDocSustento { get; set; }
         public string? versionXml { get; set; } = "1.0.0";
         public List<Impuesto>? impuestos { get; set; }
         public List<InfoAdicional>? infoAdicional { get; set; }

@@ -1,2 +1,2 @@
-Scaffold-DbContext name=cn Npgsql.EntityFrameworkCore.PostgreSQL -OutputDir Models -f -NoPluralize -Context _context
-Scaffold-DbContext name=cn Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models -f -NoPluralize -NoOnConfiguring -Context _context
+
+Scaffold-DbContext 'Data Source=SQL9001.site4now.net;Initial Catalog=db_aa3cdd_pruebas;User Id=db_aa3cdd_pruebas_admin;Password=geafepruebas123' Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models -f -NoPluralize -NoOnConfiguring  -Context _context

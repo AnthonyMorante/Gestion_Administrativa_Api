@@ -4,6 +4,7 @@ using Gestion_Administrativa_Api.Documents_Models.Retencion;
 using Gestion_Administrativa_Api.Dtos.Interfaz;
 using Gestion_Administrativa_Api.Models;
 using static Gestion_Administrativa_Api.Documents_Models.Factura.factura_V100;
+using static Gestion_Administrativa_Api.Documents_Models.Retencion.retencion_V100;
 using static Gestion_Administrativa_Api.Dtos.Interfaz.RetencionDto;
 
 namespace Gestion_Administrativa_Api.AutoMapper
@@ -275,6 +276,42 @@ namespace Gestion_Administrativa_Api.AutoMapper
             #endregion
 
 
+            #region infoRetenciones_V1_0_0
+
+            CreateMap<Retenciones, retencion_infoTributaria_V1_0_0>()
+            .ReverseMap();
+            ;
+            #endregion
+
+
+
+            #region retencion_info_V1_0_0
+
+            CreateMap<SriFacturas, retencion_info_V1_0_0>()
+            .ForMember(dest => dest.fechaEmision, opt => opt.MapFrom(src => src.FechaEmision))
+            .ForMember(dest => dest.dirEstablecimiento, opt => opt.MapFrom(src => src.DirEstablecimiento))
+            .ForMember(dest => dest.obligadoContabilidad, opt => opt.MapFrom(src => src.ObligadoContabilidad))
+            .ForMember(dest => dest.razonSocialSujetoRetenido, opt => opt.MapFrom(src => src.RazonSocial))
+            .ForMember(dest => dest.identificacionSujetoRetenido, opt => opt.MapFrom(src => src.Ruc))
+            .ForMember(dest => dest.periodoFiscal, opt => opt.MapFrom(src => src.FechaEmision!.Value.ToString("MM-yyyy")))
+            .ReverseMap();
+            ;
+            #endregion
+
+
+            #region retencion_impuesto_V1_0_0
+
+            //CreateMap<ImpuestoRetenciones, retencion_impuesto_V1_0_0>()
+            //.ForMember(dest => dest.codDocSustento, opt => opt.MapFrom(src => Convert.ToInt16(src.CodDocSustento)))
+            //.ForMember(dest => dest.codigoRetencion, opt => opt.MapFrom(src => Convert.ToInt16(src.IdPorcentajeImpuestoRetencionNavigation.Codigo)))
+
+            //.ReverseMap();
+            ;
+            #endregion
+
+
+
+            
 
 
         }

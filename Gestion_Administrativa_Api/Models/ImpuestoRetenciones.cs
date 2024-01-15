@@ -15,7 +15,7 @@ public partial class ImpuestoRetenciones
 
     public decimal? CodDocSustento { get; set; }
 
-    public decimal? NumDocSustento { get; set; }
+    public string? NumDocSustento { get; set; }
 
     public string? FechaEmisionDocSustento { get; set; }
 

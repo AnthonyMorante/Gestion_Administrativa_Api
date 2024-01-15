@@ -65,9 +65,15 @@ public partial class Retenciones
 
     public Guid IdEmpresa { get; set; }
 
+    public string? NumAutDocSustento { get; set; }
+
+    public int IdFactura { get; set; }
+
     public virtual DocumentosEmitir IdDocumentoEmitirNavigation { get; set; } = null!;
 
     public virtual Establecimientos IdEstablecimientoNavigation { get; set; } = null!;
+
+    public virtual SriFacturas IdFacturaNavigation { get; set; } = null!;
 
     public virtual PuntoEmisiones IdPuntoEmisionNavigation { get; set; } = null!;
 

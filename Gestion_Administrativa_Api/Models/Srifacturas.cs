@@ -67,11 +67,15 @@ public partial class SriFacturas
 
     public decimal? ImporteTotal { get; set; }
 
+    public bool? RetencionGenerada { get; set; }
+
     public virtual SriAmbientes? AmbienteNavigation { get; set; }
 
     public virtual SriTiposDocumentos? CodDocNavigation { get; set; }
 
     public virtual SriMonedas? MonedaNavigation { get; set; }
+
+    public virtual ICollection<Retenciones> Retenciones { get; set; } = new List<Retenciones>();
 
     public virtual ICollection<SriCamposAdicionales> SriCamposAdicionales { get; set; } = new List<SriCamposAdicionales>();
 

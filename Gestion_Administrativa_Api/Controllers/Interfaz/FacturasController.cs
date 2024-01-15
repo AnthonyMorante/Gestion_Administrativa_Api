@@ -447,13 +447,13 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                 string sql = @"SELECT COUNT(""claveAcceso"")
                                 FROM facturas f
                                 INNER JOIN ""usuarioEmpresas"" ue ON ue.""idUsuario"" = f.""idUsuario""
-                                WHERE (""idTipoEstadoSri"" NOT IN(2,3,4,5) OR (""correoEnviado""=FALSE AND ""idTipoEstadoSri""=2))
+                                WHERE (""idTipoEstadoSri"" NOT IN(2,3,4,5) OR (""correoEnviado""=0 AND ""idTipoEstadoSri""=2))
                                 AND ""idEmpresa""= CAST(@idEmpresa AS UNIQUEIDENTIFIER)";
                 if (_dapper.ExecuteScalar<int>(sql, new { idEmpresa }) == 0) return Ok("empty");
                 sql = @"SELECT ""claveAcceso""
                               FROM facturas f
                               INNER JOIN establecimientos e ON e.""idEstablecimiento"" = f.""idEstablecimiento""
-                              WHERE ""idTipoEstadoSri"" IN (1,6,0) OR (""correoEnviado""=FALSE AND ""idTipoEstadoSri""=2)
+                              WHERE ""idTipoEstadoSri"" IN (1,6,0) OR (""correoEnviado""=0 AND ""idTipoEstadoSri""=2)
                               AND ""idEmpresa""=CAST(@idEmpresa AS UNIQUEIDENTIFIER)
                             ;
                             ";

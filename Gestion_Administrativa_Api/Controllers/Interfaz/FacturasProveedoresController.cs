@@ -26,7 +26,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             try
             {
                 var idEmpresa = Guid.Parse(Tools.getIdEmpresa(HttpContext));
-                string sql = @"SELECT ""idFactura"",""fechaRegistro"",""fechaEmision"",
+                string sql = @"SELECT f.""retencionGenerada"",""idFactura"",""fechaRegistro"",""fechaEmision"",
                             ""claveAcceso"",ruc,""dirMatriz"",""nombreComercial"",""razonSocial"",
                             ""importeTotal"",
                             (SELECT count(""claveAcceso"") FROM retenciones r WHERE r.""claveAcceso""= f.""claveAcceso"") as ""totalRetenciones""

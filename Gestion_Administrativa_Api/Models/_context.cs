@@ -37,6 +37,8 @@ public partial class _context : DbContext
 
     public virtual DbSet<Empresas> Empresas { get; set; }
 
+    public virtual DbSet<ErrorLogs> ErrorLogs { get; set; }
+
     public virtual DbSet<Establecimientos> Establecimientos { get; set; }
 
     public virtual DbSet<Facturas> Facturas { get; set; }
@@ -597,6 +599,21 @@ public partial class _context : DbContext
                 .HasConstraintName("empresas_TipoNegocios");
         });
 
+        modelBuilder.Entity<ErrorLogs>(entity =>
+        {
+            entity.HasKey(e => e.IdError).HasName("PK__ErrorLog__6FC78380515670CB");
+
+            entity.Property(e => e.IdError).HasColumnName("idError");
+            entity.Property(e => e.Error)
+                .HasMaxLength(7300)
+                .IsUnicode(false)
+                .HasColumnName("error");
+            entity.Property(e => e.FechaRegistro)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
+                .HasColumnName("fechaRegistro");
+        });
+
         modelBuilder.Entity<Establecimientos>(entity =>
         {
             entity.HasKey(e => e.IdEstablecimiento).HasName("establecimientos_pkey");
@@ -853,7 +870,7 @@ public partial class _context : DbContext
             entity.Property(e => e.IdRetencion).HasColumnName("idRetencion");
             entity.Property(e => e.IdTipoValorRetencion).HasColumnName("idTipoValorRetencion");
             entity.Property(e => e.NumDocSustento)
-                .HasColumnType("numeric(8, 2)")
+                .HasMaxLength(100)
                 .HasColumnName("numDocSustento");
             entity.Property(e => e.PorcentajeRetener)
                 .HasColumnType("numeric(8, 2)")
@@ -1375,6 +1392,7 @@ public partial class _context : DbContext
             entity.Property(e => e.IdDocumentoEmitir).HasColumnName("idDocumentoEmitir");
             entity.Property(e => e.IdEmpresa).HasColumnName("idEmpresa");
             entity.Property(e => e.IdEstablecimiento).HasColumnName("idEstablecimiento");
+            entity.Property(e => e.IdFactura).HasColumnName("idFactura");
             entity.Property(e => e.IdPuntoEmision).HasColumnName("idPuntoEmision");
             entity.Property(e => e.IdTipoDocumento).HasColumnName("idTipoDocumento");
             entity.Property(e => e.IdTipoEstadoDocumento).HasColumnName("idTipoEstadoDocumento");
@@ -1384,6 +1402,10 @@ public partial class _context : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .HasColumnName("identificacionSujetoRetenido");
+            entity.Property(e => e.NumAutDocSustento)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("numAutDocSustento");
             entity.Property(e => e.ObligadoContabilidad).HasColumnName("obligadoContabilidad");
             entity.Property(e => e.PeriodoFiscal)
                 .HasMaxLength(20)
@@ -1419,6 +1441,11 @@ public partial class _context : DbContext
                 .HasForeignKey(d => d.IdEstablecimiento)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("retenciones_idEstablecimiento_fkey");
+
+            entity.HasOne(d => d.IdFacturaNavigation).WithMany(p => p.Retenciones)
+                .HasForeignKey(d => d.IdFactura)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_retenciones_sriFactura");
 
             entity.HasOne(d => d.IdPuntoEmisionNavigation).WithMany(p => p.Retenciones)
                 .HasForeignKey(d => d.IdPuntoEmision)
@@ -1712,6 +1739,9 @@ public partial class _context : DbContext
                 .HasMaxLength(200)
                 .IsUnicode(false)
                 .HasColumnName("razonSocialComprador");
+            entity.Property(e => e.RetencionGenerada)
+                .HasDefaultValue(false)
+                .HasColumnName("retencionGenerada");
             entity.Property(e => e.Ruc)
                 .HasMaxLength(20)
                 .IsUnicode(false)
