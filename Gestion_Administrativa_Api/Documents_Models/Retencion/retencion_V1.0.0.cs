@@ -5,6 +5,7 @@ namespace Gestion_Administrativa_Api.Documents_Models.Retencion
 {
     public class retencion_V100
     {
+        [XmlType("comprobanteRetencion")]
         public class retencion_V1_0_0
         {
             [XmlAttribute]
@@ -15,7 +16,7 @@ namespace Gestion_Administrativa_Api.Documents_Models.Retencion
             public retencion_info_V1_0_0? infoCompRetencion { get; set; }
             public List<retenciones_impuestos_V1_0_0>? impuestos { get; set; }
             public retencion_infoTributaria_V1_0_0? maquinaFiscal { get; set; }
-            public List<detAdicional_V1_0_0>? infoAdicional { get; set; }
+            public List<retencion_inf_adicional_V1_0_0>? infoAdicional { get; set; }
         }
 
 
@@ -54,18 +55,7 @@ namespace Gestion_Administrativa_Api.Documents_Models.Retencion
 
         }
 
-
-
-        public class retenciones_impuestos_Doc_sustento_V1_0_0
-        {
-
-            public string? codImpuestoDocSustento { get; set; }
-            public string? codigoPorcentaje { get; set; }
-            public string? tarifa { get; set; }
-            public string? valorImpuesto { get; set; }
-        }
-
-
+        [XmlType("impuesto")]
         public class retenciones_impuestos_V1_0_0
         {
             public int? codigo { get; set; }
@@ -73,6 +63,9 @@ namespace Gestion_Administrativa_Api.Documents_Models.Retencion
             public decimal? baseImponible { get; set; }
             public decimal? porcentajeRetener { get; set; }
             public decimal? valorRetenido { get; set; }
+            public string? codDocSustento { get; set; }
+            public string? numDocSustento { get; set; }
+            public string? fechaEmisionDocSustento { get; set; }
 
         }
 
@@ -88,6 +81,9 @@ namespace Gestion_Administrativa_Api.Documents_Models.Retencion
             public string? serie { get; set; }
         }
 
+
+
+        [XmlType("campoAdicional")]
         public class retencion_inf_adicional_V1_0_0
         {
             [XmlAttribute]
@@ -95,6 +91,7 @@ namespace Gestion_Administrativa_Api.Documents_Models.Retencion
             [XmlText]
             public string? valor { get; set; }
         }
+
 
     }
 }

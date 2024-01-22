@@ -14,6 +14,8 @@ using static Gestion_Administrativa_Api.Utilities.Tools;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using Gestion_Administrativa_Api.Documents_Models.Retencion;
 using static Gestion_Administrativa_Api.Documents_Models.Retencion.retencion_V100;
+using System.Data;
+using Dapper;
 
 namespace Gestion_Administrativa_Api.Interfaces.Interfaz
 {
@@ -33,11 +35,13 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
         private readonly _context _context;
         private readonly IMapper _mapper;
         private readonly IUtilidades _IUtilidades;
+        private readonly IDbConnection _dapper;
         public RetencionesI(_context context, IMapper mapper, IUtilidades iUtilidades)
         {
             _context = context;
             _mapper = mapper;
             _IUtilidades = iUtilidades;
+            _dapper = context.Database.GetDbConnection();
         }
 
 
@@ -67,7 +71,9 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                 //var facturaSri = await _context.SriFacturas.Where(x => x.ClaveAcceso == _retencionDto!.numAutDocSustento).FirstOrDefaultAsync();
                 //facturaSri!.RetencionGenerada = true;
                 //await _context.SaveChangesAsync();
-                await generarXml("140120240710010010000000011206520812");
+                var xml=await generarXml("140120240710010010000000011206520812") ;
+                var xmlFirmado = await firmarXml("140120240710010010000000011206520812",xml);
+                if (!await _IUtilidades.envioXmlSRI(xmlFirmado)) throw new Exception("Error al enviar al SRI");
                 result.StatusCode = 200;
 
                 return result;
@@ -89,53 +95,76 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
 
                 var consulta = await _context.Retenciones
                     .Include(x => x.ImpuestoRetenciones)
+                    .ThenInclude(x => x.IdPorcentajeImpuestoRetencionNavigation)
+                    .ThenInclude(x => x.IdTipoValorRetencionNavigation)
                     .Include(x => x.InformacionAdicionalRetencion)
-                    .Include(x=>x.IdFacturaNavigation)
-                    .Where(x=> x.ClaveAcceso == claveAcceso).FirstOrDefaultAsync();
+                    .Include(x => x.IdFacturaNavigation)
+                    .Where(x => x.ClaveAcceso == claveAcceso).FirstOrDefaultAsync();
 
                 var retencion = new retencion_V1_0_0();
                 var consultaEmpresa = await _context.Empresas.FindAsync(consulta?.IdEmpresa);
-                var retenciones = _mapper.Map<retencion_infoTributaria_V1_0_0>(consulta);
-                var infoRetendio = _mapper.Map<retencion_info_V1_0_0>(consulta?.IdFacturaNavigation);
-                //var impuestoRetencion = _mapper.Map<ICollection<retencion_impuesto_V1_0_0>>(consulta?.ImpuestoRetenciones);
+                var infoTributaria = _mapper.Map<retencion_infoTributaria_V1_0_0>(consulta);
+                var infoCompRetencion = _mapper.Map<retencion_info_V1_0_0>(consulta?.IdFacturaNavigation);
+                var impuestos = _mapper.Map<List<retenciones_impuestos_V1_0_0>>(consulta?.ImpuestoRetenciones);
+                var infoAdicional = _mapper.Map<List<retencion_inf_adicional_V1_0_0>>(consulta?.InformacionAdicionalRetencion);
+                infoTributaria.ruc = consultaEmpresa?.Identificacion;
+                infoTributaria.razonSocial = consultaEmpresa.RazonSocial;
+                infoTributaria.nombreComercial = consultaEmpresa.RazonSocial;
+                infoTributaria.dirMatriz = consultaEmpresa.DireccionMatriz;
+                infoTributaria.estab = consulta?.Establecimiento?.ToString().PadLeft(3, '0');
+                infoTributaria.ptoEmi = consulta?.PuntoEmision?.ToString().PadLeft(3, '0');
+                infoTributaria.secuencial = consulta?.Secuencial?.ToString().PadLeft(9, '0');
+                infoTributaria.agenteRetencion = consultaEmpresa.AgenteRetencion==true ? consultaEmpresa.ResolucionAgenteRetencion:null;
+                infoTributaria.regimenMicroempresas = consultaEmpresa.RegimenMicroEmpresas == true ? "CONTRIBUYENTE RÉGIMEN MICROEMPRESAS" : null;
+                retencion.infoTributaria= infoTributaria;
+                retencion.infoCompRetencion = infoCompRetencion;
+                retencion.impuestos = impuestos;
+                retencion.infoAdicional = infoAdicional;
+                XmlSerializerNamespaces serialize = new XmlSerializerNamespaces();
+                serialize.Add("", "");
+                XmlSerializer oXmlSerializar = new XmlSerializer(typeof(retencion_V1_0_0));
+                string xmlRetencion = "";
+                using (var stream = new StringWriter())
+                {
+                    using (XmlWriter writter = XmlWriter.Create(stream))
+                    {
+                        oXmlSerializar.Serialize(writter, retencion, serialize);
 
-
-                retenciones.ruc = consultaEmpresa.Identificacion;
-                retenciones.razonSocial = consultaEmpresa.RazonSocial;
-                retenciones.nombreComercial = consultaEmpresa.RazonSocial;
-                retenciones.dirMatriz = consultaEmpresa.DireccionMatriz;
-                retenciones.estab = consulta?.Establecimiento?.ToString().PadLeft(3, '0');
-                retenciones.ptoEmi = consulta?.PuntoEmision?.ToString().PadLeft(3, '0');
-                retenciones.secuencial = consulta?.Secuencial?.ToString().PadLeft(9, '0');
-                retenciones.agenteRetencion = consultaEmpresa.AgenteRetencion==true ? consultaEmpresa.ResolucionAgenteRetencion:null;
-                retenciones.regimenMicroempresas = consultaEmpresa.RegimenMicroEmpresas == true ? "CONTRIBUYENTE RÉGIMEN MICROEMPRESAS" : null;
-
-
-                var retenciones2 = _mapper.Map<retencion_V100>(consulta);
-
-                //var _facturaDto = await _FacturaDto(claveAcceso);
-                //var _factura = await _Facturas(claveAcceso);
-                //var factura = await _Factura_V1_0_0(claveAcceso);
-                //XmlSerializerNamespaces serialize = new XmlSerializerNamespaces();
-                //serialize.Add("", "");
-                //XmlSerializer oXmlSerializar = new XmlSerializer(typeof(factura_V1_0_0));
-                //string xmlFactura = "";
-                //using (var stream = new StringWriter())
-                //{
-                //    using (XmlWriter writter = XmlWriter.Create(stream))
-                //    {
-                //        oXmlSerializar.Serialize(writter, factura, serialize);
-
-                //        xmlFactura = stream.ToString();
-                //    }
-                //}
-                XDocument doc = XDocument.Parse("");
+                        xmlRetencion = stream.ToString();
+                    }
+                }
+                XDocument doc = XDocument.Parse(xmlRetencion);
                 doc.Descendants().Where(e => string.IsNullOrEmpty(e.Value)).Remove();
                 return doc;
             }
             catch (Exception ex)
             {
                 await Console.Out.WriteLineAsync(ex.Message);
+                throw;
+            }
+        }
+
+
+        public async Task<XmlDocument?> firmarXml(string claveAcceso, XDocument documento)
+        {
+            try
+            { 
+                string sql = @"
+
+                                  SELECT i.codigo,i.ruta FROM retenciones r 
+								  INNER JOIN ""usuarioEmpresas"" ue ON ue.""idUsuario""=r.""idUsuario""
+								  INNER JOIN ""empresas"" e ON e.""idEmpresa""=ue.""idEmpresa""
+	                              INNER JOIN ""informacionFirmas"" i ON i.""identificacion""=e.""identificacion""
+	                              WHERE r.""claveAcceso""=@claveAcceso	 
+                             ";
+                var firma = await _dapper.QueryFirstOrDefaultAsync(sql, new { claveAcceso });
+                var documentoFirmado = await _IUtilidades.firmar(firma.codigo, $"{Tools.rootPath}{firma.ruta}", documento);
+                if (documentoFirmado == null) throw new Exception("Error al firmar el documento");
+                return documentoFirmado.Document;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
                 throw;
             }
         }

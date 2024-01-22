@@ -47,7 +47,6 @@ namespace Gestion_Administrativa_Api.AutoMapper
             ;
             #endregion
 
-
             #region pago_V1_0_0
 
             CreateMap<DetalleFormaPagos, pago_V1_0_0>()
@@ -266,7 +265,6 @@ namespace Gestion_Administrativa_Api.AutoMapper
 
             #endregion
 
-
             #region InformacionAdicionalRetenciones
 
             CreateMap<Impuesto, ImpuestoRetenciones>()
@@ -275,15 +273,12 @@ namespace Gestion_Administrativa_Api.AutoMapper
 
             #endregion
 
-
             #region infoRetenciones_V1_0_0
 
             CreateMap<Retenciones, retencion_infoTributaria_V1_0_0>()
             .ReverseMap();
             ;
             #endregion
-
-
 
             #region retencion_info_V1_0_0
 
@@ -298,20 +293,28 @@ namespace Gestion_Administrativa_Api.AutoMapper
             ;
             #endregion
 
-
             #region retencion_impuesto_V1_0_0
 
-            //CreateMap<ImpuestoRetenciones, retencion_impuesto_V1_0_0>()
-            //.ForMember(dest => dest.codDocSustento, opt => opt.MapFrom(src => Convert.ToInt16(src.CodDocSustento)))
-            //.ForMember(dest => dest.codigoRetencion, opt => opt.MapFrom(src => Convert.ToInt16(src.IdPorcentajeImpuestoRetencionNavigation.Codigo)))
-
-            //.ReverseMap();
+            CreateMap<ImpuestoRetenciones, retenciones_impuestos_V1_0_0>()
+            .ForMember(dest => dest.codDocSustento, opt => opt.MapFrom(src => Convert.ToInt16(src.CodDocSustento)))
+            .ForMember(dest => dest.codigoRetencion, opt => opt.MapFrom(src => src.IdPorcentajeImpuestoRetencionNavigation.Codigo ))
+            .ForMember(dest => dest.codigo, opt => opt.MapFrom(src => src.IdTipoValorRetencionNavigation.Codigo))
+            .ReverseMap();
             ;
+            #endregion
+
+            #region info_adicional_V1_0_0
+
+            CreateMap<retencion_inf_adicional_V1_0_0, InformacionAdicionalRetencion>()
+            .ReverseMap();
+            ;
+
             #endregion
 
 
 
-            
+
+
 
 
         }
