@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using Gestion_Administrativa_Api.Dtos.Interfaz;
 using Gestion_Administrativa_Api.Interfaces.Interfaz;
+using Gestion_Administrativa_Api.Interfaces.Utilidades;
 using Gestion_Administrativa_Api.Models;
 using Gestion_Administrativa_Api.Utilities;
 using Microsoft.AspNetCore.Authorization;
@@ -16,14 +17,16 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
     public class FacturasController : ControllerBase
     {
         private readonly IFacturas _IFacturas;
+        private readonly IUtilidades _IUtilidades;
         private readonly IDbConnection _dapper;
         private readonly _context _context;
 
-        public FacturasController(IFacturas IFacturas, IDbConnection db, _context context)
+        public FacturasController(IFacturas IFacturas, IDbConnection db, _context context, IUtilidades IUtilidades)
         {
             _IFacturas = IFacturas;
             _dapper = db;
             _context = context;
+            _IUtilidades = IUtilidades;
         }
 
         [HttpPost]
@@ -60,6 +63,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                 return Problem(ex.Message);
             }
         }
+
         [Authorize]
         [HttpGet]
         public async Task<IActionResult> secuenciales()
@@ -106,60 +110,37 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             try
             {
                 var enviado = await _IFacturas.enviarSri(claveAcceso);
-
                 if (enviado)
                 {
-                    var listaEstados = new List<dynamic>();
-                    listaEstados.Add(new
-                    {
-                        estado = "<estado>NO AUTORIZADO</estado>",
-                        codigo = 3
-                    });
-                    listaEstados.Add(new
-                    {
-                        estado = "<estado>AUTORIZADO</estado>",
-                        codigo = 2
-                    });
-                    listaEstados.Add(new
-                    {
-                        estado = "<numeroComprobantes>0</numeroComprobantes>",
-                        codigo = 0
-                    });
-                    var xml = await _IFacturas.firmarXml(claveAcceso);
-                    var content = new StringContent(xml.InnerXml, Encoding.ASCII, "text/xml");
-                    var httpClient = new HttpClient();
-                    var peticion = await httpClient.PostAsync(Tools.config["SRI:urlEstado"], content);
-                    peticion.EnsureSuccessStatusCode();
-                    var consulta = await peticion.Content.ReadAsStringAsync();
-                    foreach (var estado in listaEstados)
-                    {
-                        string sqlU = $@"UPDATE facturas SET ""idTipoEstadoSri""={estado.codigo}
+                    var factura = await (from item in _context.Facturas
+                                         where item.ClaveAcceso == claveAcceso
+                                         select new
+                                         {
+                                             item.IdTipoEstadoSri,
+                                             item.ReceptorCorreo,
+                                             item.CorreoEnviado
+                                         }).FirstOrDefaultAsync();
+                    var estado = await _IUtilidades.verificarEstadoSRI(claveAcceso);
+                    string sqlU = $@"UPDATE facturas SET ""idTipoEstadoSri""=@idTipoEstadoSri
                                     WHERE ""claveAcceso"" = @claveAcceso;
                                     ";
-                        if (estado.codigo == 2)
+                    if (estado.idTipoEstadoSri == 2)
+                    {
+                        if (factura.CorreoEnviado == false)
                         {
-                            string sql = @"SELECT ""correoEnviado""  FROM facturas
-                                            WHERE ""claveAcceso"" =@claveAcceso";
-                            if (!(await _dapper.ExecuteScalarAsync<bool>(sql, new { claveAcceso })))
+                            try
                             {
-                                try
-                                {
-                                    sql = @"SELECT ""receptorCorreo""  FROM facturas
-                                            WHERE ""claveAcceso"" =@claveAcceso";
-                                    var email = await _dapper.ExecuteScalarAsync<string>(sql, new { claveAcceso });
-                                    var ride = await _IFacturas.generaRide(ControllerContext, claveAcceso);
-                                    await _IFacturas.enviarCorreo(email, ride, claveAcceso);
-                                    sqlU += @"UPDATE facturas SET ""correoEnviado""=TRUE,""fechaAutorizacion""=current_timestamp WHERE ""claveAcceso"" =@claveAcceso;";
-                                }
-                                catch (Exception ex)
-                                {
-                                    await Console.Out.WriteLineAsync(ex.Message);
-                                    continue;
-                                }
+                                var ride = await _IFacturas.generaRide(ControllerContext, claveAcceso);
+                                await _IFacturas.enviarCorreo(factura.ReceptorCorreo, ride, claveAcceso);
+                                sqlU += @"UPDATE facturas SET ""correoEnviado""=TRUE,""fechaAutorizacion""=@fechaAutorizacion WHERE ""claveAcceso"" =@claveAcceso;";
+                            }
+                            catch (Exception ex)
+                            {
+                                await Console.Out.WriteLineAsync(ex.Message);
                             }
                         }
-                        await _dapper.ExecuteAsync(sqlU, new { claveAcceso });
                     }
+                    await _dapper.ExecuteAsync(sqlU, new { claveAcceso, estado.fechaAutorizacion,estado.idTipoEstadoSri });
                 }
                 else
                 {
@@ -462,7 +443,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                                 INNER JOIN ""usuarioEmpresas"" ue ON ue.""idUsuario"" = f.""idUsuario""
                                 WHERE ""idTipoEstadoSri"" NOT IN(2,3,4,5)
                                 AND ""idEmpresa""= @idEmpresa::uuid";
-                if (await _dapper.ExecuteScalarAsync<int>(sql, new { idEmpresa }) == 0) return Ok("empty");
+                if ( _dapper.ExecuteScalar<int>(sql, new { idEmpresa }) == 0) return Ok("empty");
                 sql = @"SELECT ""claveAcceso""
                               FROM facturas f
                               INNER JOIN establecimientos e ON e.""idEstablecimiento"" = f.""idEstablecimiento""
@@ -470,86 +451,52 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                               AND ""idEmpresa""=uuid(@idEmpresa)
                             ;
                             ";
-                var lista = await _dapper.QueryAsync<string>(sql, new { idEmpresa });
+                var lista =_dapper.Query<string>(sql, new { idEmpresa });
                 if (lista.Count() == 0) return Ok("empty");
-                var listaEstados = new List<dynamic>();
-                listaEstados.Add(new
-                {
-                    estado = "<estado>AUTORIZADO</estado>",
-                    codigo = 2
-                });
-                listaEstados.Add(new
-                {
-                    estado = "<estado>NO AUTORIZADO</estado>",
-                    codigo = 3
-                });
-                listaEstados.Add(new
-                {
-                    estado = "<numeroComprobantes>0</numeroComprobantes>",
-                    codigo = 0
-                });
                 string sqlA = "";
                 foreach (var claveAcceso in lista)
                 {
-                    var xml = $@"
-                                    <soapenv:Envelope xmlns:soapenv=""http://schemas.xmlsoap.org/soap/envelope/"" xmlns:ec=""http://ec.gob.sri.ws.autorizacion"">
-                                       <soapenv:Header/>
-                                       <soapenv:Body>
-                                          <ec:autorizacionComprobante>
-                                             <!--Optional:-->
-                                             <claveAccesoComprobante>{claveAcceso}</claveAccesoComprobante>
-                                          </ec:autorizacionComprobante>
-                                       </soapenv:Body>
-                                    </soapenv:Envelope>
-                                    ";
                     try
                     {
-                        var content = new StringContent(xml, Encoding.ASCII, "text/xml");
-                        var httpClient = new HttpClient();
-                        var peticion = await httpClient.PostAsync(Tools.config["SRI:urlEstado"], content);
-                        peticion.EnsureSuccessStatusCode();
-                        var consulta = await peticion.Content.ReadAsStringAsync();
-                        foreach (var estado in listaEstados)
+                        var factura = (from item in _context.Facturas
+                                             where item.ClaveAcceso == claveAcceso
+                                             select new
+                                             {
+                                                 item.IdTipoEstadoSri,
+                                                 item.ReceptorCorreo,
+                                                 item.CorreoEnviado
+                                             }).FirstOrDefault();
+                        if (factura.IdTipoEstadoSri == 0 || factura.IdTipoEstadoSri == null)
                         {
-                            if (consulta.Contains(estado.estado))
+                            var enviado = await _IFacturas.enviarSri(claveAcceso);
+                            if (enviado == true)
                             {
-                                if (estado.codigo == 0)
-                                {
-                                    var enviado = await _IFacturas.enviarSri(claveAcceso);
-                                    if (enviado == true)
-                                    {
-                                        string sqlEnvio = $@"UPDATE facturas SET ""idTipoEstadoSri""={estado.codigo}
+                                string sqlEnvio = $@"UPDATE facturas SET ""idTipoEstadoSri""=6
                                                            WHERE ""claveAcceso"" = @claveAcceso;";
-                                        await _dapper.ExecuteAsync(sqlEnvio, new { claveAcceso });
-                                    }
-                                }
-                                else
+                                await _dapper.ExecuteAsync(sqlEnvio, new { claveAcceso });
+                            }
+                        }
+                        else
+                        {
+                            var estado = await _IUtilidades.verificarEstadoSRI(claveAcceso);
+                            sqlA = $@"UPDATE facturas SET ""idTipoEstadoSri""=@idTipoEstadoSri
+                                      WHERE ""claveAcceso"" = @claveAcceso;";
+                            if (estado.idTipoEstadoSri == 2)
+                            {
+                                if (factura.CorreoEnviado == false)
                                 {
-                                    sqlA = $@"UPDATE facturas SET ""idTipoEstadoSri""={estado.codigo}
-                                    WHERE ""claveAcceso"" = '{claveAcceso}';
-                                    ";
-                                    if (estado.codigo == 2)
+                                    try
                                     {
-                                        string sqlE = @"SELECT ""correoEnviado"" FROM facturas WHERE ""claveAcceso""=@claveAcceso";
-                                        if (!(await _dapper.ExecuteScalarAsync<bool>(sqlE, new { claveAcceso })))
-                                        {
-                                            try
-                                            {
-                                                sqlE = @"SELECT ""receptorCorreo""  FROM facturas
-                                            WHERE ""claveAcceso"" =@claveAcceso";
-                                                var email = await _dapper.ExecuteScalarAsync<string>(sqlE, new { claveAcceso });
-                                                var ride = await _IFacturas.generaRide(ControllerContext, claveAcceso);
-                                                await _IFacturas.enviarCorreo(email, ride, claveAcceso);
-                                                sqlA += @"UPDATE facturas SET ""correoEnviado""=TRUE,""fechaAutorizacion""=current_timestamp WHERE ""claveAcceso"" =@claveAcceso;";
-                                            }
-                                            catch (Exception ex)
-                                            {
-                                                await Console.Out.WriteLineAsync(ex.Message);
-                                                continue;
-                                            }
-                                        }
+                                        var ride = await _IFacturas.generaRide(ControllerContext, claveAcceso);
+                                        await _IFacturas.enviarCorreo(factura.ReceptorCorreo, ride, claveAcceso);
+                                        sqlA += @"UPDATE facturas SET ""correoEnviado""=TRUE,""fechaAutorizacion""=@fechaAutorizacion WHERE ""claveAcceso"" =@claveAcceso;";
+                                        _dapper.Execute(sqlA, new { claveAcceso, estado.fechaAutorizacion,estado.idTipoEstadoSri });
                                     }
-                                    if (sqlA != "") await _dapper.ExecuteAsync(sqlA, new { claveAcceso });
+                                    catch (Exception ex)
+                                    {
+                                        await Console.Out.WriteLineAsync(ex.Message);
+                                        continue;
+                                    }
                                 }
                             }
                         }
