@@ -35,9 +35,20 @@ namespace Gestion_Administrativa_Api.Interfaces.Utilidades
         Task<estadoSri> verificarEstadoSRI(string claveAcceso);
 
         Task<bool> envioCorreo(string email, byte[] archivo, byte[] xml, string nombreArchivo);
+        Task<object?> envioXmlSriComprobacion(XmlDocument documentoFirmado);
     }
     public class UtilidadesI : IUtilidades
     {
+
+
+        private readonly HttpClient _httpClient;
+     
+        public UtilidadesI(HttpClient httpClient)
+        {
+
+            _httpClient = httpClient;
+
+        }
         public async Task<string> modulo11(string claveAcceso)
         {
             try
@@ -209,6 +220,42 @@ namespace Gestion_Administrativa_Api.Interfaces.Utilidades
                 return false;
             }
         }
+
+
+        public async Task<object?> envioXmlSriComprobacion(XmlDocument documentoFirmado)
+        {
+
+            var xmlByte = Encoding.ASCII.GetBytes(documentoFirmado.InnerXml);
+            try
+            {
+
+                string arraybyte = Convert.ToBase64String(xmlByte);
+                string xml = @$"<soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/' xmlns:ec='http://ec.gob.sri.ws.recepcion'>
+                         <soapenv:Header/>
+                         <soapenv:Body>
+                         <ec:validarComprobante>
+                         <xml>{arraybyte}</xml>
+                         </ec:validarComprobante>
+                         </soapenv:Body>
+                         </soapenv:Envelope>
+                      ";
+
+                var content = new StringContent(xml, Encoding.ASCII, "text/xml");
+                var peticion = await _httpClient.PostAsync("https://celcer.sri.gob.ec/comprobantes-electronicos-ws/RecepcionComprobantesOffline?wsdl", content);
+                //var peticionTask = _httpClient.PostAsync(_configuration["SRI:urlEnvioComprobantes"], content);
+                peticion.EnsureSuccessStatusCode();
+                var consulta = await peticion.Content.ReadAsStringAsync();
+                return consulta.ToString();
+
+
+
+            }
+            catch (Exception exc)
+            {
+                return null;
+            }
+        }
+
 
         public async Task<bool> envioXmlSRI(XmlDocument documentoFirmado)
         {

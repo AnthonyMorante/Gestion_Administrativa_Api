@@ -73,7 +73,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                 //await _context.SaveChangesAsync();
                 var xml=await generarXml("140120240710010010000000011206520812") ;
                 var xmlFirmado = await firmarXml("140120240710010010000000011206520812",xml);
-                if (!await _IUtilidades.envioXmlSRI(xmlFirmado)) throw new Exception("Error al enviar al SRI");
+                await _IUtilidades.envioXmlSriComprobacion(xmlFirmado);
                 result.StatusCode = 200;
 
                 return result;
