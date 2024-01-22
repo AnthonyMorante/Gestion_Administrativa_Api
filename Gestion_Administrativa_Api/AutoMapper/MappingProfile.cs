@@ -283,12 +283,9 @@ namespace Gestion_Administrativa_Api.AutoMapper
             #region retencion_info_V1_0_0
 
             CreateMap<SriFacturas, retencion_info_V1_0_0>()
-            .ForMember(dest => dest.fechaEmision, opt => opt.MapFrom(src => src.FechaEmision))
-            .ForMember(dest => dest.dirEstablecimiento, opt => opt.MapFrom(src => src.DirEstablecimiento))
-            .ForMember(dest => dest.obligadoContabilidad, opt => opt.MapFrom(src => src.ObligadoContabilidad))
             .ForMember(dest => dest.razonSocialSujetoRetenido, opt => opt.MapFrom(src => src.RazonSocial))
             .ForMember(dest => dest.identificacionSujetoRetenido, opt => opt.MapFrom(src => src.Ruc))
-            .ForMember(dest => dest.periodoFiscal, opt => opt.MapFrom(src => src.FechaEmision!.Value.ToString("MM-yyyy")))
+        
             .ReverseMap();
             ;
             #endregion
@@ -296,9 +293,10 @@ namespace Gestion_Administrativa_Api.AutoMapper
             #region retencion_impuesto_V1_0_0
 
             CreateMap<ImpuestoRetenciones, retenciones_impuestos_V1_0_0>()
-            .ForMember(dest => dest.codDocSustento, opt => opt.MapFrom(src => Convert.ToInt16(src.CodDocSustento)))
+            .ForMember(dest => dest.codDocSustento, opt => opt.MapFrom(src => (Convert.ToInt16(src.CodDocSustento).ToString().PadLeft(2,'0'))))
             .ForMember(dest => dest.codigoRetencion, opt => opt.MapFrom(src => src.IdPorcentajeImpuestoRetencionNavigation.Codigo ))
             .ForMember(dest => dest.codigo, opt => opt.MapFrom(src => src.IdTipoValorRetencionNavigation.Codigo))
+            .ForMember(dest => dest.fechaEmisionDocSustento, opt => opt.MapFrom(src => Convert.ToDateTime (src.FechaEmisionDocSustento).ToString("dd/MM/yyyy")))
             .ReverseMap();
             ;
             #endregion

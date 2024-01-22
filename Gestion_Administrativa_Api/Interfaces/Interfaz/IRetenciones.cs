@@ -55,10 +55,10 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                 //if (consultaEmpresa == null) throw new Exception("No se ha encontrado la empresa");
                 //if (consultaEstablecimiento == null) throw new Exception("No se ha encontrado el establecimiento");
                 //var retenciones = _mapper.Map<Retenciones>(_retencionDto);
+                //retenciones.EmisorRuc = consultaEmpresa.Identificacion;
                 //var claveAcceso = await _IUtilidades.claveAccesoRetencion(retenciones);
                 //retenciones.ClaveAcceso = claveAcceso;
                 //retenciones.ObligadoContabilidad = consultaEmpresa.LlevaContabilidad;
-                //retenciones.EmisorRuc = consultaEmpresa.Identificacion;
                 //retenciones.DireccionMatriz = consultaEmpresa.DireccionMatriz;
                 //retenciones.EmisorNombreComercial = consultaEmpresa.RazonSocial;
                 //retenciones.EmisorRazonSocial = consultaEmpresa.RazonSocial;
@@ -71,8 +71,8 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                 //var facturaSri = await _context.SriFacturas.Where(x => x.ClaveAcceso == _retencionDto!.numAutDocSustento).FirstOrDefaultAsync();
                 //facturaSri!.RetencionGenerada = true;
                 //await _context.SaveChangesAsync();
-                var xml=await generarXml("140120240710010010000000011206520812") ;
-                var xmlFirmado = await firmarXml("140120240710010010000000011206520812",xml);
+                var xml=await generarXml("2101202407180224787200110010010000000014664310513") ;
+                var xmlFirmado = await firmarXml("2101202407180224787200110010010000000014664310513", xml);
                 await _IUtilidades.envioXmlSriComprobacion(xmlFirmado);
                 result.StatusCode = 200;
 
@@ -107,6 +107,10 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                 var infoCompRetencion = _mapper.Map<retencion_info_V1_0_0>(consulta?.IdFacturaNavigation);
                 var impuestos = _mapper.Map<List<retenciones_impuestos_V1_0_0>>(consulta?.ImpuestoRetenciones);
                 var infoAdicional = _mapper.Map<List<retencion_inf_adicional_V1_0_0>>(consulta?.InformacionAdicionalRetencion);
+                infoCompRetencion.fechaEmision = consulta.FechaEmision.Value.ToString("dd/MM/yyyy");
+                infoCompRetencion.periodoFiscal = consulta.FechaEmision.Value.ToString("MM/yyyy");
+                infoCompRetencion.dirEstablecimiento = consulta.DireccionMatriz;
+                infoCompRetencion.obligadoContabilidad = consulta.ObligadoContabilidad == true ?"SI":"";
                 infoTributaria.ruc = consultaEmpresa?.Identificacion;
                 infoTributaria.razonSocial = consultaEmpresa.RazonSocial;
                 infoTributaria.nombreComercial = consultaEmpresa.RazonSocial;
