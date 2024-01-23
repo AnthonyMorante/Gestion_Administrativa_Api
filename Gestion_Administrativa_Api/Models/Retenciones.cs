@@ -69,6 +69,12 @@ public partial class Retenciones
 
     public int IdFactura { get; set; }
 
+    public DateTime? FechaAutorizacion { get; set; }
+
+    public string? ReceptorCorreo { get; set; }
+
+    public DateTime FechaRegistro { get; set; }
+
     public virtual DocumentosEmitir IdDocumentoEmitirNavigation { get; set; } = null!;
 
     public virtual Establecimientos IdEstablecimientoNavigation { get; set; } = null!;

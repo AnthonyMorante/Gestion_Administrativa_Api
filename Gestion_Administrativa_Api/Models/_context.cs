@@ -1385,10 +1385,17 @@ public partial class _context : DbContext
                 .IsUnicode(false)
                 .HasColumnName("emisorRuc");
             entity.Property(e => e.Establecimiento).HasColumnName("establecimiento");
+            entity.Property(e => e.FechaAutorizacion)
+                .HasColumnType("datetime")
+                .HasColumnName("fechaAutorizacion");
             entity.Property(e => e.FechaEmision)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime")
                 .HasColumnName("fechaEmision");
+            entity.Property(e => e.FechaRegistro)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
+                .HasColumnName("fechaRegistro");
             entity.Property(e => e.IdDocumentoEmitir).HasColumnName("idDocumentoEmitir");
             entity.Property(e => e.IdEmpresa).HasColumnName("idEmpresa");
             entity.Property(e => e.IdEstablecimiento).HasColumnName("idEstablecimiento");
@@ -1416,6 +1423,10 @@ public partial class _context : DbContext
                 .HasMaxLength(500)
                 .IsUnicode(false)
                 .HasColumnName("razonSocialSujetoRetenido");
+            entity.Property(e => e.ReceptorCorreo)
+                .HasMaxLength(400)
+                .IsUnicode(false)
+                .HasColumnName("receptorCorreo");
             entity.Property(e => e.Ruta)
                 .HasMaxLength(1000)
                 .IsUnicode(false)
