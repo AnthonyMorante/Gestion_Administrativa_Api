@@ -2,6 +2,7 @@
 using Gestion_Administrativa_Api.Models;
 using Gestion_Administrativa_Api.Utilities;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
 
@@ -60,7 +61,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                                        {
                                            item.IdProducto,
                                            Producto = item.Nombre.TrimStart().TrimEnd()
-                                       }).OrderBy(x => x.Producto).ToListAsync();
+                                       }).AsNoTracking().OrderBy(x => x.Producto).ToListAsync();
                 var productosProveedores = await (from item in _context.ProductosProveedores
                                                   join pr in _context.Productos on item.IdProducto equals pr.IdProducto
                                                   where pr.IdEmpresa == idEmpresa && item.Identificacion == factura.Ruc
@@ -69,13 +70,13 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                                                       item.IdProducto,
                                                       item.CodigoPrincipal
                                                   }
-                                      ).ToListAsync();
+                                      ).AsNoTracking().ToListAsync();
                 var formasPagos = await (from item in _context.SriFormasPagos
                                          select new
                                          {
                                              item.Codigo,
                                              item.FormaPago
-                                         }).ToListAsync();
+                                         }).AsNoTracking().ToListAsync();
                 return Ok(new { factura, productos, productosProveedores, formasPagos });
             }
             catch (Exception ex)
@@ -119,6 +120,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                 }
                 else
                 {
+                    persona.FechaRegistro = DateTime.Now;
                     persona.Direccion = _factura.DirMatriz;
                     _context.SriPersonas.Update(persona);
                 }
@@ -197,7 +199,14 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                 return Tools.handleError(ex);
             }
         }
+        public class DapperSqlDateOnlyTypeHandler : SqlMapper.TypeHandler<DateOnly>
+        {
+            public override void SetValue(IDbDataParameter parameter, DateOnly date)
+                => parameter.Value = date.ToDateTime(new TimeOnly(0, 0));
 
+            public override DateOnly Parse(object value)
+                => DateOnly.FromDateTime((DateTime)value);
+        }
         [HttpGet("{idFactura}")]
         public async Task<IActionResult> unDato(int idFactura)
         {
@@ -215,7 +224,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                                        {
                                            item.IdProducto,
                                            Producto = item.Nombre.TrimStart().TrimEnd()
-                                       }).OrderBy(x => x.Producto).ToListAsync();
+                                       }).AsNoTracking().OrderBy(x => x.Producto).ToListAsync();
                 var productosProveedores = await (from item in _context.ProductosProveedores
                                                   join pr in _context.Productos on item.IdProducto equals pr.IdProducto
                                                   where pr.IdEmpresa == idEmpresa && item.Identificacion == factura.Ruc
@@ -224,13 +233,13 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                                                       item.IdProducto,
                                                       item.CodigoPrincipal
                                                   }
-                                      ).ToListAsync();
+                                      ).AsNoTracking().ToListAsync();
                 var formasPagos = await (from item in _context.SriFormasPagos
                                          select new
                                          {
                                              item.Codigo,
                                              item.FormaPago
-                                         }).ToListAsync();
+                                         }).AsNoTracking().ToListAsync();
                 return Ok(new { factura, productos, productosProveedores, formasPagos });
             }
             catch (Exception ex)

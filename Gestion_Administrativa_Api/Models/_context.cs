@@ -1368,6 +1368,9 @@ public partial class _context : DbContext
                 .IsUnicode(false)
                 .HasColumnName("claveAcceso");
             entity.Property(e => e.CodigoDocumento).HasColumnName("codigoDocumento");
+            entity.Property(e => e.CorreoEnviado)
+                .HasDefaultValue(false)
+                .HasColumnName("correoEnviado");
             entity.Property(e => e.DireccionMatriz)
                 .HasMaxLength(300)
                 .IsUnicode(false)
@@ -2034,11 +2037,9 @@ public partial class _context : DbContext
 
         modelBuilder.Entity<SriTotalesConImpuestos>(entity =>
         {
-            entity.HasKey(e => e.IdTotalConImpuesto).HasName("PK__SriTotal__22EAEE70E9C7E9E7");
+            entity.HasKey(e => e.IdTotalConImpuesto).HasName("PK__SriTotal__22EAEE70429CEFD4");
 
-            entity.Property(e => e.IdTotalConImpuesto)
-                .ValueGeneratedNever()
-                .HasColumnName("idTotalConImpuesto");
+            entity.Property(e => e.IdTotalConImpuesto).HasColumnName("idTotalConImpuesto");
             entity.Property(e => e.BaseImponible)
                 .HasColumnType("decimal(10, 2)")
                 .HasColumnName("baseImponible");

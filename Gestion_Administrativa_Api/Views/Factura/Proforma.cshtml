@@ -1,0 +1,476 @@
+﻿@using static Gestion_Administrativa_Api.Documents_Models.Factura.factura_V100
+@{
+    decimal? subtotal12 = 0;
+    decimal? subtotal0 = 0;
+    var modeloFactura = (factura_V1_0_0)Model.factura_V1_0_0;
+    var barCode = Model.barCode;
+}
+<!DOCTYPE html>
+<html lang="es-ec" dir="ltr">
+<head>
+    <style>
+        .A4 {
+            height: 29.7cm;
+            width: 22cm;
+            margin-left: auto;
+            margin-right: auto;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 14px;
+        }
+
+        img.logo {
+            width: 190px;
+            margin: auto;
+            margin-bottom: 25px !important;
+        }
+
+        .w-100 {
+            width: 100%;
+        }
+
+        .fs-xl {
+            font-size: 25px !important;
+        }
+
+        .fs-lg {
+            font-size: 19px !important;
+        }
+
+        .fw-bold {
+            font-weight: bold;
+        }
+
+        .text-uppercase {
+            text-transform: uppercase !important;
+        }
+
+        .text-normal {
+            text-transform: none !important;
+        }
+
+        table {
+            border-collapse: collapse;
+        }
+
+        .table-info-empresa tr td {
+            padding: 7px 0px;
+        }
+
+        .table-info-factura tr td {
+            padding: 7px 0px;
+        }
+
+        .table-info-factura {
+        }
+
+        span.fw-bold {
+            padding-right: 3px;
+        }
+
+        .bg-gray {
+            background-color: #BEBEBE;
+        }
+
+        .bordered {
+            border: 1px solid black;
+        }
+
+        .text-danger {
+            color: red;
+        }
+
+        .letter-spacing {
+            letter-spacing: 11px;
+        }
+
+        .text-center {
+            text-align: center !important;
+        }
+
+        table tr td.pt-0 {
+            padding-top: 0 !important;
+        }
+
+        table tr td.pb-0 {
+            padding-bottom: 0 !important;
+        }
+
+        .bar-code img {
+            filter: brightness(0) !important;
+        }
+
+        .card {
+            border: 0.09rem solid #BEBEBE;
+            padding: 19px;
+            border-radius: 10px;
+        }
+
+        .mb-1 {
+            margin-bottom: 10px !important;
+        }
+
+        .font-number {
+            font-family: 'Courier New' !important;
+        }
+
+        .p-data {
+            padding: 5px 3px !important;
+        }
+
+        table.table-detalle thead tr th {
+            background-color: #BEBEBE;
+            font-weight: 700 !important;
+            font-size: 11px;
+            padding: 5px 7px;
+        }
+
+        table.table-detalle tbody tr td {
+            border: 0.09rem solid #BEBEBE;
+            padding: 5px 7px;
+        }
+
+        table.table-totales tbody tr td {
+            border: 0.09rem solid #BEBEBE;
+            padding: 5px 5px 5px 2px;
+            font-size: 14px;
+        }
+
+        .text-end {
+            text-align: right;
+        }
+
+        table.table-totales tbody tr td.text-end {
+            text-align: right;
+            font-size: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="A4">
+        <!--#region Encabezado-->
+        <div class="w-100 mb-1">
+            <table>
+                <tbody>
+                    <tr>
+                        <td valign="top">
+                            <table class="text-uppercase">
+                                <tr class="w-100">
+                                    <td class="table-info-empresa" width="50%">
+                                        <table>
+                                            <tr>
+                                                <td class="text-center w-100">
+                                                    <img src="~/Imagenes/Logos/@modeloFactura.infoTributaria.ruc/logo.png" class="logo" />
+                                                </td>
+                                            </tr>
+                                            <tr class="pt-5">
+                                                <td class="fw-bold">@modeloFactura.infoTributaria.razonSocial</td>
+                                            </tr>
+                                            <tr>
+                                                <td>@modeloFactura.infoTributaria.nombreComercial</td>
+                                            </tr>
+                                            <tr>
+                                                <td><span class="fw-bold">R.U.C.:</span>@modeloFactura.infoTributaria.ruc</td>
+                                            </tr>
+                                            <tr>
+                                                <td><span class="fw-bold">DIR. MATRIZ:</span>@modeloFactura.infoTributaria.dirMatriz</td>
+                                            </tr>
+                                            <tr>
+                                                <td><span class="fw-bold">DIR. SUCRUSAL:</span>@modeloFactura.infoTributaria.dirMatriz</td>
+                                            </tr>
+                                            <tr>
+                                                <td><span class="fw-bold">OBLIGADO A LLEVAR CONTABILIDAD:</span>@modeloFactura.infoFactura.obligadoContabilidad</td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                        <td width="50%">
+                            <div class="card">
+                                <table class="w-100 text-uppercase table-info-factura">
+                                    <tbody>
+                                        <tr>
+                                            <td class="letter-spacing fs-xl fw-bold">
+                                                PROFORMA
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-danger fw-bold text-normal font-number fs-xl">No. @modeloFactura.infoTributaria.estab-@modeloFactura.infoTributaria.ptoEmi-@modeloFactura.infoTributaria.secuencial</td>
+                                        </tr>
+@*                                         <tr>
+                                            <td class="fw-bold">NÚMERO DE AUTORIZACIÓN:</td>
+                                        </tr> *@
+@*                                         <tr>
+                                            <td>@modeloFactura.infoTributaria.claveAcceso</td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <span class="fw-bold">FECHA DE AUTORIZACIÓN:</span>@DateTime.Now.ToString("dd-MM-yyyy hh:mm:ss")
+                                            </td>
+                                        </tr> *@
+@*                                         <tr>
+                                            <td>
+                                                <span class="fw-bold">AMBIENTE:</span>
+                                                @if (modeloFactura.infoTributaria.ambiente == "1")
+                                                {
+                                                    <span>PRUEBA</span>
+                                                }
+                                                else
+                                                {
+                                                    <span>PRODUCCIÓN</span>
+                                                }
+                                            </td>
+                                        </tr> *@
+@*                                         <tr>
+                                            <td>
+                                                <span class="fw-bold">EMISIÓN:</span>
+                                                @if (modeloFactura.infoTributaria.tipoEmision == "1")
+                                                {
+                                                    <span>NORMAL</span>
+                                                }
+                                            </td>
+                                        </tr> *@
+                                        <tr>
+                                            <td class="fw-bold">CÓDIGO DE PROFORMA:</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="bar-code text-center pb-0"><img height="55" width="406" src="data:image/png;base64,@(barCode)" /></td>
+                                        </tr>
+                                        <tr>
+                                            <td valign="top" class="pt-0 fw-bold text-center w-100">@modeloFactura.infoTributaria.claveAcceso</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <!--#endRegion Encabezado-->
+        <!--#region Información comprador-->
+        <div class="card p-data mb-1">
+            <table class="w-100">
+                <tbody>
+                    <tr>
+                        <td><span class="fw-bold">Razón Social / Nombres y Apellidos:</span>@modeloFactura.infoFactura.razonSocialComprador</td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="w-100">
+                <tbody>
+                    <tr>
+                        <td width="50" height="30" style="text-align: left;vertical-align: middle;"><b>RUC/CI:</b></td>
+                        <td style="vertical-align: middle;">@modeloFactura.infoFactura.identificacionComprador</td>
+                        <td width="65"></td>
+                        <td width="110" style="text-align: center;vertical-align: middle;"><b>Fecha Emisión:</b></td>
+                        <td style="text-align: left;vertical-align: middle;">@modeloFactura.infoFactura.fechaEmision</td>
+                        <td width="65"></td>
+                        <td width="110" style="text-align: center;vertical-align: middle;"><b>Guía Remisión:</b></td>
+                        <td style="max-width:110px;word-wrap: break-word;text-align: center;vertical-align: middle;">@modeloFactura.infoFactura.guiaRemision</td>
+                    </tr>
+                    <tr>
+
+                        <td style="text-align: left;vertical-align: middle;"><b>Dirección:</b></td>
+                        <td colspan="7" style="min-width:740px;max-width:740px;word-wrap: break-word;vertical-align: middle;">@modeloFactura.infoFactura.direccionComprador</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <!--#endRegion Información comprador-->
+        <!--#region Detalle Factura-->
+        <div class="p-data mb-1">
+            <table class="w-100 table-detalle">
+                <thead>
+                    <tr>
+                        <th>Cod.<br />Principal</th>
+                        <th>Cod.<br /> Auxiliar</th>
+                        <th>Cantidad</th>
+                        <th>Descripción</th>
+                        <th>Precio Unitario</th>
+                        <th>Descripción</th>
+                        <th>Precio Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in modeloFactura.detalles)
+
+                    {
+
+                        <tr>
+                            <td class="text-end">@item.codigoPrincipal</td>
+                            <td class="text-end">@item.codigoAuxiliar</td>
+                            <td class="text-end">@item.cantidad</td>
+                            <td style="word-wrap: break-word;">@item.descripcion</td>
+                            <td class="text-end">@item.precioUnitario.ToString("0.00")</td>
+                            <td class="text-end">@item.descuento?.ToString("0.00")</td>
+                            <td class="text-end">@item.precioTotalSinImpuesto?.ToString("0.00")</td>
+                        </tr>
+
+                    }
+
+                </tbody>
+            </table>
+        </div>
+        <!--#endRegion Encabezado-->
+        <!--#region Footer-->
+        <div class="w-100">
+            <table class="w-100">
+                <tr>
+                    <td valign="top" width="60%" style="padding-right:10px">
+                        @if (modeloFactura.infoAdicional.Count() > 0)
+                        {
+                            <div class="p-data">
+                                <table class="w-100 table-detalle">
+                                    <thead>
+                                        <tr>
+                                            <th colspan="2" style="text-align:center;" class="bg_columna">
+                                                <b>Información adicional</b>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in modeloFactura.infoAdicional)
+                                        {
+                                            <tr>
+                                                <td width="35%">@item.nombre</td>
+                                                <td class="text-center">@item.valor</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+
+                            </div>
+                        }
+                        <div class="p-data">
+                            <table class="w-100 table-detalle">
+                                <thead>
+                                    <tr>
+                                        <th>Forma de pago</th>
+                                        <th>Valor</th>
+                                        <th>Plazo</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in modeloFactura.infoFactura.pagos)
+                                    {
+                                        <tr>
+                                            <td width="60%">
+
+
+
+                                                @(item.formaPago == "01" ? "01-SIN UTILIZACION DEL SISTEMA FINANCIERO" :
+                                                    (item.formaPago == "16" ? "16-TARJETA DE DÉBITO" :
+                                                    (item.formaPago == "17" ? "17-DINERO ELECTRÓNICO" :
+                                                    (item.formaPago == "20" ? "20-OTROS CON UTILIZACIÓN DEL SISTEMA FINANCIERO" :
+                                                    (item.formaPago == "21" ? "21-ENDOSO DE TÍTULOS" :
+                                                    (item.formaPago == "15" ? "15-COMPENSACIÓN DE DEUDAS" :
+                                                    (item.formaPago == "19" ? "19-TARJETA DE CRÉDITO" : ""))))))
+                                                    )
+
+
+                                            </td>
+                                            <td class="text-end">@item.total?.ToString("0.00")</td>
+                                            <td class="text-end">@item.plazo</td>
+                                        </tr>
+
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </td>
+                    <td width="40%">
+                        <table class="w-100 table-totales">
+                            <tr>
+                                <td class="fw-bold">SUBTOTAL IVA 12%</td>
+
+                                @foreach (var item in modeloFactura.detalles)
+                                {
+
+                                    @foreach (var itemImpuestos in item.impuestos)
+                                    {
+
+
+                                        @if (itemImpuestos.codigoPorcentaje == 2)
+                                        {
+                                            subtotal12 += itemImpuestos.baseImponible;
+                                        }
+
+                                        @if (itemImpuestos.codigoPorcentaje == 0)
+                                        {
+                                            subtotal0 += itemImpuestos.baseImponible;
+                                        }
+
+                                    }
+
+                                }
+                                <td class="text-end">
+                                    @subtotal12?.ToString("0.00")
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td class="fw-bold">SUBTOTAL IVA 0%</td>
+                                <td class="text-end">@subtotal0?.ToString("0.00")</td>
+                            </tr>
+
+                            <tr>
+                                <td class="fw-bold">SUBTOTAL NO OBJETO DE IVA</td>
+                                <td class="text-end">0.00</td>
+                            </tr>
+
+                            <tr>
+                                <td class="fw-bold">SUBTOTAL EXENTO DE IVA</td>
+                                <td class="text-end">0.00</td>
+                            </tr>
+
+                            <tr>
+                                <td class="fw-bold">SUBTOTAL SIN IMPUESTOS</td>
+                                <td class="text-end">@modeloFactura.infoFactura.totalSinImpuestos?.ToString("0.00")</td>
+                            </tr>
+
+                            <tr>
+                                <td class="fw-bold">TOTAL DESCUENTO</td>
+                                <td class="text-end">@modeloFactura.infoFactura.totalDescuento?.ToString("0.00")</td>
+                            </tr>
+
+                            <tr>
+                                <td class="fw-bold">ICE</td>
+                                <td class="text-end">0.00</td>
+                            </tr>
+
+                            <tr>
+                                <td class="fw-bold">IVA 12%</td>
+                                @foreach (var item in modeloFactura.infoFactura.totalConImpuestos)
+                                {
+
+                                    <td class="text-end">@item.valor?.ToString("0.00")</td>
+                                }
+                            </tr>
+
+                            <tr>
+                                <td class="fw-bold">IRBPNR</td>
+                                <td class="text-end">0.00</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">PROPINA</td>
+                                <td class="text-end">0.00</td>
+                            </tr>
+
+                            <tr>
+                                <td class="fw-bold">VALOR A PAGAR</td>
+                                <td class="text-end fs-lg fw-bold">@modeloFactura.infoFactura.importeTotal?.ToString("0.00")</td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <!--#endRegion Encabezado-->
+    </div>
+</body>
+</html>
+
+

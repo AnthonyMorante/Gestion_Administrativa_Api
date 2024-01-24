@@ -17,6 +17,7 @@ using System.Web;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Serialization;
+using wsSriAutorizacion;
 using static Gestion_Administrativa_Api.Dtos.Interfaz.RetencionDto;
 using static System.Net.Mime.MediaTypeNames;
 
@@ -88,7 +89,6 @@ namespace Gestion_Administrativa_Api.Utilities
         [XmlRoot(ElementName = "factura")]
         public class Factura
         {
-
             [XmlElement(ElementName = "infoTributaria")]
             public InfoTributaria InfoTributaria { get; set; }
             [XmlElement(ElementName = "infoFactura")]
@@ -101,7 +101,21 @@ namespace Gestion_Administrativa_Api.Utilities
             public string Id { get; set; }
             [XmlAttribute(AttributeName = "version")]
             public string Version { get; set; }
+            public Autorizacion? autorizacion { get; set; }
         }
+        [XmlRoot(ElementName = "autorizacion")]
+        public class Autorizacion
+        {
+            [XmlElement(ElementName = "estado")]
+            public string estado { get; set; }
+            [XmlElement(ElementName = "numeroAutorizacion")]
+            public string numeroAutorizacion { get; set; }
+            [XmlElement(ElementName ="fechaAutorizacion")]
+            public string? fechaAutorizacion { get; set; }
+            [XmlElement(ElementName = "ambiente")]
+            public string ambiente { get; set; }
+        }
+
         public class Detalle
         {
             [XmlElement(ElementName = "codigoPrincipal")]
@@ -637,17 +651,28 @@ namespace Gestion_Administrativa_Api.Utilities
         public static Factura XmlToFacturaModel(Stream fileStream)
             {
             var encoded = "";
+            var encodedAutorizacion = "";
             using (StreamReader reader = new StreamReader(fileStream, Encoding.ASCII)) encoded = HttpUtility.HtmlDecode(reader.ReadToEnd());
             encoded = encoded.Replace("<![CDATA[", "");
             encoded = encoded.Replace("]]>", "");
             encoded = encoded.Replace("</br>", "\n").Replace("<br>", "\n");
+            encodedAutorizacion = encoded;
             var arreglo = encoded.Split(new string[] { "<comprobante>" }, StringSplitOptions.None);
             if(arreglo.Length > 1)
             {
                 encoded = encoded.Split(new string[] { "<comprobante>" }, StringSplitOptions.None)[1];
                 encoded= encoded.Split(new string[] { "</comprobante>" }, StringSplitOptions.None)[0];
             }
-            return ConvertStringToObject<Tools.Factura>(encoded);
+            var factura = ConvertStringToObject<Tools.Factura>(encoded);
+            var arregloAutorizacion = encodedAutorizacion.Split(new string[] { "<autorizacion>" }, StringSplitOptions.None);
+            if(arregloAutorizacion.Length > 1)
+            {
+                encodedAutorizacion = encodedAutorizacion.Split(new string[] { "</ambiente>" }, StringSplitOptions.None)[0];
+                encodedAutorizacion = $"{encodedAutorizacion}</ambiente></autorizacion>";
+                var autorizacion = ConvertStringToObject<Tools.Autorizacion>(encodedAutorizacion);
+                factura.autorizacion= autorizacion;
+            }
+            return factura;
         }
 
         static T ConvertStringToObject<T>(string xmlString)
@@ -687,6 +712,7 @@ namespace Gestion_Administrativa_Api.Utilities
                 _f.Id=_factura.Id;
                 _f.Secuencial = _factura.InfoTributaria.Secuencial;
                 _f.FechaEmision = DateOnly.ParseExact(_factura.InfoFactura.FechaEmision, "dd/MM/yyyy", CultureInfo.InvariantCulture);
+                if(_factura.autorizacion!=null)_f.FechaAutorizacion = Convert.ToDateTime(_factura.autorizacion.fechaAutorizacion, CultureInfo.InvariantCulture);
                 _f.ClaveAcceso = _factura.InfoTributaria.ClaveAcceso;
                 _f.CodDoc = _factura.InfoTributaria.CodDoc;
                 _f.ObligadoContabilidad = _factura.InfoFactura.ObligadoContabilidad;
@@ -733,6 +759,7 @@ namespace Gestion_Administrativa_Api.Utilities
                 foreach (var total in _factura.InfoFactura.TotalConImpuestos.TotalImpuesto)
                 {
                     var detalleTotal = new SriTotalesConImpuestos();
+                    detalleTotal.IdTotalConImpuesto = 0;
                     detalleTotal.Codigo = total.Codigo;
                     detalleTotal.CodigoPorcentaje = total.CodigoPorcentaje;
                     detalleTotal.DescuentoAdicional = Convert.ToDecimal(total.DescuentoAdicional, CultureInfo.InvariantCulture);
@@ -743,7 +770,7 @@ namespace Gestion_Administrativa_Api.Utilities
                 _f.SriPagos = (from item in _factura.InfoFactura.Pagos.Pago
                                select new SriPagos
                                {
-                                   Plazo=Convert.ToInt32(item.Plazo),
+                                   Plazo=Convert.ToInt32(Convert.ToDecimal(item.Plazo, CultureInfo.InvariantCulture)),
                                    FormaPago=item.FormaPago,
                                    Total=Convert.ToDecimal(item.Total, CultureInfo.InvariantCulture),
                                    UnidadTiempo=item.UnidadTiempo
@@ -770,5 +797,6 @@ namespace Gestion_Administrativa_Api.Utilities
             var responseStream = _file.OpenReadStream();
             return responseStream;
         }
+
     }
 }

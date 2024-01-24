@@ -82,6 +82,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
         {
             try
             {
+                _data.FechaRegistro = DateTime.Now;
                 _data.Proveedor = true;
                 _context.SriPersonas.Update(_data);
                 await _context.SaveChangesAsync();

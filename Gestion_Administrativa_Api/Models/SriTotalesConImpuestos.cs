@@ -5,8 +5,6 @@ namespace Gestion_Administrativa_Api.Models;
 
 public partial class SriTotalesConImpuestos
 {
-    public int IdTotalConImpuesto { get; set; }
-
     public int? IdFactura { get; set; }
 
     public decimal? BaseImponible { get; set; }
@@ -18,6 +16,8 @@ public partial class SriTotalesConImpuestos
     public decimal? DescuentoAdicional { get; set; }
 
     public decimal? Valor { get; set; }
+
+    public int IdTotalConImpuesto { get; set; }
 
     public virtual SriTarifasImpuestos? CodigoPorcentajeNavigation { get; set; }
 
