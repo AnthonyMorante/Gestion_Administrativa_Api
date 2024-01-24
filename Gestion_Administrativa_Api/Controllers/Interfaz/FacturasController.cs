@@ -449,6 +449,9 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                                 INNER JOIN ""usuarioEmpresas"" ue ON ue.""idUsuario"" = f.""idUsuario""
                                 WHERE (""idTipoEstadoSri"" NOT IN(2,3,4,5) OR (""correoEnviado""=0 AND ""idTipoEstadoSri""=2))
                                 AND ""idEmpresa""= CAST(@idEmpresa AS UNIQUEIDENTIFIER)";
+
+
+
                 if (_dapper.ExecuteScalar<int>(sql, new { idEmpresa }) == 0) return Ok("empty");
                 sql = @"SELECT ""claveAcceso""
                               FROM facturas f

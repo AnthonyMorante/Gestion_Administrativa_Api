@@ -75,6 +75,8 @@ public partial class Retenciones
 
     public DateTime FechaRegistro { get; set; }
 
+    public bool? CorreoEnviado { get; set; }
+
     public virtual DocumentosEmitir IdDocumentoEmitirNavigation { get; set; } = null!;
 
     public virtual Establecimientos IdEstablecimientoNavigation { get; set; } = null!;

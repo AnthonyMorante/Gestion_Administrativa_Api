@@ -1368,6 +1368,9 @@ public partial class _context : DbContext
                 .IsUnicode(false)
                 .HasColumnName("claveAcceso");
             entity.Property(e => e.CodigoDocumento).HasColumnName("codigoDocumento");
+            entity.Property(e => e.CorreoEnviado)
+                .HasDefaultValue(false)
+                .HasColumnName("correoEnviado");
             entity.Property(e => e.DireccionMatriz)
                 .HasMaxLength(300)
                 .IsUnicode(false)

@@ -23,6 +23,9 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
     {
 
         Task<IActionResult> guardar(RetencionDto? _retencionDto);
+        Task<IActionResult> reenviar(string CLaveAccesso);
+        Task<XmlDocument?> descargarXml(string claveAccesso);
+        Task<bool> enviarSri(string claveAccesso);
 
 
     }
@@ -50,33 +53,130 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
             try
             {
                 var result = new ObjectResult(null);
-                //var consultaEmpresa = await _context.Empresas.FindAsync(_retencionDto?.idEmpresa);
-                //var consultaEstablecimiento = await _context.Establecimientos.FindAsync(_retencionDto?.idEstablecimiento);
-                //if (consultaEmpresa == null) throw new Exception("No se ha encontrado la empresa");
-                //if (consultaEstablecimiento == null) throw new Exception("No se ha encontrado el establecimiento");
-                //var retenciones = _mapper.Map<Retenciones>(_retencionDto);
-                //retenciones.EmisorRuc = consultaEmpresa.Identificacion;
-                //var claveAcceso = await _IUtilidades.claveAccesoRetencion(retenciones);
-                //retenciones.ClaveAcceso = claveAcceso;
-                //retenciones.ObligadoContabilidad = consultaEmpresa.LlevaContabilidad;
-                //retenciones.DireccionMatriz = consultaEmpresa.DireccionMatriz;
-                //retenciones.EmisorNombreComercial = consultaEmpresa.RazonSocial;
-                //retenciones.EmisorRazonSocial = consultaEmpresa.RazonSocial;
-                //retenciones.PeriodoFiscal = _retencionDto?.fechaEmisionDocSustento!.Value.ToString("MM-yyyy");
-                //var informacionAdicionales = _mapper.Map<List<InformacionAdicionalRetencion>>(_retencionDto?.infoAdicional);
-                //var impuestos = _mapper.Map<List<ImpuestoRetenciones>>(_retencionDto?.impuestos);
-                //retenciones.InformacionAdicionalRetencion = informacionAdicionales;
-                //retenciones.ImpuestoRetenciones = impuestos;
-                //await _context.AddAsync(retenciones);
-                //var facturaSri = await _context.SriFacturas.Where(x => x.ClaveAcceso == _retencionDto!.numAutDocSustento).FirstOrDefaultAsync();
-                //facturaSri!.RetencionGenerada = true;
-                //await _context.SaveChangesAsync();
-                var xml=await generarXml("2101202407180224787200110010010000000014664310513") ;
-                var xmlFirmado = await firmarXml("2101202407180224787200110010010000000014664310513", xml);
-                await _IUtilidades.envioXmlSriComprobacion(xmlFirmado);
+                var registrar = await guardarRegistro(_retencionDto);
+                //var xml=await generarXml(registrar) ;
+                //var xmlFirmado = await firmarXml(registrar, xml);
+                //await _IUtilidades.envioXmlSRI(xmlFirmado);
                 result.StatusCode = 200;
 
                 return result;
+
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
+
+
+        public async Task<IActionResult> reenviar(string claveAccesso)
+        {
+            try
+            {
+                var result = new ObjectResult(null);
+                var xml = await generarXml(claveAccesso);
+                var xmlFirmado = await firmarXml(claveAccesso, xml);
+                var envioSri = await _IUtilidades.envioXmlSRI(xmlFirmado);
+                var retencion =  await _context.Retenciones.Where(x => x.ClaveAcceso == claveAccesso).FirstOrDefaultAsync();
+                if (!envioSri)
+                {
+                    retencion.IdTipoEstadoSri = 5;
+                }
+                else
+                {
+                    retencion.IdTipoEstadoSri = 6;
+                }
+                _context.Update(retencion);
+                await _context.SaveChangesAsync();
+                //retencion.IdTipoEstadoSri
+                result.StatusCode = 200;
+                return result;
+
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
+
+
+       
+
+
+        public async Task<bool> enviarSri(string claveAccesso)
+        {
+            try
+            {
+                var result = new ObjectResult(null);
+                var xml = await generarXml(claveAccesso);
+                var xmlFirmado = await firmarXml(claveAccesso, xml);
+                if (!await _IUtilidades.envioXmlSRI(xmlFirmado)) throw new Exception("Error al enviar al SRI");
+                return true;
+
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
+
+
+
+        public async Task<XmlDocument?> descargarXml(string claveAccesso)
+        {
+            try
+            {
+                var result = new ObjectResult(null);
+                var xml = await generarXml(claveAccesso);
+                var xmlFirmado = await firmarXml(claveAccesso, xml);
+                return xmlFirmado;
+      
+
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
+
+
+
+
+
+
+        public async Task<string> guardarRegistro(RetencionDto? _retencionDto)
+        {
+            try
+            {
+                var result = new ObjectResult(null);
+                var consultaEmpresa = await _context.Empresas.FindAsync(_retencionDto?.idEmpresa);
+                var consultaEstablecimiento = await _context.Establecimientos.FindAsync(_retencionDto?.idEstablecimiento);
+                if (consultaEmpresa == null) throw new Exception("No se ha encontrado la empresa");
+                if (consultaEstablecimiento == null) throw new Exception("No se ha encontrado el establecimiento");
+                var retenciones = _mapper.Map<Retenciones>(_retencionDto);
+                retenciones.EmisorRuc = consultaEmpresa.Identificacion;
+                var claveAcceso = await _IUtilidades.claveAccesoRetencion(retenciones);
+                retenciones.ClaveAcceso = claveAcceso;
+                retenciones.ObligadoContabilidad = consultaEmpresa.LlevaContabilidad;
+                retenciones.DireccionMatriz = consultaEmpresa.DireccionMatriz;
+                retenciones.EmisorNombreComercial = consultaEmpresa.RazonSocial;
+                retenciones.EmisorRazonSocial = consultaEmpresa.RazonSocial;
+                retenciones.PeriodoFiscal = _retencionDto?.fechaEmisionDocSustento!.Value.ToString("MM-yyyy");
+                var informacionAdicionales = _mapper.Map<List<InformacionAdicionalRetencion>>(_retencionDto?.infoAdicional);
+                var impuestos = _mapper.Map<List<ImpuestoRetenciones>>(_retencionDto?.impuestos);
+                retenciones.InformacionAdicionalRetencion = informacionAdicionales;
+                retenciones.ImpuestoRetenciones = impuestos;
+                await _context.AddAsync(retenciones);
+                var facturaSri = await _context.SriFacturas.Where(x => x.ClaveAcceso == _retencionDto!.numAutDocSustento).FirstOrDefaultAsync();
+                facturaSri!.RetencionGenerada = true;
+                await _context.SaveChangesAsync();
+                result.StatusCode = 200;
+
+                return claveAcceso;
 
             }
             catch (Exception ex)
