@@ -46,8 +46,10 @@ IConfiguration config = new ConfigurationBuilder()
       .AddEnvironmentVariables()
       .Build();
 
-builder.Services.AddDbContextPool<_context>(options =>
-options.UseSqlServer(config.GetConnectionString("cn")));
+builder.Services.AddDbContextPool<_context>(options => {
+    options.UseSqlServer(config.GetConnectionString("cn"));
+    options.EnableSensitiveDataLogging();
+    });
 
 //builder.Services.AddScoped<IDbConnection>(db => new SqlConnection(config.GetConnectionString("cn")));
 

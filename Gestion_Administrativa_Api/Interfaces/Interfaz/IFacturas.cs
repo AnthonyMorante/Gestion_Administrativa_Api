@@ -21,7 +21,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
     {
         Task<IActionResult> guardar(FacturaDto? _facturaDto);
 
-        Task<byte[]> generaRide(ActionContext ac, string claveAcceso);
+        Task<byte[]> generaRide(ActionContext ac, string claveAcceso,bool proforma);
 
         Task<string> generaRecibo(ActionContext ac, factura_V1_0_0 factura_V1_0_0, FacturaDto facturaDto);
 
@@ -118,6 +118,15 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                     string sql = @"UPDATE facturas SET ""idTipoEstadoSri""=@idTipoEstadoSri
                                    WHERE ""claveAcceso"" = @claveAcceso;";
                     await _dapper.ExecuteScalarAsync(sql, new { claveAcceso = factura.ClaveAcceso, idTipoEstadoSri });
+                }
+                else
+                {
+                    var consultaSecuencial = await _context.Secuenciales.FirstOrDefaultAsync(x => x.IdEmpresa == consultaEmpresa.IdEmpresa && x.IdTipoDocumento == _facturaDto.idTipoDocumento);
+                    consultaSecuencial.Nombre = consultaSecuencial.Nombre + 1;
+                    factura.IdTipoEstadoSri = 2;
+                    factura.TipoDocumento = 0;
+                    _context.Secuenciales.Update(consultaSecuencial);
+                    await _context.SaveChangesAsync();
                 }
                 result.StatusCode = 200;
                 return result;
@@ -339,13 +348,13 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
             }
         }
 
-        public async Task<byte[]> generaRide(ActionContext ac, string claveAcesso)
+        public async Task<byte[]> generaRide(ActionContext ac, string claveAcesso,bool proforma)
         {
             try
             {
                 var factura_V1_0_0 = await _Factura_V1_0_0(claveAcesso);
                 var barCode = getBarcode(claveAcesso);
-                var pdf = new ViewAsPdf("~/Views/Factura/FacturaV1_1_0.cshtml", new { factura_V1_0_0, barCode });
+                var pdf = new ViewAsPdf(proforma? "~/Views/Factura/Proforma.cshtml":"~/Views/Factura/FacturaV1_1_0.cshtml", new { factura_V1_0_0, barCode });
                 return await pdf.BuildFile(ac);
             }
             catch (Exception ex)

@@ -6,6 +6,7 @@ using Gestion_Administrativa_Api.Models;
 using Gestion_Administrativa_Api.Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
 using System.Text;
@@ -26,7 +27,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             _IFacturas = IFacturas;
             _context = context;
             _IUtilidades = IUtilidades;
-            _dapper = _context.Database.GetDbConnection();
+            _dapper = context.Database.GetDbConnection();
         }
 
         [HttpPost]
@@ -40,12 +41,13 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                                 ted.""nombre"" AS estado,f.""fechaRegistro"",f.""fechaEmision"",f.""fechaAutorizacion"",
                                 f.""receptorTelefono"" AS ""telefonoCliente"", f.""receptorCorreo"" AS ""emailCliente"",
                                 f.""idTipoEstadoSri"",f.""idTipoEstadoDocumento"",""establecimiento"",f.""tipoEmision"",f.""idPuntoEmision"",
-                                pe.""nombre"" AS ""puntoEmision""
+                                pe.""nombre"" AS ""puntoEmision"",td.codigo,f.correoEnviado
                                 FROM facturas f
                                 INNER JOIN ""tipoEstadoSri"" tes ON tes.""idTipoEstadoSri"" = f.""idTipoEstadoSri""
                                 INNER JOIN ""tipoEstadoDocumentos"" ted ON ted.""idTipoEstadoDocumento"" = f.""idTipoEstadoDocumento""
                                 INNER JOIN ""establecimientos"" e ON e.""idEstablecimiento"" = f.""idEstablecimiento""
                                 INNER JOIN ""puntoEmisiones"" pe ON pe.""idPuntoEmision"" = f.""idPuntoEmision""
+                                INNER JOIN ""tipoDocumentos"" td ON td.""codigo"" = f.""tipoDocumento""
                                 WHERE (DATEPART(year, f.""fechaEmision"") - DATEPART(year, getdate())) * 12 +
                                 (DATEPART(MONTH, f.""fechaEmision"") - DATEPART(MONTH, getdate()))<=3
                                 AND e.""idEmpresa""=CAST(@idEmpresa AS UNIQUEIDENTIFIER)";
@@ -73,7 +75,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                 string sql = @" SELECT s.nombre,s.""idTipoDocumento""
                                 FROM secuenciales s
                                 INNER JOIN ""tipoDocumentos"" td ON s.""idTipoDocumento"" = td.""idTipoDocumento""
-                                WHERE codigo=1 AND s.activo =1 AND ""idEmpresa""=CAST(@idEmpresa AS UNIQUEIDENTIFIER)
+                                WHERE s.activo =1 AND ""idEmpresa""=CAST(@idEmpresa AS UNIQUEIDENTIFIER)
                                 UNION ALL
                                 SELECT nombre,""idTipoDocumento"" FROM ""secuencialesProformas""
                                 WHERE ""activo""= 1
@@ -118,9 +120,12 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                                          {
                                              item.IdTipoEstadoSri,
                                              item.ReceptorCorreo,
-                                             item.CorreoEnviado
+                                             item.CorreoEnviado,
+                                             item.TipoDocumento
                                          }).FirstOrDefaultAsync();
+                    
                     var estado = await _IUtilidades.verificarEstadoSRI(claveAcceso);
+
                     string sqlU = $@"UPDATE facturas SET ""idTipoEstadoSri""=@idTipoEstadoSri
                                     WHERE ""claveAcceso"" = @claveAcceso;
                                     ";
@@ -130,7 +135,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                         {
                             try
                             {
-                                var ride = await _IFacturas.generaRide(ControllerContext, claveAcceso);
+                                var ride = await _IFacturas.generaRide(ControllerContext, claveAcceso,factura.TipoDocumento==0);
                                 await _IFacturas.enviarCorreo(factura.ReceptorCorreo, ride, claveAcceso);
                                 sqlU += @"UPDATE facturas SET ""correoEnviado""=1,""fechaAutorizacion""=@fechaAutorizacion WHERE ""claveAcceso"" =@claveAcceso;";
                             }
@@ -179,7 +184,8 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
         {
             try
             {
-                var pdfBytes = await _IFacturas.generaRide(ControllerContext, claveAcceso);
+                var proforma=await _context.Facturas.AsNoTracking().Where(x=>x.ClaveAcceso== claveAcceso).Select(x=>x.TipoDocumento).FirstOrDefaultAsync()==0;
+                var pdfBytes = await _IFacturas.generaRide(ControllerContext, claveAcceso,proforma);
                 var archivo = new FileContentResult(pdfBytes, "application/pdf");
                 archivo.FileDownloadName = $"REPORTE_{DateTime.Now.Ticks}.pdf";
                 return archivo;
@@ -235,12 +241,12 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                 _facturaDto.idDocumentoEmitir = (await _context.DocumentosEmitir.AsNoTracking().Where(x => x.IdTipoDocumento == _facturaDto.idTipoDocumento).FirstOrDefaultAsync()).IdDocumentoEmitir;
                 sql = @"SELECT ""nombre""
                         FROM ""establecimientos""
-                        WHERE ""idEstablecimiento""=uuid(@idEstablecimiento)
+                        WHERE ""idEstablecimiento""=@idEstablecimiento
                         ";
                 _facturaDto.establecimiento = Convert.ToInt32(await _dapper.ExecuteScalarAsync<string>(sql, _facturaDto)).ToString("D3");
                 sql = @"SELECT ""nombre""
                     FROM ""puntoEmisiones""
-                    WHERE ""idPuntoEmision""=uuid(@idPuntoEmision)
+                    WHERE ""idPuntoEmision""=@idPuntoEmision
                     ";
                 _facturaDto.puntoEmision = Convert.ToInt32(await _dapper.ExecuteScalarAsync<string>(sql, _facturaDto)).ToString("D3");
                 sql = @"SELECT ""nombre""
@@ -252,7 +258,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                 _facturaDto.idFormaPago = _facturaDto.formaPago.FirstOrDefault().idFormaPago;
                 sql = @"SELECT codigo FROM clientes c
                    INNER JOIN ""tipoIdentificaciones"" ti ON ti.""idTipoIdentificacion""=c.""idTipoIdentificacion""
-                   WHERE ""idCliente""=uuid(@idCliente);";
+                   WHERE ""idCliente""=@idCliente;";
                 _facturaDto.codigoTipoIdentificacion = await _dapper.ExecuteScalarAsync<int>(sql, _facturaDto);
                 return _facturaDto;
             }
@@ -269,7 +275,8 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
         {
             try
             {
-                var consulta = await _IFacturas.generaRide(ControllerContext, claveAcceso);
+                var proforma = await _context.Facturas.AsNoTracking().Where(x => x.ClaveAcceso == claveAcceso).Select(x => x.TipoDocumento).FirstOrDefaultAsync() == 0;
+                var consulta = await _IFacturas.generaRide(ControllerContext, claveAcceso,proforma);
                 return "ok";
             }
             catch (Exception ex)
@@ -473,8 +480,9 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                                        {
                                            item.IdTipoEstadoSri,
                                            item.ReceptorCorreo,
-                                           item.CorreoEnviado
-                                       }).FirstOrDefault();
+                                           item.CorreoEnviado,
+                                           item.TipoDocumento
+                                       }).AsNoTracking().FirstOrDefault();
                         if (factura.IdTipoEstadoSri == 0 || factura.IdTipoEstadoSri == null)
                         {
                             var enviado = _IFacturas.enviarSri(claveAcceso).Result;
@@ -487,30 +495,52 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                         }
                         else
                         {
-                            var estado = _IUtilidades.verificarEstadoSRI(claveAcceso).Result;
-                            sqlA = $@"UPDATE facturas SET ""idTipoEstadoSri""=@idTipoEstadoSri
-                                      WHERE ""claveAcceso"" = @claveAcceso;";
-                            if (estado.idTipoEstadoSri == 2)
+                            if (factura.TipoDocumento != 0)
                             {
-                                if (factura.CorreoEnviado == false)
+                                var estado = _IUtilidades.verificarEstadoSRI(claveAcceso).Result;
+                                sqlA = $@"UPDATE facturas SET ""idTipoEstadoSri""=@idTipoEstadoSri
+                                      WHERE ""claveAcceso"" = @claveAcceso;";
+                                if (estado.idTipoEstadoSri == 2)
                                 {
-                                    try
+                                    if (factura.CorreoEnviado == false)
                                     {
-                                        var ride = _IFacturas.generaRide(ControllerContext, claveAcceso).Result;
-                                        var correoEnviado = _IFacturas.enviarCorreo(factura.ReceptorCorreo, ride, claveAcceso).Result;
-                                        if (correoEnviado)
+                                        try
                                         {
-                                            sqlA += @"UPDATE facturas SET ""correoEnviado""=1,""fechaAutorizacion""=@fechaAutorizacion WHERE ""claveAcceso"" =@claveAcceso;";
-                                            _dapper.Execute(sqlA, new { claveAcceso, estado.fechaAutorizacion, estado.idTipoEstadoSri });
+                                            var ride = _IFacturas.generaRide(ControllerContext, claveAcceso, factura.TipoDocumento == 0).Result;
+                                            var correoEnviado = _IFacturas.enviarCorreo(factura.ReceptorCorreo, ride, claveAcceso).Result;
+                                            if (correoEnviado)
+                                            {
+                                                sqlA += @"UPDATE facturas SET ""correoEnviado""=1,""fechaAutorizacion""=@fechaAutorizacion WHERE ""claveAcceso"" =@claveAcceso;";
+                                                _dapper.Execute(sqlA, new { claveAcceso, estado.fechaAutorizacion, estado.idTipoEstadoSri });
+                                            }
                                         }
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        Console.WriteLine(ex.Message);
-                                        continue;
+                                        catch (Exception ex)
+                                        {
+                                            Console.WriteLine(ex.Message);
+                                            continue;
+                                        }
                                     }
                                 }
                             }
+                            else
+                            {
+                                try
+                                {
+                                    var ride = _IFacturas.generaRide(ControllerContext, claveAcceso, factura.TipoDocumento == 0).Result;
+                                    var correoEnviado = _IFacturas.enviarCorreo(factura.ReceptorCorreo, ride, claveAcceso).Result;
+                                    if (correoEnviado)
+                                    {
+                                        sqlA = @"UPDATE facturas SET ""correoEnviado""=1 WHERE ""claveAcceso"" =@claveAcceso;";
+                                        _dapper.Execute(sqlA, new { claveAcceso});
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    Console.WriteLine(ex.Message);
+                                    continue;
+                                }
+                            }
+     
                         }
                     }
                     catch (Exception ex)
