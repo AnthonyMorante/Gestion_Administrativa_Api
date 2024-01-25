@@ -17,6 +17,7 @@ using static Gestion_Administrativa_Api.Documents_Models.Retencion.retencion_V10
 using System.Data;
 using Dapper;
 using NetBarcode;
+using Rotativa.AspNetCore;
 
 namespace Gestion_Administrativa_Api.Interfaces.Interfaz
 {
@@ -30,6 +31,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
         Task<Retenciones> consultarRetencion(string claveAcceso);
         string getBarcode(string claveAcceso);
         Task<bool> enviarCorreo(string email, byte[] archivo, string claveAcceso);
+        Task<byte[]> generaRide(ControllerContext cc, string claveAcceso);
 
 
     }
@@ -140,6 +142,23 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
             catch (Exception ex)
             {
 
+                throw;
+            }
+        }
+
+
+        public async Task<byte[]> generaRide(ControllerContext cc, string claveAcceso)
+        {
+            try
+            {
+                var retencion_V1_0_0 = await consultarRetencion(claveAcceso);
+                var barCode = getBarcode(claveAcceso);
+                var pdf = new ViewAsPdf("~/Views/Retencion/RetencionV1_1_0.cshtml", new { retencion_V1_0_0, barCode });
+                return await pdf.BuildFile(cc);
+            }
+            catch (Exception ex)
+            {
+                await Console.Out.WriteLineAsync(ex.Message);
                 throw;
             }
         }

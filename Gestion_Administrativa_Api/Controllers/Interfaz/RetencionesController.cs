@@ -250,7 +250,7 @@ namespace Gestion_Administrativa_Api.Controllers
         {
             try
             {
-                var pdfBytes = await generaRide(claveAcceso);
+                var pdfBytes = await  _IRetenciones.generaRide(ControllerContext, claveAcceso);
                 var archivo = new FileContentResult(pdfBytes, "application/pdf");
                 archivo.FileDownloadName = $"REPORTE_{DateTime.Now.Ticks}.pdf";
                 return archivo;
@@ -345,7 +345,7 @@ namespace Gestion_Administrativa_Api.Controllers
                                 {
                                     try
                                     {
-                                        var ride = await generaRide(claveAcceso);
+                                        var ride = await _IRetenciones.generaRide(ControllerContext, claveAcceso);
                                         var correoEnviado = _IRetenciones.enviarCorreo(retencion.ReceptorCorreo, ride, claveAcceso).Result;
                                         if (correoEnviado)
                                         {
@@ -376,21 +376,7 @@ namespace Gestion_Administrativa_Api.Controllers
             }
         }
 
-        public async Task<byte[]> generaRide(string claveAcceso)
-        {
-            try
-            {
-                var retencion_V1_0_0 = await _IRetenciones.consultarRetencion(claveAcceso);
-                var barCode = _IRetenciones.getBarcode(claveAcceso);
-                var pdf = new ViewAsPdf("~/Views/Retencion/RetencionV1_1_0.cshtml", new { retencion_V1_0_0, barCode });
-                return await pdf.BuildFile(ControllerContext);
-            }
-            catch (Exception ex)
-            {
-                await Console.Out.WriteLineAsync(ex.Message);
-                throw;
-            }
-        }
+    
 
 
     }
