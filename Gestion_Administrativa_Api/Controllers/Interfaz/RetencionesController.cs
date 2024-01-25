@@ -7,6 +7,7 @@ using Gestion_Administrativa_Api.Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Rotativa.AspNetCore;
 using System.Data;
 using System.Text;
 
@@ -220,7 +221,7 @@ namespace Gestion_Administrativa_Api.Controllers
                                     select sf.idEmpresa ,r.idRetencion ,sf.fechaEmision as fechaEmisionRetencion,sf.fechaRegistro ,
                                     sf.estab + '-' +sf.ptoEmi + '-' + sf.secuencial as documento,
                                     sf.razonSocialComprador,r.claveAcceso,r.idTipoEstadoSri ,
-                                    sf.fechaAutorizacion,sp.telefono ,sp.email,tes.nombre as estadoSri 
+                                    r.fechaAutorizacion,sp.telefono ,sp.email,tes.nombre as estadoSri 
                                     from retenciones r 
                                     join SriFacturas sf on sf.idFactura = r.idFactura
                                     join SriPersonas sp on sp.identificacion = sf.ruc 
@@ -238,6 +239,25 @@ namespace Gestion_Administrativa_Api.Controllers
             catch (Exception ex)
             {
                 return Tools.handleError(ex);
+            }
+        }
+
+
+
+
+        [HttpGet("{claveAcceso}")]
+        public async Task<IActionResult> descargarPdf(string claveAcceso)
+        {
+            try
+            {
+                var pdfBytes = await generaRide(claveAcceso);
+                var archivo = new FileContentResult(pdfBytes, "application/pdf");
+                archivo.FileDownloadName = $"REPORTE_{DateTime.Now.Ticks}.pdf";
+                return archivo;
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
             }
         }
 
@@ -323,21 +343,21 @@ namespace Gestion_Administrativa_Api.Controllers
                             {
                                 if (retencion.CorreoEnviado == false)
                                 {
-                                    //try
-                                    //{
-                                    //    var ride = _IFacturas.generaRide(ControllerContext, claveAcceso).Result;
-                                    //    var correoEnviado = _IFacturas.enviarCorreo(factura.ReceptorCorreo, ride, claveAcceso).Result;
-                                    //    if (correoEnviado)
-                                    //    {
-                                    //        sqlA += @"UPDATE facturas SET ""correoEnviado""=1,""fechaAutorizacion""=@fechaAutorizacion WHERE ""claveAcceso"" =@claveAcceso;";
-                                    //        _dapper.Execute(sqlA, new { claveAcceso, estado.fechaAutorizacion, estado.idTipoEstadoSri });
-                                    //    }
-                                    //}
-                                    //catch (Exception ex)
-                                    //{
-                                    //    Console.WriteLine(ex.Message);
-                                    //    continue;
-                                    //}
+                                    try
+                                    {
+                                        var ride = await generaRide(claveAcceso);
+                                        var correoEnviado = _IRetenciones.enviarCorreo(retencion.ReceptorCorreo, ride, claveAcceso).Result;
+                                        if (correoEnviado)
+                                        {
+                                            sqlA += @"UPDATE retenciones SET ""correoEnviado""=1,""fechaAutorizacion""=@fechaAutorizacion WHERE ""claveAcceso"" =@claveAcceso;";
+                                            _dapper.Execute(sqlA, new { claveAcceso, estado.fechaAutorizacion, estado.idTipoEstadoSri });
+                                        }
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        Console.WriteLine(ex.Message);
+                                        continue;
+                                    }
                                 }
                             }
                         }
@@ -353,6 +373,22 @@ namespace Gestion_Administrativa_Api.Controllers
             catch (Exception ex)
             {
                 return Problem(ex.Message);
+            }
+        }
+
+        public async Task<byte[]> generaRide(string claveAcceso)
+        {
+            try
+            {
+                var retencion_V1_0_0 = await _IRetenciones.consultarRetencion(claveAcceso);
+                var barCode = _IRetenciones.getBarcode(claveAcceso);
+                var pdf = new ViewAsPdf("~/Views/Retencion/RetencionV1_1_0.cshtml", new { retencion_V1_0_0, barCode });
+                return await pdf.BuildFile(ControllerContext);
+            }
+            catch (Exception ex)
+            {
+                await Console.Out.WriteLineAsync(ex.Message);
+                throw;
             }
         }
 

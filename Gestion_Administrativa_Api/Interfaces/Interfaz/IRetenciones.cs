@@ -16,6 +16,7 @@ using Gestion_Administrativa_Api.Documents_Models.Retencion;
 using static Gestion_Administrativa_Api.Documents_Models.Retencion.retencion_V100;
 using System.Data;
 using Dapper;
+using NetBarcode;
 
 namespace Gestion_Administrativa_Api.Interfaces.Interfaz
 {
@@ -26,6 +27,9 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
         Task<IActionResult> reenviar(string CLaveAccesso);
         Task<XmlDocument?> descargarXml(string claveAccesso);
         Task<bool> enviarSri(string claveAccesso);
+        Task<Retenciones> consultarRetencion(string claveAcceso);
+        string getBarcode(string claveAcceso);
+        Task<bool> enviarCorreo(string email, byte[] archivo, string claveAcceso);
 
 
     }
@@ -68,6 +72,23 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                 throw;
             }
         }
+
+
+
+        public string getBarcode(string claveAcceso)
+        {
+            try
+            {
+                var bar = new Barcode(claveAcceso);
+                return bar.GetBase64Image();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                throw;
+            }
+        }
+
 
 
         public async Task<IActionResult> reenviar(string claveAccesso)
@@ -188,6 +209,37 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
 
 
 
+
+
+
+        public async Task<Retenciones> consultarRetencion(string claveAcceso)
+        {
+            try
+            {
+
+                var consulta = await _context.Retenciones
+                    .Include(x => x.ImpuestoRetenciones)
+                    .ThenInclude(x => x.IdPorcentajeImpuestoRetencionNavigation)
+                    .ThenInclude(x => x.IdTipoValorRetencionNavigation)
+                    .Include(x => x.InformacionAdicionalRetencion)
+                    .Include(x=>x.IdTipoDocumentoNavigation)
+                    .Include(x=>x.IdEmpresaNavigation)
+                    .Include(x => x.IdFacturaNavigation)
+                    .Where(x => x.ClaveAcceso == claveAcceso).FirstOrDefaultAsync();
+
+                return consulta;
+
+            
+            }
+            catch (Exception ex)
+            {
+                await Console.Out.WriteLineAsync(ex.Message);
+                throw;
+            }
+        }
+
+
+
         public async Task<XDocument> generarXml(string claveAcceso)
         {
             try
@@ -271,6 +323,14 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                 Console.WriteLine(ex.Message);
                 throw;
             }
+        }
+
+
+        public async Task<bool> enviarCorreo(string email, byte[] archivo, string claveAcceso)
+        {
+            var xml =  await generarXml(claveAcceso);
+            var firmar = await firmarXml(claveAcceso, xml);
+            return await _IUtilidades.envioCorreo(email, archivo, Encoding.ASCII.GetBytes(firmar.OuterXml), claveAcceso);
         }
 
 

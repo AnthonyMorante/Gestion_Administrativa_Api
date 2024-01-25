@@ -19,6 +19,8 @@ public partial class TipoDocumentos
 
     public virtual ICollection<DocumentosEmitir> DocumentosEmitir { get; set; } = new List<DocumentosEmitir>();
 
+    public virtual ICollection<Retenciones> Retenciones { get; set; } = new List<Retenciones>();
+
     public virtual ICollection<Secuenciales> Secuenciales { get; set; } = new List<Secuenciales>();
 
     public virtual ICollection<SecuencialesProformas> SecuencialesProformas { get; set; } = new List<SecuencialesProformas>();

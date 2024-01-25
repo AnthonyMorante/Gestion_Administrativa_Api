@@ -1451,6 +1451,11 @@ public partial class _context : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("retenciones_idDocumentoEmitir_fkey");
 
+            entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.Retenciones)
+                .HasForeignKey(d => d.IdEmpresa)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("empresas_");
+
             entity.HasOne(d => d.IdEstablecimientoNavigation).WithMany(p => p.Retenciones)
                 .HasForeignKey(d => d.IdEstablecimiento)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -1465,6 +1470,11 @@ public partial class _context : DbContext
                 .HasForeignKey(d => d.IdPuntoEmision)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("retenciones_idPuntoEmision_fkey");
+
+            entity.HasOne(d => d.IdTipoDocumentoNavigation).WithMany(p => p.Retenciones)
+                .HasForeignKey(d => d.IdTipoDocumento)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("tipoDocumento");
 
             entity.HasOne(d => d.IdTipoEstadoDocumentoNavigation).WithMany(p => p.Retenciones)
                 .HasForeignKey(d => d.IdTipoEstadoDocumento)
@@ -2037,11 +2047,9 @@ public partial class _context : DbContext
 
         modelBuilder.Entity<SriTotalesConImpuestos>(entity =>
         {
-            entity.HasKey(e => e.IdTotalConImpuesto).HasName("PK__SriTotal__22EAEE70E9C7E9E7");
+            entity.HasKey(e => e.IdTotalConImpuesto).HasName("PK__SriTotal__22EAEE70429CEFD4");
 
-            entity.Property(e => e.IdTotalConImpuesto)
-                .ValueGeneratedNever()
-                .HasColumnName("idTotalConImpuesto");
+            entity.Property(e => e.IdTotalConImpuesto).HasColumnName("idTotalConImpuesto");
             entity.Property(e => e.BaseImponible)
                 .HasColumnType("decimal(10, 2)")
                 .HasColumnName("baseImponible");

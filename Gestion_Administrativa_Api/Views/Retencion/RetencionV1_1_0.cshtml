@@ -1,0 +1,372 @@
+﻿@using Gestion_Administrativa_Api.Models
+
+@{
+    Retenciones retencion = @Model.retencion_V1_0_0;
+    var barCode = Model.barCode;
+
+    var a = "sdfs";
+}
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="es-ec" dir="ltr">
+<head>
+    <style>
+        .A4 {
+            height: 29.7cm;
+            width: 22cm;
+            margin-left: auto;
+            margin-right: auto;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 14px;
+        }
+
+        img.logo {
+            width: 190px;
+            margin: auto;
+            margin-bottom: 25px !important;
+        }
+
+        .w-100 {
+            width: 100%;
+        }
+
+        .fs-xl {
+            font-size: 25px !important;
+        }
+
+        .fs-lg {
+            font-size: 19px !important;
+        }
+
+        .fw-bold {
+            font-weight: bold;
+        }
+
+        .text-uppercase {
+            text-transform: uppercase !important;
+        }
+
+        .text-normal {
+            text-transform: none !important;
+        }
+
+        table {
+            border-collapse: collapse;
+        }
+
+        .table-info-empresa tr td {
+            padding: 7px 0px;
+        }
+
+        .table-info-factura tr td {
+            padding: 7px 0px;
+        }
+
+        .table-info-factura {
+        }
+
+        span.fw-bold {
+            padding-right: 3px;
+        }
+
+        .bg-gray {
+            background-color: #BEBEBE;
+        }
+
+        .bordered {
+            border: 1px solid black;
+        }
+
+        .text-danger {
+            color: red;
+        }
+
+        .letter-spacing {
+            letter-spacing: 11px;
+        }
+
+        .text-center {
+            text-align: center !important;
+        }
+
+        table tr td.pt-0 {
+            padding-top: 0 !important;
+        }
+
+        table tr td.pb-0 {
+            padding-bottom: 0 !important;
+        }
+
+        .bar-code img {
+            filter: brightness(0) !important;
+        }
+
+        .card {
+            border: 0.09rem solid #BEBEBE;
+            padding: 19px;
+            border-radius: 10px;
+        }
+
+        .mb-1 {
+            margin-bottom: 10px !important;
+        }
+
+        .font-number {
+            font-family: 'Courier New' !important;
+        }
+
+        .p-data {
+            padding: 5px 3px !important;
+        }
+
+        table.table-detalle thead tr th {
+            background-color: #BEBEBE;
+            font-weight: 700 !important;
+            font-size: 11px;
+            padding: 5px 7px;
+        }
+
+        table.table-detalle tbody tr td {
+            border: 0.09rem solid #BEBEBE;
+            padding: 5px 7px;
+        }
+
+        table.table-totales tbody tr td {
+            border: 0.09rem solid #BEBEBE;
+            padding: 5px 5px 5px 2px;
+            font-size: 14px;
+        }
+
+        .text-end {
+            text-align: right;
+        }
+
+        table.table-totales tbody tr td.text-end {
+            text-align: right;
+            font-size: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="A4">
+        <!--#region Encabezado-->
+        <div class="w-100 mb-1">
+            <table>
+                <tbody>
+                    <tr>
+                        <td valign="top">
+                            <table class="text-uppercase">
+                                <tr class="w-100">
+                                    <td class="table-info-empresa" width="50%">
+                                        <table>
+                                            <tr>
+                                                <td class="text-center w-100">
+                                                    <img src="~/Imagenes/Logos/@retencion.IdEmpresaNavigation.Identificacion/logo.png" class="logo" />
+                                                </td>
+                                            </tr>
+                                            <tr class="pt-5">
+                                                <td class="fw-bold">@retencion.IdEmpresaNavigation.RazonSocial</td>
+                                            </tr>
+                                            <tr>
+                                                <td>@retencion.IdEmpresaNavigation.RazonSocial</td>
+                                            </tr>
+                                            <tr>
+                                                <td><span class="fw-bold">R.U.C.:</span>@retencion.IdEmpresaNavigation.Identificacion</td>
+                                            </tr>
+                                            <tr>
+                                                <td><span class="fw-bold">DIR. MATRIZ:</span>@retencion.IdEmpresaNavigation.DireccionMatriz</td>
+                                            </tr>
+                                            <tr>
+                                                <td><span class="fw-bold">DIR. SUCRUSAL:</span>@retencion.IdEmpresaNavigation.DireccionMatriz</td>
+                                            </tr>
+                                            <tr>
+
+                                                @if (retencion.IdEmpresaNavigation.LlevaContabilidad== true)
+                                                {
+                                                    <td><span class="fw-bold">OBLIGADO A LLEVAR CONTABILIDAD:</span>SI</td>
+                                                }
+                                                else
+                                                {
+                                                    <td><span class="fw-bold">OBLIGADO A LLEVAR CONTABILIDAD:</span>NO</td>
+                                                }
+                                             
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                        <td width="50%">
+                            <div class="card">
+                                <table class="w-100 text-uppercase table-info-factura">
+                                    <tbody>
+                                        <tr>
+                                            <td class="letter-spacing fs-xl fw-bold">
+                                                COMPROBANTE DE RETENCIÓN
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-danger fw-bold text-normal font-number fs-xl">No. @retencion.Establecimiento.ToString().PadLeft(3, '0')-@retencion.PuntoEmision.ToString().PadLeft(3, '0')-@retencion.Secuencial.ToString().PadLeft(9, '0')</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-bold">NÚMERO DE AUTORIZACIÓN:</td>
+                                        </tr>
+                                        <tr>
+                                            <td>@retencion.ClaveAcceso</td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <span class="fw-bold">FECHA DE AUTORIZACIÓN:</span>@DateTime.Now.ToString("dd-MM-yyyy hh:mm:ss")
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <span class="fw-bold">AMBIENTE:</span>
+                                                @if (retencion.Ambiente == 1)
+                                                {
+                                                    <span>PRUEBA</span>
+                                                }
+                                                else
+                                                {
+                                                    <span>PRODUCCIÓN</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <span class="fw-bold">EMISIÓN:</span>
+                                                @if (retencion.TipoEmision == 1)
+                                                {
+                                                    <span>NORMAL</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-bold">CLAVE DE ACCESO:</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="bar-code text-center pb-0"><img height="55" width="406" src="data:image/png;base64,@(barCode)" /></td>
+                                        </tr>
+                                        <tr>
+                                            <td valign="top" class="pt-0 fw-bold text-center w-100">@retencion.ClaveAcceso</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <!--#endRegion Encabezado-->
+        <!--#region Información comprador-->
+        <div class="card p-data mb-1">
+            <table class="w-100">
+                <tbody>
+                    <tr>
+                        <td><span class="fw-bold">Razón Social / Nombres y Apellidos:</span>@retencion.IdFacturaNavigation.RazonSocial</td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="w-100">
+                <tbody>
+                    <tr>
+                        <td width="50" height="30" style="text-align: left;vertical-align: middle;"><b>Identificación:</b></td>
+                        <td style="vertical-align: middle;"> @retencion.IdFacturaNavigation.Ruc</td>
+                        <td width="65"></td>
+                        <td width="110" style="text-align: center;vertical-align: middle;"><b>Fecha Emisión:</b></td>
+                        <td style="text-align: left;vertical-align: middle;">@retencion.IdFacturaNavigation?.FechaEmision.Value.ToString("dd/MM/yyyy")</td>
+                        <td width="65"></td>
+                        <td width="110" style="text-align: center;vertical-align: middle; visibility: hidden;"><b>Guía Remisión:</b></td>
+                        <td style="max-width:110px;word-wrap: break-word;text-align: center;vertical-align: middle; visibility: hidden;"></td>
+                    </tr>
+                
+                </tbody>
+            </table>
+        </div>
+        <!--#endRegion Información comprador-->
+        <!--#region Detalle Factura-->
+        <div class="p-data mb-1">
+            <table class="w-100 table-detalle">
+                <thead>
+                    <tr>
+                        <th>Comprobante</th>
+                        <th>Número</th>
+                        <th>Fecha<br /> Emisión</th>
+                        <th>Ejercicio<br />Fiscal</th>
+                        <th>Base<br />Imponible</th>
+                        <th>Impuesto</th>
+                        <th>Porcentaje<br />Retención</th>
+                        <th>Valor Retenido</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in retencion.ImpuestoRetenciones)
+
+                    {
+
+                        <tr>
+                            <td class="text-end">@retencion.IdTipoDocumentoNavigation.Nombre</td>
+                            <td class="text-end">@retencion.IdFacturaNavigation.Estab@retencion.IdFacturaNavigation.PtoEmi@retencion.IdFacturaNavigation.Secuencial</td>
+                            <td class="text-end">@retencion.IdFacturaNavigation.FechaEmision</td>
+                            <td style="word-wrap: break-word;">@retencion.IdFacturaNavigation.FechaEmision.Value.ToString("MM/yyyy")</td>
+                            <td class="text-end">@item.BaseImponible.Value.ToString("0.00")</td>
+                            <td class="text-end">@item.IdTipoValorRetencionNavigation.Descripcion</td>
+                            <td class="text-end">@item.IdPorcentajeImpuestoRetencionNavigation.Valor.Value.ToString("0.00")</td>
+                            <td class="text-end">@item.ValorRetenido.Value.ToString("0.00")</td>
+                        </tr>
+
+                    }
+
+                </tbody>
+            </table>
+        </div>
+        <!--#endRegion Encabezado-->
+        <!--#region Footer-->
+        <div class="w-100">
+            <table class="w-100">
+                <tr>
+                    <td valign="top" width="60%" style="padding-right:10px">
+                        @if (retencion.InformacionAdicionalRetencion.Count() > 0)
+                        {
+                            <div class="p-data">
+                                <table class="w-100 table-detalle">
+                                    <thead>
+                                        <tr>
+                                            <th colspan="2" style="text-align:center;" class="bg_columna">
+                                                <b>Información adicional</b>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in retencion.InformacionAdicionalRetencion)
+                                        {
+                                            <tr>
+                                                <td width="35%">@item.Nombre</td>
+                                                <td class="text-center">@item.Valor</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+
+                            </div>
+                        }
+                   
+                   
+
+                    </td>
+                    <td width="40%">
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <!--#endRegion Encabezado-->
+    </div>
+</body>
+</html>

@@ -79,11 +79,15 @@ public partial class Retenciones
 
     public virtual DocumentosEmitir IdDocumentoEmitirNavigation { get; set; } = null!;
 
+    public virtual Empresas IdEmpresaNavigation { get; set; } = null!;
+
     public virtual Establecimientos IdEstablecimientoNavigation { get; set; } = null!;
 
     public virtual SriFacturas IdFacturaNavigation { get; set; } = null!;
 
     public virtual PuntoEmisiones IdPuntoEmisionNavigation { get; set; } = null!;
+
+    public virtual TipoDocumentos IdTipoDocumentoNavigation { get; set; } = null!;
 
     public virtual TipoEstadoDocumentos IdTipoEstadoDocumentoNavigation { get; set; } = null!;
 
