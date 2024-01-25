@@ -50,7 +50,10 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                                 INNER JOIN ""tipoDocumentos"" td ON td.""codigo"" = f.""tipoDocumento""
                                 WHERE (DATEPART(year, f.""fechaEmision"") - DATEPART(year, getdate())) * 12 +
                                 (DATEPART(MONTH, f.""fechaEmision"") - DATEPART(MONTH, getdate()))<=3
-                                AND e.""idEmpresa""=CAST(@idEmpresa AS UNIQUEIDENTIFIER)";
+                                AND e.""idEmpresa""=CAST(@idEmpresa AS UNIQUEIDENTIFIER)
+                                AND td.codigo = 1
+                                ";
+
                 return Ok(await Tools.DataTableSql(new Tools.DataTableParams
                 {
                     parameters = new { idEmpresa },
@@ -64,6 +67,48 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                 return Problem(ex.Message);
             }
         }
+
+
+        [HttpPost]
+        public async Task<IActionResult> listarProforma([FromBody] Tools.DataTableModel? _params)
+        {
+            try
+            {
+                var idEmpresa = Tools.getIdEmpresa(HttpContext);
+                string sql = @"SELECT f.""idFactura"",""ambiente"",""claveAcceso"",""secuencial"",
+                                f.""receptorRazonSocial"" AS ""cliente"",tes.""nombre"" AS ""estadoSri"",
+                                ted.""nombre"" AS estado,f.""fechaRegistro"",f.""fechaEmision"",f.""fechaAutorizacion"",
+                                f.""receptorTelefono"" AS ""telefonoCliente"", f.""receptorCorreo"" AS ""emailCliente"",
+                                f.""idTipoEstadoSri"",f.""idTipoEstadoDocumento"",""establecimiento"",f.""tipoEmision"",f.""idPuntoEmision"",
+                                pe.""nombre"" AS ""puntoEmision"",td.codigo,f.correoEnviado
+                                FROM facturas f
+                                INNER JOIN ""tipoEstadoSri"" tes ON tes.""idTipoEstadoSri"" = f.""idTipoEstadoSri""
+                                INNER JOIN ""tipoEstadoDocumentos"" ted ON ted.""idTipoEstadoDocumento"" = f.""idTipoEstadoDocumento""
+                                INNER JOIN ""establecimientos"" e ON e.""idEstablecimiento"" = f.""idEstablecimiento""
+                                INNER JOIN ""puntoEmisiones"" pe ON pe.""idPuntoEmision"" = f.""idPuntoEmision""
+                                INNER JOIN ""tipoDocumentos"" td ON td.""codigo"" = f.""tipoDocumento""
+                                WHERE (DATEPART(year, f.""fechaEmision"") - DATEPART(year, getdate())) * 12 +
+                                (DATEPART(MONTH, f.""fechaEmision"") - DATEPART(MONTH, getdate()))<=3
+                                AND e.""idEmpresa""=CAST(@idEmpresa AS UNIQUEIDENTIFIER)
+                                AND td.codigo = 0
+                                ";
+
+                return Ok(await Tools.DataTableSql(new Tools.DataTableParams
+                {
+                    parameters = new { idEmpresa },
+                    query = sql,
+                    dapperConnection = _dapper,
+                    dataTableModel = _params
+                }));
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
+        }
+
+
+
 
         [Authorize]
         [HttpGet]
