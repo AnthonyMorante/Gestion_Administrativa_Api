@@ -165,7 +165,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Utilidades
         {
             try
             {
-                var cert = new X509Certificate2(rutaFirma, codigo);
+                var cert = new X509Certificate2(rutaFirma, codigo, X509KeyStorageFlags.MachineKeySet);
                 XadesService xadesService = new XadesService();
                 SignatureParameters parametros = new SignatureParameters();
                 parametros.SignaturePolicyInfo = new SignaturePolicyInfo();

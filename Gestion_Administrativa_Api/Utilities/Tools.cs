@@ -428,7 +428,7 @@ namespace Gestion_Administrativa_Api.Utilities
                 if (error.Source == "modelError") result.StatusCode = 422;
                 if (error.Source.ToLower().Contains("data")) result.StatusCode = 424;
                 result.Value = error.Message;
-                //logError(error);
+                logError(error);
                 return result;
             }
             catch (Exception ex)
@@ -440,9 +440,9 @@ namespace Gestion_Administrativa_Api.Utilities
             }
         }
 
-        private static void logError(Exception _error)
+        public static void logError(Exception _error)
         {
-            var dapper = new SqlConnection(config.GetConnectionString("angular_test"));
+            var dapper = new SqlConnection(config.GetConnectionString("cn"));
             try
             {
                 var path = $@"{rootPath}/_errors.txt";
