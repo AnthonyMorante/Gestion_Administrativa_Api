@@ -28,4 +28,8 @@ public partial class DetalleFacturas
     public Guid IdFactura { get; set; }
 
     public virtual Facturas IdFacturaNavigation { get; set; } = null!;
+
+    public virtual Ivas IdIvaNavigation { get; set; } = null!;
+
+    public virtual Productos IdProductoNavigation { get; set; } = null!;
 }

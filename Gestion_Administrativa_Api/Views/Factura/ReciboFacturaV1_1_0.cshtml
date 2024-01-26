@@ -1,7 +1,7 @@
-﻿@using static Gestion_Administrativa_Api.Documents_Models.Factura.factura_V100;
+﻿@using Gestion_Administrativa_Api.Models
 @{
-    factura_V1_0_0 factura = @Model.factura_V1_0_0;
-    string telefono = @Model.telefono;
+
+    Facturas factura = @Model.consultaFactura;
     decimal? subtotal12 = 0;
     decimal? subtotal0 = 0;
 }
@@ -28,14 +28,14 @@
 
         <div style="text-align: center;">
 
-            <img class="logo" src="~/Imagenes/Logos/@factura.infoTributaria.ruc/logo.png">
+            <img class="logo" src="~/Imagenes/Logos/@factura.EmisorRuc/logo.png">
 
         </div>
 
 
 
         <div class="nombreEmpresa bolder" style="margin-bottom: 7px; margin-top: 15px; font-size: 14PX;">
-            @factura.infoTributaria.razonSocial.ToUpper()
+            @factura.EmisorRazonSocial.ToUpper()
         </div>
 
 
@@ -49,11 +49,11 @@
 
 
                         <div class="mt-1">
-                            <strong class="bolder">RUC:</strong> <label>@factura.infoTributaria.ruc</label>
+                            <strong class="bolder">RUC:</strong> <label>@factura.EmisorRuc</label>
                         </div>
 
                         <div class="mt-1">
-                            <strong class="bolder">Dirección:</strong> <label>@factura.infoTributaria.dirMatriz</label>
+                            <strong class="bolder">Dirección:</strong> <label>@factura.DireccionEstablecimiento</label>
                         </div>
 
 
@@ -61,10 +61,10 @@
                         <hr style="visibility: hidden;">
 
                         <div>
-                            <strong class="bolder">Factura N.-</strong> <label>@factura.infoTributaria.estab-@factura.infoTributaria.ptoEmi-@factura.infoTributaria.secuencial</label>
+                            <strong class="bolder">Factura N.-</strong> <label>@factura.Establecimiento.ToString().PadLeft(3, '0')-@factura.PuntoEmision.ToString().PadLeft(3, '0')-@factura.Secuencial.ToString().PadLeft(3, '0')</label>
                         </div>
                         <strong class="bolder">Autorizazión SRI:</strong>
-                        <div style="width: 80mm;word-wrap:break-word">@factura.infoTributaria.claveAcceso</div>
+                        <div style="width: 80mm;word-wrap:break-word">@factura.ClaveAcceso</div>
 
 
                         <hr style="visibility: hidden;">
@@ -75,19 +75,19 @@
 
 
                         <div class="mt-1">
-                            <strong class="bolder">Ced/Ruc:</strong> <label>@factura.infoFactura.identificacionComprador</label>
+                            <strong class="bolder">Ced/Ruc:</strong> <label>@factura.ReceptorRuc</label>
                         </div>
 
                         <div class="mt-1">
-                            <strong class="bolder">Nombre</strong> <label>@factura.infoFactura.razonSocialComprador</label>
+                            <strong class="bolder">Nombre</strong> <label>@factura.ReceptorRazonSocial</label>
                         </div>
 
                         <div class="mt-1">
-                            <strong class="bolder">Dirección:</strong> <label>@factura.infoFactura.direccionComprador</label>
+                            <strong class="bolder">Dirección:</strong> <label>@factura.ReceptorDireccion</label>
                         </div>
 
                         <div class="mt-1">
-                            <strong class="bolder">Telefono:</strong> <label>@telefono</label>
+                            <strong class="bolder">Telefono:</strong> <label>@factura.ReceptorTelefono</label>
                         </div>
 
 
@@ -116,16 +116,16 @@
             <tbody>
 
 
-                @foreach (var item in @factura.detalles)
+                @foreach (var item in @factura.DetalleFacturas)
 
                 {
 
                     <tr>
 
-                        <td>@item.cantidad</td>
-                        <td>@item.descripcion</td>
-                        <td>@item.precioUnitario</td>
-                        <td>@item.precioTotalSinImpuesto</td>
+                        <td>@item.Cantidad</td>
+                        <td>@item.IdProductoNavigation.Nombre</td>
+                        <td>@item.Precio</td>
+                        <td>@item.Total</td>
                     </tr>
 
                 }
@@ -156,27 +156,27 @@
 
 
 
-                        @foreach (var item in @factura.infoFactura.pagos)
+                        @foreach (var item in @factura.DetalleFormaPagos)
                         {
                             <tr>
                                 <td align="left" width="100">
 
 
 
-                                    @(item.formaPago == "01" ? "01-SIN UTILIZA" :
-                                        (item.formaPago == "16" ? "16-TARJETA DÉB" :
-                                        (item.formaPago == "17" ? "17-DINERO ELECT" :
-                                        (item.formaPago == "20" ? "20-OTROS" :
-                                        (item.formaPago == "21" ? "21-ENDOSO" :
-                                        (item.formaPago == "15" ? "15-COMPENSACIÓN" :
-                                        (item.formaPago == "19" ? "19-TARJETA CRÉD"
+                                    @(item.IdFormaPagoNavigation.Codigo == 1 ? "01-SIN UTILIZA" :
+                                        (item.IdFormaPagoNavigation.Codigo == 16 ? "16-TARJETA DÉB" :
+                                        (item.IdFormaPagoNavigation.Codigo == 17 ? "17-DINERO ELECT" :
+                                        (item.IdFormaPagoNavigation.Codigo == 20 ? "20-OTROS" :
+                                        (item.IdFormaPagoNavigation.Codigo == 21 ? "21-ENDOSO" :
+                                        (item.IdFormaPagoNavigation.Codigo == 15 ? "15-COMPENSACIÓN" :
+                                        (item.IdFormaPagoNavigation.Codigo == 19 ? "19-TARJETA CRÉD"
                                         : ""))))))
 
                                         )
 
 
                                 </td>
-                                <td align="center" width="100">@item.total?.ToString("0.00")</td>
+                  @*               <td align="center" width="100">@item.Valor?</td> *@
                                 @*<td align="center" width="100">@item.plazo</td>*@
                             </tr>
 
@@ -207,59 +207,31 @@
                         <tr>
                             <td class="bolder">SUBTOTAL</td>
                             <label></label>
-                            <td class="end">@factura.infoFactura.totalSinImpuestos?.ToString("0.00")</td>
+                            <td class="end">@factura.TotalSinImpuesto</td>
                             <label></label>
                         </tr>
-                        @foreach (var item in @factura.detalles)
-                        {
-
-                            @foreach (var itemImpuestos in item.impuestos)
-                            {
-
-
-                                @if (itemImpuestos.codigoPorcentaje == 2)
-                                {
-                                    subtotal12 += itemImpuestos.baseImponible;
-                                }
-
-                                @if (itemImpuestos.codigoPorcentaje == 0)
-                                {
-                                    subtotal0 += itemImpuestos.baseImponible;
-                                }
-
-                            }
-
-                        }
+                  
                         <tr>
                             <td class="bolder">IVA0%</td>
-                            <td class="end">@subtotal0?.ToString("0.00")</td>
+                            <td class="end">@factura.Subtotal0.Value.ToString("0.00")</td>
                             <label></label>
                         </tr>
                         <tr>
                             <td class="bolder">IVA12%</td>
-                            <td class="end">@subtotal12?.ToString("0.00")</td>
+                            <td class="end">@factura.Subtotal12.Value.ToString("0.00")</td>
                             <label></label>
                         </tr>
                         <tr>
                             <td class="bolder">IVA</td>
 
-                            @foreach (var item in @factura.infoFactura.totalConImpuestos)
-                            {
-                                <td class="end">
-
-                                    @item.valor?.ToString("0.00")
-
-                                </td>
-
-                            }
-
-                            <td class="end"></td>
+                         
+                            <td class="end">@factura.Iva12</td>
                             <label></label>
                         </tr>
 
                         <tr>
                             <td class="bolder">TOTAL</td>
-                            <td class="end" style="font-weight: bolder;">@factura.infoFactura.importeTotal?.ToString("0.00")</td>
+                            <td class="end" style="font-weight: bolder;">@factura.TotalImporte</td>
                             <label></label>
                         </tr>
 
@@ -286,14 +258,14 @@
                         <tr>
                             <td class="bolder">RECIBIDO</td>
                             <label></label>
-                            <td class="end">100.000</td>
+                            <td class="end">@factura.ValorRecibido</td>
                             <label></label>
                         </tr>
 
                         <tr>
                             <td class="bolder">VUELTO</td>
                             <label></label>
-                            <td class="end">100.000</td>
+                            <td class="end">@factura.Cambio</td>
                             <label></label>
                         </tr>
 

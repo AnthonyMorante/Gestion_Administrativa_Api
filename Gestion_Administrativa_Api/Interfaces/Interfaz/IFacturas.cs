@@ -23,8 +23,6 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
 
         Task<byte[]> generaRide(ActionContext ac, string claveAcceso,bool proforma);
 
-        Task<string> generaRecibo(ActionContext ac, factura_V1_0_0 factura_V1_0_0, FacturaDto facturaDto);
-
         Task<bool> enviarCorreo(string email, byte[] archivo, string nombreArchivo);
 
         Task<factura_V1_0_0?> _Factura_V1_0_0(string claveAcceso);
@@ -34,6 +32,8 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
         Task<XmlDocument> firmarXml(string claveAcceso);
 
         Task<bool> enviarSri(string claveAcceso);
+
+        Task<byte[]> imprimirComprobante(string claveAcceso, ControllerContext cc);
     }
 
     public class FacturasI : IFacturas
@@ -318,6 +318,67 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                 throw;
             }
         }
+
+
+
+
+        public async Task<byte[]> imprimirComprobante(string claveAcceso, ControllerContext cc)
+        {
+            try
+            {
+                var consultaFactura = await _context.Facturas
+                    .Include(x => x.DetalleFacturas)
+                    .ThenInclude(x=>x.IdProductoNavigation)
+                    .ThenInclude(x=>x.IdIvaNavigation)
+                    .Include(x => x.DetalleFormaPagos)
+                    .ThenInclude(x=>x.IdFormaPagoNavigation)
+                    .Where(x => x.ClaveAcceso == claveAcceso).FirstOrDefaultAsync();
+                    
+                    ;
+                if (consultaFactura == null) return null;
+
+
+                var pdf = new ViewAsPdf("~/Views/Factura/ReciboFacturaV1_1_0.cshtml", new { consultaFactura });
+                return await pdf.BuildFile(cc);
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                throw;
+            }
+        }
+
+
+
+        public async Task<byte[]> imprimirComprobanteProforma(string claveAcceso, ControllerContext cc)
+        {
+            try
+            {
+                var consultaFactura = await _context.Facturas
+                    .Include(x => x.DetalleFacturas)
+                    .ThenInclude(x => x.IdProductoNavigation)
+                    .ThenInclude(x => x.IdIvaNavigation)
+                    .Include(x => x.DetalleFormaPagos)
+                    .ThenInclude(x => x.IdFormaPagoNavigation)
+                    .Where(x => x.ClaveAcceso == claveAcceso).FirstOrDefaultAsync();
+
+                ;
+                if (consultaFactura == null) return null;
+
+
+                var pdf = new ViewAsPdf("~/Views/Factura/Proforma.cshtml", new { consultaFactura });
+                return await pdf.BuildFile(cc);
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                throw;
+            }
+        }
+
+
 
         public async Task<bool> enviarSri(string claveAcceso)
         {

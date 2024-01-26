@@ -225,6 +225,21 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
         }
 
         [HttpGet("{claveAcceso}")]
+        public async Task<IActionResult> imprimirComprobante(string claveAcceso)
+        {
+            try
+            {
+                var xmlFirmado = await _IFacturas.imprimirComprobante(claveAcceso, ControllerContext);
+
+                return Ok(xmlFirmado);
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
+        }
+
+        [HttpGet("{claveAcceso}")]
         public async Task<IActionResult> descargarPdf(string claveAcceso)
         {
             try

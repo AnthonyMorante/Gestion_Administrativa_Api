@@ -312,6 +312,16 @@ public partial class _context : DbContext
                 .HasForeignKey(d => d.IdFactura)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("detalleFacturas_idFactura_fkey");
+
+            entity.HasOne(d => d.IdIvaNavigation).WithMany(p => p.DetalleFacturas)
+                .HasForeignKey(d => d.IdIva)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("idIva_");
+
+            entity.HasOne(d => d.IdProductoNavigation).WithMany(p => p.DetalleFacturas)
+                .HasForeignKey(d => d.IdProducto)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("detalleFacturas_");
         });
 
         modelBuilder.Entity<DetalleFormaPagos>(entity =>
@@ -337,6 +347,11 @@ public partial class _context : DbContext
                 .HasForeignKey(d => d.IdFactura)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("detalleFormaPagos_idFactura_fkey");
+
+            entity.HasOne(d => d.IdFormaPagoNavigation).WithMany(p => p.DetalleFormaPagos)
+                .HasForeignKey(d => d.IdFormaPago)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("idFormaPago_");
 
             entity.HasOne(d => d.IdTiempoFormaPagoNavigation).WithMany(p => p.DetalleFormaPagos)
                 .HasForeignKey(d => d.IdTiempoFormaPago)

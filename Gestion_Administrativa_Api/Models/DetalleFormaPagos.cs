@@ -19,5 +19,7 @@ public partial class DetalleFormaPagos
 
     public virtual Facturas IdFacturaNavigation { get; set; } = null!;
 
+    public virtual FormaPagos IdFormaPagoNavigation { get; set; } = null!;
+
     public virtual TiempoFormaPagos IdTiempoFormaPagoNavigation { get; set; } = null!;
 }

@@ -19,6 +19,8 @@ public partial class Ivas
 
     public int? Codigo { get; set; }
 
+    public virtual ICollection<DetalleFacturas> DetalleFacturas { get; set; } = new List<DetalleFacturas>();
+
     public virtual ICollection<DetallePrecioProductos> DetallePrecioProductos { get; set; } = new List<DetallePrecioProductos>();
 
     public virtual ICollection<Productos> Productos { get; set; } = new List<Productos>();

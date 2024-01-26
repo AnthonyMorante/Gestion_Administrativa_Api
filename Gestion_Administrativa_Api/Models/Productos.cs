@@ -29,6 +29,8 @@ public partial class Productos
 
     public decimal? Cantidad { get; set; }
 
+    public virtual ICollection<DetalleFacturas> DetalleFacturas { get; set; } = new List<DetalleFacturas>();
+
     public virtual ICollection<DetallePrecioProductos> DetallePrecioProductos { get; set; } = new List<DetallePrecioProductos>();
 
     public virtual Empresas? IdEmpresaNavigation { get; set; }
