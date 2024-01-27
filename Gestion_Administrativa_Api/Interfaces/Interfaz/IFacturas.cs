@@ -338,7 +338,13 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                 if (consultaFactura == null) return null;
 
 
-                var pdf = new ViewAsPdf("~/Views/Factura/ReciboFacturaV1_1_0.cshtml", new { consultaFactura });
+                var pdf = new ViewAsPdf("~/Views/Factura/ReciboFacturaV1_1_0.cshtml", new { consultaFactura })
+                {
+                    PageWidth = 80,
+                    PageHeight = 297,
+                    PageOrientation = Rotativa.AspNetCore.Options.Orientation.Portrait,
+                    CustomSwitches = "--margin-top 0 --margin-right 0 --margin-bottom 0 --margin-left 0"
+                };
                 return await pdf.BuildFile(cc);
 
             }
@@ -348,36 +354,6 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                 throw;
             }
         }
-
-
-
-        public async Task<byte[]> imprimirComprobanteProforma(string claveAcceso, ControllerContext cc)
-        {
-            try
-            {
-                var consultaFactura = await _context.Facturas
-                    .Include(x => x.DetalleFacturas)
-                    .ThenInclude(x => x.IdProductoNavigation)
-                    .ThenInclude(x => x.IdIvaNavigation)
-                    .Include(x => x.DetalleFormaPagos)
-                    .ThenInclude(x => x.IdFormaPagoNavigation)
-                    .Where(x => x.ClaveAcceso == claveAcceso).FirstOrDefaultAsync();
-
-                ;
-                if (consultaFactura == null) return null;
-
-
-                var pdf = new ViewAsPdf("~/Views/Factura/Proforma.cshtml", new { consultaFactura });
-                return await pdf.BuildFile(cc);
-
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                throw;
-            }
-        }
-
 
 
         public async Task<bool> enviarSri(string claveAcceso)
