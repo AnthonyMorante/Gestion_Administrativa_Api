@@ -142,7 +142,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             {
                 _facturaDto = await procesarFactura(_facturaDto);
                 var res = await _IFacturas.guardar(_facturaDto);
-                if (_facturaDto.idDocumentoEmitir == Guid.Parse("6741a8d2-2e5b-4281-b188-c04e2c909049")) res = Ok("proforma");
+                if (_facturaDto.idTipoDocumento == Guid.Parse("13EDF7B1-0A10-4EEF-A095-11519BD15138")) res = Ok("proforma");
                 return res;
             }
             catch (Exception ex)
@@ -298,7 +298,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
 
                 await _context.SaveChangesAsync();
                 _facturaDto.idCliente = cliente.IdCliente;
-                _facturaDto.idDocumentoEmitir = (await _context.DocumentosEmitir.AsNoTracking().Where(x => x.IdTipoDocumento == _facturaDto.idTipoDocumento).FirstOrDefaultAsync()).IdDocumentoEmitir;
+                _facturaDto.idDocumentoEmitir = (await _context.DocumentosEmitir.AsNoTracking().Where(x => x.IdTipoDocumento == _facturaDto.idTipoDocumento && x.Activo==true).FirstOrDefaultAsync()).IdDocumentoEmitir;
                 sql = @"SELECT ""nombre""
                         FROM ""establecimientos""
                         WHERE ""idEstablecimiento""=@idEstablecimiento
@@ -354,6 +354,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                             SELECT * FROM ""tipoDocumentos""
                             WHERE codigo in(1,0)
                             AND activo=1
+                            ORDER BY codigo desc
                             ";
                 return Ok(await _dapper.QueryAsync(sql));
             }
