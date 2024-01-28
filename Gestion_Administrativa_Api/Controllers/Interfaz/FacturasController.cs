@@ -562,7 +562,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                                            item.CorreoEnviado,
                                            item.TipoDocumento
                                        }).AsNoTracking().FirstOrDefault();
-                        if (factura.IdTipoEstadoSri == 0 || factura.IdTipoEstadoSri == null)
+                        if (factura.IdTipoEstadoSri == 0 || factura.IdTipoEstadoSri == null || factura.IdTipoEstadoSri == 1)
                         {
                             var enviado = _IFacturas.enviarSri(claveAcceso).Result;
                             if (enviado == true)

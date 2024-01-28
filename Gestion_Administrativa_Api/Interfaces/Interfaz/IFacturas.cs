@@ -112,12 +112,13 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                     var consultaSecuencial = await _context.Secuenciales.FirstOrDefaultAsync(x => x.IdEmpresa == consultaEmpresa.IdEmpresa && x.IdTipoDocumento == _facturaDto.idTipoDocumento);
                     consultaSecuencial.Nombre = consultaSecuencial.Nombre + 1;
                     _context.Secuenciales.Update(consultaSecuencial);
+                    factura.IdTipoEstadoSri = 1;
                     await _context.SaveChangesAsync();
-                    var enviadoSri = await enviarSri(factura.ClaveAcceso);
-                    var idTipoEstadoSri = enviadoSri ? 6 : 0;
-                    string sql = @"UPDATE facturas SET ""idTipoEstadoSri""=@idTipoEstadoSri
-                                   WHERE ""claveAcceso"" = @claveAcceso;";
-                    await _dapper.ExecuteScalarAsync(sql, new { claveAcceso = factura.ClaveAcceso, idTipoEstadoSri });
+                    //var enviadoSri = await enviarSri(factura.ClaveAcceso);
+                    //var idTipoEstadoSri = enviadoSri ? 6 : 0;
+                    //string sql = @"UPDATE facturas SET ""idTipoEstadoSri""=@idTipoEstadoSri
+                    //               WHERE ""claveAcceso"" = @claveAcceso;";
+                    //await _dapper.ExecuteScalarAsync(sql, new { claveAcceso = factura.ClaveAcceso, idTipoEstadoSri });
                 }
                 else
                 {
