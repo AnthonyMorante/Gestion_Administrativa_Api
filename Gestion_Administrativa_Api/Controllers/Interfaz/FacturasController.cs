@@ -510,7 +510,6 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
         {
             try
             {
-                IDbConnection _dapper = _context.Database.GetDbConnection();
                 var idEmpresa= Tools.getIdEmpresa(HttpContext);
                 string sql = @"SELECT count(idFactura) 
                                 FROM facturas 
