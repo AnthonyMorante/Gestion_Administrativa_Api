@@ -149,10 +149,10 @@
     <div class="A4">
         <!--#region Encabezado-->
         <div class="w-100 mb-1">
-            <table>
+            <table style="width:100%">
                 <tbody>
                     <tr>
-                        <td valign="top">
+@*                         <td valign="top">
                             <table class="text-uppercase">
                                 <tr class="w-100">
                                     <td class="table-info-empresa" width="50%">
@@ -184,8 +184,8 @@
                                     </td>
                                 </tr>
                             </table>
-                        </td>
-                        <td width="50%">
+                        </td> *@
+                        <td width="100%">
                             <div class="card">
                                 <table class="w-100 text-uppercase table-info-factura">
                                     <tbody>
@@ -234,10 +234,10 @@
                                             <td class="fw-bold">CÓDIGO DE PROFORMA:</td>
                                         </tr>
                                         <tr>
-                                            <td class="bar-code text-center pb-0"><img height="55" width="406" src="data:image/png;base64,@(barCode)" /></td>
+                                            <td class="bar-code pb-0" style="text-align:left !important"><img height="55" width="406" src="data:image/png;base64,@(barCode)" /></td>
                                         </tr>
                                         <tr>
-                                            <td valign="top" class="pt-0 fw-bold text-center w-100">@modeloFactura.infoTributaria.claveAcceso</td>
+                                            <td valign="top" class="pt-0 fw-bold w-100">@modeloFactura.infoTributaria.claveAcceso</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -264,11 +264,11 @@
                         <td width="50" height="30" style="text-align: left;vertical-align: middle;"><b>RUC/CI:</b></td>
                         <td style="vertical-align: middle;">@modeloFactura.infoFactura.identificacionComprador</td>
                         <td width="65"></td>
-                        <td width="110" style="text-align: center;vertical-align: middle;"><b>Fecha Emisión:</b></td>
+                        <td width="110" style="text-align: center;vertical-align: middle;"><b>Fecha Proforma:</b></td>
                         <td style="text-align: left;vertical-align: middle;">@modeloFactura.infoFactura.fechaEmision</td>
                         <td width="65"></td>
-                        <td width="110" style="text-align: center;vertical-align: middle;"><b>Guía Remisión:</b></td>
-                        <td style="max-width:110px;word-wrap: break-word;text-align: center;vertical-align: middle;">@modeloFactura.infoFactura.guiaRemision</td>
+@*                         <td width="110" style="text-align: center;vertical-align: middle;"><b>Guía Remisión:</b></td>
+                        <td style="max-width:110px;word-wrap: break-word;text-align: center;vertical-align: middle;">@modeloFactura.infoFactura.guiaRemision</td> *@
                     </tr>
                     <tr>
 
@@ -287,10 +287,10 @@
                         <th>Cod.<br />Principal</th>
                         <th>Cod.<br /> Auxiliar</th>
                         <th>Cantidad</th>
+                        <th>Producto</th>
+@*                         <th>Precio Unitario</th>
                         <th>Descripción</th>
-                        <th>Precio Unitario</th>
-                        <th>Descripción</th>
-                        <th>Precio Total</th>
+                        <th>Precio Total</th> *@
                     </tr>
                 </thead>
                 <tbody>
@@ -303,9 +303,9 @@
                             <td class="text-end">@item.codigoAuxiliar</td>
                             <td class="text-end">@item.cantidad</td>
                             <td style="word-wrap: break-word;">@item.descripcion</td>
-                            <td class="text-end">@item.precioUnitario.ToString("0.00")</td>
+@*                             <td class="text-end">@item.precioUnitario.ToString("0.00")</td>
                             <td class="text-end">@item.descuento?.ToString("0.00")</td>
-                            <td class="text-end">@item.precioTotalSinImpuesto?.ToString("0.00")</td>
+                            <td class="text-end">@item.precioTotalSinImpuesto?.ToString("0.00")</td> *@
                         </tr>
 
                     }
@@ -316,9 +316,9 @@
         <!--#endRegion Encabezado-->
         <!--#region Footer-->
         <div class="w-100">
-            <table class="w-100">
+            <table style="width:40%;margin-left:auto">
                 <tr>
-                    <td valign="top" width="60%" style="padding-right:10px">
+@*                     <td valign="top" width="60%" style="padding-right:10px">
                         @if (modeloFactura.infoAdicional.Count() > 0)
                         {
                             <div class="p-data">
@@ -380,11 +380,11 @@
                             </table>
                         </div>
 
-                    </td>
+                    </td> *@
                     <td width="40%">
                         <table class="w-100 table-totales">
                             <tr>
-                                <td class="fw-bold">SUBTOTAL IVA 12%</td>
+@*                                 <td class="fw-bold">SUBTOTAL IVA 12%</td>
 
                                 @foreach (var item in modeloFactura.detalles)
                                 {
@@ -458,9 +458,9 @@
                                 <td class="fw-bold">PROPINA</td>
                                 <td class="text-end">0.00</td>
                             </tr>
-
+ *@
                             <tr>
-                                <td class="fw-bold">VALOR A PAGAR</td>
+                                <td class="fw-bold">TOTAL PROFORMA</td>
                                 <td class="text-end fs-lg fw-bold">@modeloFactura.infoFactura.importeTotal?.ToString("0.00")</td>
                             </tr>
                         </table>

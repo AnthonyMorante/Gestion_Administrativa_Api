@@ -27,6 +27,8 @@ public partial class DetalleFacturas
 
     public Guid IdFactura { get; set; }
 
+    public DateTime? FechoRegistro { get; set; }
+
     public virtual Facturas IdFacturaNavigation { get; set; } = null!;
 
     public virtual Ivas IdIvaNavigation { get; set; } = null!;

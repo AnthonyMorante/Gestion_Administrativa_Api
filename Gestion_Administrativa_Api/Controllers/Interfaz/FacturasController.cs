@@ -505,6 +505,24 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                 return Problem(ex.Message);
             }
         }
+        [HttpGet]
+        public async Task<IActionResult> estadosPendientes()
+        {
+            try
+            {
+                var idEmpresa= Tools.getIdEmpresa(HttpContext);
+                string sql = @"SELECT count(idFactura) 
+                                FROM facturas 
+                                WHERE (correoEnviado = 0 AND idTipoEstadoSri=2)
+                                OR idTipoEstadoSri in(1,6,0)
+                                AND idEstablecimiento in(SELECT idEstablecimiento FROM establecimientos WHERE idEmpresa=@idEmpresa)";
+                return Ok(await _dapper.ExecuteScalarAsync<int>(sql, new { idEmpresa }));   
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
+        }
 
         [HttpGet]
         public IActionResult verificarEstados()
@@ -544,7 +562,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                                            item.CorreoEnviado,
                                            item.TipoDocumento
                                        }).AsNoTracking().FirstOrDefault();
-                        if (factura.IdTipoEstadoSri == 0 || factura.IdTipoEstadoSri == null)
+                        if (factura.IdTipoEstadoSri == 0 || factura.IdTipoEstadoSri == null || factura.IdTipoEstadoSri == 1)
                         {
                             var enviado = _IFacturas.enviarSri(claveAcceso).Result;
                             if (enviado == true)

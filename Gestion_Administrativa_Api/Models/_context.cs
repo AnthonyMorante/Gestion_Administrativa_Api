@@ -289,6 +289,10 @@ public partial class _context : DbContext
             entity.Property(e => e.Descuento)
                 .HasColumnType("numeric(8, 2)")
                 .HasColumnName("descuento");
+            entity.Property(e => e.FechoRegistro)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
+                .HasColumnName("fechoRegistro");
             entity.Property(e => e.IdFactura).HasColumnName("idFactura");
             entity.Property(e => e.IdIva).HasColumnName("idIva");
             entity.Property(e => e.IdProducto).HasColumnName("idProducto");
@@ -1026,13 +1030,11 @@ public partial class _context : DbContext
 
         modelBuilder.Entity<Lotes>(entity =>
         {
-            entity.HasKey(e => e.IdLote).HasName("lotes_pkey");
+            entity.HasKey(e => e.IdLote).HasName("PK__lotes__1B91FFCB655DA6A5");
 
             entity.ToTable("lotes");
 
-            entity.Property(e => e.IdLote)
-                .ValueGeneratedNever()
-                .HasColumnName("idLote");
+            entity.Property(e => e.IdLote).HasColumnName("idLote");
             entity.Property(e => e.Cantidad)
                 .HasColumnType("numeric(8, 2)")
                 .HasColumnName("cantidad");
