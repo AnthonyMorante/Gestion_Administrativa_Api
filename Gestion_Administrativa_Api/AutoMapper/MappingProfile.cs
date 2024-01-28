@@ -148,7 +148,7 @@ namespace Gestion_Administrativa_Api.AutoMapper
 
             CreateMap<DetalleDto, DetalleFacturas>()
             .ForMember(dest => dest.Subtotal, opt => opt.MapFrom(src => src.totalSinIva))
-            .ForMember(dest => dest.Precio, opt => opt.MapFrom(src => src.valor))
+            .ForMember(dest => dest.Precio, opt => opt.MapFrom(src => src.valorProductoSinIva))
             .ForMember(dest => dest.Descuento, opt => opt.MapFrom(src => src.descuento == null ? 0 : src.descuento))
             .ReverseMap();
             ;
