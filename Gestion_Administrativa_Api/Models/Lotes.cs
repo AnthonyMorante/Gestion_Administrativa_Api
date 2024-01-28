@@ -5,8 +5,6 @@ namespace Gestion_Administrativa_Api.Models;
 
 public partial class Lotes
 {
-    public int IdLote { get; set; }
-
     public DateTime? FechaRegistro { get; set; }
 
     public decimal? Cantidad { get; set; }
@@ -14,6 +12,8 @@ public partial class Lotes
     public Guid? IdProducto { get; set; }
 
     public Guid? IdUsuario { get; set; }
+
+    public int IdLote { get; set; }
 
     public virtual Productos? IdProductoNavigation { get; set; }
 
