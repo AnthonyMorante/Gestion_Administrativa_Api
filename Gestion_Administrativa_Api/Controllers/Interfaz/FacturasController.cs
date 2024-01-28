@@ -143,7 +143,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                 _facturaDto = await procesarFactura(_facturaDto);
                 var res = await _IFacturas.guardar(_facturaDto);
                 if (_facturaDto.idTipoDocumento == Guid.Parse("13EDF7B1-0A10-4EEF-A095-11519BD15138")) res = Ok("proforma");
-                return res;
+                return Ok(res);
             }
             catch (Exception ex)
             {

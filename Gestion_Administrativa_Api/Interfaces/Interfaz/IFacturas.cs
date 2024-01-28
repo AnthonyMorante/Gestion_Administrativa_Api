@@ -129,7 +129,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                     await _context.SaveChangesAsync();
                 }
                 result.StatusCode = 200;
-                result.Value = factura.ClaveAcceso;
+                result.Value=factura.ClaveAcceso;
                 return result;
             }
             catch (Exception ex)
