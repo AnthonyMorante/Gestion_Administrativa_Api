@@ -60,9 +60,6 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
             {
                 var result = new ObjectResult(null);
                 var registrar = await guardarRegistro(_retencionDto);
-                //var xml=await generarXml(registrar) ;
-                //var xmlFirmado = await firmarXml(registrar, xml);
-                //await _IUtilidades.envioXmlSRI(xmlFirmado);
                 result.StatusCode = 200;
 
                 return result;

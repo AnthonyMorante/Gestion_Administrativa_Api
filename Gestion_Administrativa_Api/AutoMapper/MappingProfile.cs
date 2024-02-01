@@ -265,11 +265,17 @@ namespace Gestion_Administrativa_Api.AutoMapper
 
             #endregion
 
-            #region InformacionAdicionalRetenciones
+            #region ImpuestoRetenciones
 
             CreateMap<Impuesto, ImpuestoRetenciones>()
-            .ForMember(dest => dest.IdTipoValorRetencion, opt => opt.MapFrom(src => src.tipoRetencion=="renta"? "8506456C-EC1D-4FCF-BBDF-6F419A3C85FE" : ""))
-                ;
+           .ForMember(dest => dest.IdTipoValorRetencion, opt => opt.MapFrom(src =>
+            src.tipoRetencion == "renta" ? Guid.Parse("8506456C-EC1D-4FCF-BBDF-6F419A3C85FE") :
+            src.tipoRetencion == "iba_bien" ? Guid.Parse("45D5A939-B8EF-47CA-B9FA-D97EE1B10611") :
+            Guid.Empty  
+        ));
+
+            //iva_bien
+            ;
 
             #endregion
 

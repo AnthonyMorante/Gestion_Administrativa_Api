@@ -30,6 +30,11 @@ namespace Gestion_Administrativa_Api.Controllers
             _IUtilidades = iUtilidades;
         }
 
+
+
+
+
+
         [Authorize]
         [HttpGet]
         public async Task<IActionResult> establecimientos()
@@ -71,14 +76,41 @@ namespace Gestion_Administrativa_Api.Controllers
 
         [Authorize]
         [HttpGet]
-        public async Task<IActionResult> porcentajeImpuestosRetenciones()
+        public async Task<IActionResult> porcentajeImpuestosRetencionesRenta()
         {
             try
             {
                 string sql = @"
-                        select ""idPorcentajeImpuestoRetencion"",nombre,valor,codigo,""idTipoValorRetencion""
-                        from ""porcentajeImpuestosRetenciones"" pir
-                        where activo =1
+                   
+                                select idPorcentajeImpuestoRetencion,nombre,valor,codigo,idTipoValorRetencion
+                                from porcentajeImpuestosRetenciones pir
+                                where activo =1
+                                and idTipoValorRetencion ='8506456C-EC1D-4FCF-BBDF-6F419A3C85FE'
+
+                            ";
+                return Ok(await _dapper.QueryAsync(sql));
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
+        }
+
+
+
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> porcentajeImpuestosRetencionesIva()
+        {
+            try
+            {
+                string sql = @"
+                   
+                                select idPorcentajeImpuestoRetencion,nombre,valor,codigo,idTipoValorRetencion
+                                from porcentajeImpuestosRetenciones pir
+                                where activo =1
+                                and idTipoValorRetencion ='45D5A939-B8EF-47CA-B9FA-D97EE1B10611'
+
                             ";
                 return Ok(await _dapper.QueryAsync(sql));
             }
