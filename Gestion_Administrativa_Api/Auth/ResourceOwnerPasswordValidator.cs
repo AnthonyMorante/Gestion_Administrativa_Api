@@ -4,11 +4,9 @@ using IdentityServer4.Validation;
 
 namespace Gestion_Administrativa_Api.Auth
 {
-
     public class ResourceOwnerPasswordValidator : IResourceOwnerPasswordValidator
     {
         private readonly IUserRepository _userRepository;
-
 
         public ResourceOwnerPasswordValidator(IUserRepository userrepository)
         {
@@ -29,17 +27,9 @@ namespace Gestion_Administrativa_Api.Auth
                               subject: context.UserName.ToString(),
                               authenticationMethod: "token"
 
-
                               );
 
-
-
             return;
-
-
-
         }
-
-
     }
 }
