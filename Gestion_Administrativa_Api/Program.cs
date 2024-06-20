@@ -80,12 +80,6 @@ try
     builder.Services.AddControllers().AddJsonOptions(x =>
                     x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
-    //builder.Services.AddControllers(options =>
-    //{
-    //    options.Filters.Add(new ConsumesAttribute("application/json"));
-    //    options.Filters.Add(new ProducesAttribute("application/json"));
-    //});
-
     builder.Services.AddCors(options =>
     {
         options.AddPolicy("cors", builder =>

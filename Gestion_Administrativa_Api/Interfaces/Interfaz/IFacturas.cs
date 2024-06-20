@@ -239,7 +239,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                 var totalImpuestoList = new List<totalImpuesto_V1_0_0>();
                 var totalImpuesto = new totalImpuesto_V1_0_0();
                 totalImpuesto.codigo = 2;
-                totalImpuesto.codigoPorcentaje = 2;
+                totalImpuesto.codigoPorcentaje = 3;
                 totalImpuesto.baseImponible = _factura.Subtotal12;
                 totalImpuesto.valor = _factura.Iva12;
                 totalImpuestoList.Add(totalImpuesto);
@@ -363,7 +363,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
             try
             {
                 var xmlFirmado = await firmarXml(claveAcceso);
-                if (!await _IUtilidades.envioXmlSRI(xmlFirmado)) throw new Exception("Error al enviar al SRI");
+                if (!await _IUtilidades.envioXmlSriComprobacion(xmlFirmado)) throw new Exception("Error al enviar al SRI");
                 return true;
             }
             catch (Exception ex)

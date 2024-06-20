@@ -35,14 +35,14 @@ namespace Gestion_Administrativa_Api.Interfaces.Utilidades
         Task<estadoSri> verificarEstadoSRI(string claveAcceso);
 
         Task<bool> envioCorreo(string email, byte[] archivo, byte[] xml, string nombreArchivo);
-        Task<object?> envioXmlSriComprobacion(XmlDocument documentoFirmado);
+        Task<bool> envioXmlSriComprobacion(XmlDocument? documentoFirmado);
     }
     public class UtilidadesI : IUtilidades
     {
 
 
         private readonly HttpClient _httpClient;
-     
+
         public UtilidadesI(HttpClient httpClient)
         {
 
@@ -120,7 +120,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Utilidades
             try
             {
                 string fechaFormateada = _retencion.FechaEmision?.ToString("ddMMyyyy");
-                string tipoDocumento =  _retencion.TipoDocumento.ToString().PadLeft(2, '0');
+                string tipoDocumento = _retencion.TipoDocumento.ToString().PadLeft(2, '0');
                 string ruc = _retencion.EmisorRuc;
                 int ambiente = Convert.ToInt16(Tools.config!["SRI:ambiente"]);
                 string establecimiento = _retencion.Establecimiento.ToString().PadLeft(3, '0');
@@ -189,7 +189,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Utilidades
                 return null;
             }
         }
-        public async Task<bool> envioCorreo(string email, byte[] archivo, byte[]xml, string nombreArchivo)
+        public async Task<bool> envioCorreo(string email, byte[] archivo, byte[] xml, string nombreArchivo)
         {
             try
             {
@@ -222,7 +222,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Utilidades
         }
 
 
-        public async Task<object?> envioXmlSriComprobacion(XmlDocument documentoFirmado)
+        public async Task<bool> envioXmlSriComprobacion(XmlDocument documentoFirmado)
         {
 
             var xmlByte = Encoding.ASCII.GetBytes(documentoFirmado.InnerXml);
@@ -245,14 +245,15 @@ namespace Gestion_Administrativa_Api.Interfaces.Utilidades
                 //var peticionTask = _httpClient.PostAsync(_configuration["SRI:urlEnvioComprobantes"], content);
                 peticion.EnsureSuccessStatusCode();
                 var consulta = await peticion.Content.ReadAsStringAsync();
-                return consulta.ToString();
+                consulta.ToString();
+                return true;
 
 
 
             }
             catch (Exception exc)
             {
-                return null;
+                return true;
             }
         }
 

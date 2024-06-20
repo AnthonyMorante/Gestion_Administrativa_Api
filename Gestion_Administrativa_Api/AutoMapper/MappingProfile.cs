@@ -26,14 +26,14 @@ namespace Gestion_Administrativa_Api.AutoMapper
                   .ForMember(dest => dest.descuento, opt => opt.MapFrom(src => src.descuento == null ? 0 : src.descuento))
                   .ForMember(dest => dest.precioTotalSinImpuesto, opt => opt.MapFrom(src => src.totalSinIva))
                   .ForMember(dest => dest.precioUnitario, opt => opt.MapFrom(src => src.valorProductoSinIva))
-                  //.ForMember(dest => dest.totalConImpuestos, opt => opt.MapFrom(src => src.total))
                   .ForMember(dest => dest.impuestos, opt => opt.MapFrom(src => new List<impuesto_V1_0_0>
                     {
                         new impuesto_V1_0_0
                         {
-                            codigo=2,//por que es iva tabla 16,
+                            codigo=3,
                             codigoPorcentaje = src.idIva ==  Guid.Parse("53347a4d-5c75-42e8-9456-595a728306aa") ? 2:
                             src.idIva ==  Guid.Parse("d4c41fb5-1791-4739-8285-a312e010afa9") ? 0:
+                            src.idIva ==  Guid.Parse("D4C41FB5-1791-4739-8285-A312E010AFA3") ? 3:
                             src.idIva ==  Guid.Parse("aaf450c1-058f-4406-8c69-7ab3b1d1c339") ? 6:
                             src.idIva ==  Guid.Parse("8980f44a-df38-400a-9d89-4150cadd13ba") ? 7: -1,
                             tarifa=src.tarifaPorcentaje,
