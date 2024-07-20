@@ -6,14 +6,19 @@ using Gestion_Administrativa_Api.Models;
 using Gestion_Administrativa_Api.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Xades;
 using NetBarcode;
 using Rotativa.AspNetCore;
+using System.CodeDom.Compiler;
 using System.Data;
+using System.Security.Cryptography.X509Certificates;
+using System.Security.Cryptography.Xml;
 using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Serialization;
 using static Gestion_Administrativa_Api.Documents_Models.Factura.factura_V100;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Gestion_Administrativa_Api.Interfaces.Interfaz
 {
@@ -300,6 +305,12 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
         {
             try
             {
+                XmlDocument? xmlFirmado = new XmlDocument();
+                //if (System.IO.File.Exists($"{Tools.rootPath}/Facturacion/xml/{claveAcceso}.xml"))
+                //{
+                //    xmlFirmado.Load($"{Tools.rootPath}/Facturacion/xml/{claveAcceso}.xml");
+                //    return xmlFirmado;
+                //}
                 var documento = await generarXml(claveAcceso);
                 var consultaFactura = await _Facturas(claveAcceso);
                 if (consultaFactura == null) return null;
@@ -310,9 +321,11 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                               WHERE f.""claveAcceso""=@claveAcceso";
                 var firma = await _dapper.QueryFirstOrDefaultAsync(sql, new { claveAcceso });
                 var documentoFirmado = await _IUtilidades.firmar(firma.codigo, $"{Tools.rootPath}{firma.ruta}", documento);
-
                 if (documentoFirmado == null) throw new Exception("Error al firmar el documento");
-                return documentoFirmado.Document;
+                xmlFirmado = documentoFirmado.Document;
+                //xmlFirmado.Save($"{Tools.rootPath}/Facturacion/xml/{claveAcceso}.xml");
+
+                return xmlFirmado;
             }
             catch (Exception ex)
             {
@@ -362,7 +375,8 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
         {
             try
             {
-                var xmlFirmado = await firmarXml(claveAcceso);
+
+                var xmlFirmado=await firmarXml(claveAcceso);
                 if (!await _IUtilidades.envioXmlSriComprobacion(xmlFirmado)) throw new Exception("Error al enviar al SRI");
                 return true;
             }

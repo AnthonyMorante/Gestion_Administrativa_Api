@@ -7,10 +7,14 @@ using Gestion_Administrativa_Api.Dtos.Interfaz;
 using Gestion_Administrativa_Api.Interfaces.Interfaz;
 using Gestion_Administrativa_Api.Models;
 using Gestion_Administrativa_Api.Utilities;
+using Microsoft.VisualBasic;
+using Microsoft.Xades;
 using System.Data;
 using System.Net.Mail;
 using System.Runtime.CompilerServices;
+using System.Security.Cryptography.Pkcs;
 using System.Security.Cryptography.X509Certificates;
+using System.Security.Cryptography.Xml;
 using System.Text;
 using System.Xml;
 using System.Xml.Linq;
@@ -165,20 +169,26 @@ namespace Gestion_Administrativa_Api.Interfaces.Utilidades
         {
             try
             {
-                var cert = new X509Certificate2(rutaFirma, codigo, X509KeyStorageFlags.MachineKeySet);
+                //var cert = new X509Certificate2(rutaFirma, codigo, X509KeyStorageFlags.MachineKeySet);
+                
+                var cert = new X509Certificate2(rutaFirma, codigo);
                 XadesService xadesService = new XadesService();
                 SignatureParameters parametros = new SignatureParameters();
                 parametros.SignaturePolicyInfo = new SignaturePolicyInfo();
-                parametros.SignatureMethod = SignatureMethod.RSAwithSHA512;
+                parametros.SignatureMethod = SignatureMethod.RSAwithSHA256;
                 parametros.SigningDate = DateTime.Now;
-                parametros.SignaturePackaging = SignaturePackaging.ENVELOPED;
-                parametros.DataFormat = new DataFormat();
+                parametros.SignaturePackaging = SignaturePackaging.HASH_INTERNALLY_DETACHED;
+                //parametros.DataFormat = new DataFormat();
+                //var _dataFormat = new DataObjectFormat();
+                //_dataFormat.MimeType = "text/xml";
+                //_dataFormat.Encoding = "UTF-8";
+                parametros.DataFormat = new DataFormat{ MimeType= "text/xml"};
                 parametros.Signer = new Signer(cert);
-
                 using (MemoryStream memoryStream = new MemoryStream())
                 {
                     using (XmlWriter xmlWriter = XmlWriter.Create(memoryStream)) documento.Save(xmlWriter);
                     memoryStream.Position = 0;
+                    
                     SignatureDocument docFirmado = xadesService.Sign(memoryStream, parametros);
                     return docFirmado;
                 }
