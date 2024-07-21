@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using es.mityc.javasign.xml.resolvers;
 using FirmaXadesNetCore;
 using FirmaXadesNetCore.Crypto;
 using FirmaXadesNetCore.Signature;
@@ -169,26 +170,26 @@ namespace Gestion_Administrativa_Api.Interfaces.Utilidades
         {
             try
             {
-                //var cert = new X509Certificate2(rutaFirma, codigo, X509KeyStorageFlags.MachineKeySet);
-                
                 var cert = new X509Certificate2(rutaFirma, codigo);
                 XadesService xadesService = new XadesService();
                 SignatureParameters parametros = new SignatureParameters();
+                parametros.SignaturePolicyInfo = new SignaturePolicyInfo()
+                {
+                    PolicyIdentifier = "urn:oid:1.3.6.1.4.1.47283.1.1",
+                    PolicyHash = "G7roucf600+f03r/o0bAOQ6WAs0=",
+                    PolicyUri = "http://www.entidadreguladora.gob.ec/politica_firma.pdf"
+                };
                 parametros.SignaturePolicyInfo = new SignaturePolicyInfo();
-                parametros.SignatureMethod = SignatureMethod.RSAwithSHA256;
+                parametros.SignatureMethod = SignatureMethod.RSAwithSHA512;
                 parametros.SigningDate = DateTime.Now;
-                parametros.SignaturePackaging = SignaturePackaging.HASH_INTERNALLY_DETACHED;
-                //parametros.DataFormat = new DataFormat();
-                //var _dataFormat = new DataObjectFormat();
-                //_dataFormat.MimeType = "text/xml";
-                //_dataFormat.Encoding = "UTF-8";
-                parametros.DataFormat = new DataFormat{ MimeType= "text/xml"};
+                parametros.SignaturePackaging = SignaturePackaging.ENVELOPED;
+                parametros.DataFormat = new DataFormat();
                 parametros.Signer = new Signer(cert);
+
                 using (MemoryStream memoryStream = new MemoryStream())
                 {
                     using (XmlWriter xmlWriter = XmlWriter.Create(memoryStream)) documento.Save(xmlWriter);
                     memoryStream.Position = 0;
-                    
                     SignatureDocument docFirmado = xadesService.Sign(memoryStream, parametros);
                     return docFirmado;
                 }
@@ -199,6 +200,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Utilidades
                 return null;
             }
         }
+    
         public async Task<bool> envioCorreo(string email, byte[] archivo, byte[] xml, string nombreArchivo)
         {
             try
