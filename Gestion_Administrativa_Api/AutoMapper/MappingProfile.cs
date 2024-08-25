@@ -17,7 +17,7 @@ namespace Gestion_Administrativa_Api.AutoMapper
 
 
 
-            #region FormaPago
+           #region Detalle
 
             CreateMap<DetalleDto, detalle_V1_0_0>()
                   .ForMember(dest => dest.codigoPrincipal, opt => opt.MapFrom(src => src.codigo))
@@ -30,11 +30,12 @@ namespace Gestion_Administrativa_Api.AutoMapper
                     {
                         new impuesto_V1_0_0
                         {
-                            codigo=3,
+                            codigo=2,
                             codigoPorcentaje = src.idIva ==  Guid.Parse("53347a4d-5c75-42e8-9456-595a728306aa") ? 2:
                             src.idIva ==  Guid.Parse("d4c41fb5-1791-4739-8285-a312e010afa9") ? 0:
                             src.idIva ==  Guid.Parse("D4C41FB5-1791-4739-8285-A312E010AFA3") ? 3:
                             src.idIva ==  Guid.Parse("aaf450c1-058f-4406-8c69-7ab3b1d1c339") ? 6:
+                            src.idIva ==  Guid.Parse("D4C41FB5-1791-4739-8285-A312E010AFA5") ? 4:
                             src.idIva ==  Guid.Parse("8980f44a-df38-400a-9d89-4150cadd13ba") ? 7: -1,
                             tarifa=src.tarifaPorcentaje,
                             baseImponible=src.totalSinIva,

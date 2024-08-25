@@ -21,7 +21,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
     {
         Task<IActionResult> guardar(FacturaDto? _facturaDto);
 
-        Task<byte[]> generaRide(ActionContext ac, string claveAcceso,bool proforma);
+        Task<byte[]> generaRide(ActionContext ac, string claveAcceso, bool proforma);
 
         Task<bool> enviarCorreo(string email, byte[] archivo, string nombreArchivo);
 
@@ -130,7 +130,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                     await _context.SaveChangesAsync();
                 }
                 result.StatusCode = 200;
-                result.Value=factura.ClaveAcceso;
+                result.Value = factura.ClaveAcceso;
                 return result;
             }
             catch (Exception ex)
@@ -239,7 +239,7 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
                 var totalImpuestoList = new List<totalImpuesto_V1_0_0>();
                 var totalImpuesto = new totalImpuesto_V1_0_0();
                 totalImpuesto.codigo = 2;
-                totalImpuesto.codigoPorcentaje = 3;
+                totalImpuesto.codigoPorcentaje = 4; /*PorcentajeImpuestosRetenciones del total de einfofactura encabezado*/
                 totalImpuesto.baseImponible = _factura.Subtotal12;
                 totalImpuesto.valor = _factura.Iva12;
                 totalImpuestoList.Add(totalImpuesto);
@@ -330,13 +330,13 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
             {
                 var consultaFactura = await _context.Facturas
                     .Include(x => x.DetalleFacturas)
-                    .ThenInclude(x=>x.IdProductoNavigation)
-                    .ThenInclude(x=>x.IdIvaNavigation)
+                    .ThenInclude(x => x.IdProductoNavigation)
+                    .ThenInclude(x => x.IdIvaNavigation)
                     .Include(x => x.DetalleFormaPagos)
-                    .ThenInclude(x=>x.IdFormaPagoNavigation)
+                    .ThenInclude(x => x.IdFormaPagoNavigation)
                     .Where(x => x.ClaveAcceso == claveAcceso).FirstOrDefaultAsync();
-                    
-                    ;
+
+                ;
                 if (consultaFactura == null) return null;
 
 
@@ -387,13 +387,13 @@ namespace Gestion_Administrativa_Api.Interfaces.Interfaz
             }
         }
 
-        public async Task<byte[]> generaRide(ActionContext ac, string claveAcesso,bool proforma)
+        public async Task<byte[]> generaRide(ActionContext ac, string claveAcesso, bool proforma)
         {
             try
             {
                 var factura_V1_0_0 = await _Factura_V1_0_0(claveAcesso);
                 var barCode = getBarcode(claveAcesso);
-                var pdf = new ViewAsPdf(proforma? "~/Views/Factura/Proforma.cshtml":"~/Views/Factura/FacturaV1_1_0.cshtml", new { factura_V1_0_0, barCode });
+                var pdf = new ViewAsPdf(proforma ? "~/Views/Factura/Proforma.cshtml" : "~/Views/Factura/FacturaV1_1_0.cshtml", new { factura_V1_0_0, barCode });
                 return await pdf.BuildFile(ac);
             }
             catch (Exception ex)

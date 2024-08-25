@@ -162,7 +162,7 @@ namespace Gestion_Administrativa_Api.Documents_Models.Factura
             public decimal precioUnitario { get; set; }
             public decimal? descuento { get; set; }
             public decimal? precioTotalSinImpuesto { get; set; }
-            //public decimal? totalConImpuestos { get; set; }
+            
             public List<impuesto_V1_0_0>? impuestos { get; set; }
         }
 
