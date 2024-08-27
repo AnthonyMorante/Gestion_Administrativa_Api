@@ -4,6 +4,7 @@ using Gestion_Administrativa_Api.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Swashbuckle.AspNetCore.Annotations;
 using System.Data;
 
 namespace Gestion_Administrativa_Api.Controllers.Interfaz
@@ -47,7 +48,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                 return Tools.handleError(ex);
             }
         }
-
+        [SwaggerIgnore]
         [HttpPost]
         public async Task<IActionResult> leerXml([FromForm] IFormFile fileXml)
         {
