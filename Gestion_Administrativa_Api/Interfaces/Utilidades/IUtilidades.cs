@@ -198,9 +198,9 @@ namespace Gestion_Administrativa_Api.Interfaces.Utilidades
                 correo.Attachments.Add((new Attachment(new MemoryStream(xml), nombreArchivo + ".xml")));
                 correo.From = new MailAddress(Tools.config["EnvioCorreo:Email"]);
                 correo.To.Add(email);
-                correo.Subject = "Mega Aceros - Documento Emitido";
+                correo.Subject = "Jeans Pelileo - Documento Emitido";
                 correo.Body = @"<div style='width:100%;margin-top:25px;'>
-                                   <h1>Mega Aceros</h1>
+                                   <h1>Jeans Pelileo</h1>
                                    <p>Gracias por su compra adjuntamos el documento electrónico correspondiente.</p>
                                 </div>";
                 correo.IsBodyHtml = true;
