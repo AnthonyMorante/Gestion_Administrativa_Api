@@ -39,7 +39,7 @@ namespace Gestion_Administrativa_Api.AutoMapper
                             src.idIva ==  Guid.Parse("8980f44a-df38-400a-9d89-4150cadd13ba") ? 7: -1,
                             tarifa=src.tarifaPorcentaje,
                             baseImponible=src.totalSinIva,
-                            valor=src.porcentaje
+                            valor=src.valorPorcentaje
 
                         }
                     }))
