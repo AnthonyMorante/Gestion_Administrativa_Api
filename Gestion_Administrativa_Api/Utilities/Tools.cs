@@ -665,13 +665,13 @@ namespace Gestion_Administrativa_Api.Utilities
             }
             var factura = ConvertStringToObject<Tools.Factura>(encoded);
             var arregloAutorizacion = encodedAutorizacion.Split(new string[] { "<autorizacion>" }, StringSplitOptions.None);
-            if(arregloAutorizacion.Length > 1)
-            {
-                encodedAutorizacion = encodedAutorizacion.Split(new string[] { "</ambiente>" }, StringSplitOptions.None)[0];
-                encodedAutorizacion = $"{encodedAutorizacion}</ambiente></autorizacion>";
-                var autorizacion = ConvertStringToObject<Tools.Autorizacion>(encodedAutorizacion);
-                factura.autorizacion= autorizacion;
-            }
+            //if(arregloAutorizacion.Length > 1)
+            //{
+            //    encodedAutorizacion = encodedAutorizacion.Split(new string[] { "</ambiente>" }, StringSplitOptions.None)[0];
+            //    encodedAutorizacion = $"{encodedAutorizacion}</ambiente></autorizacion>";
+            //    var autorizacion = ConvertStringToObject<Tools.Autorizacion>(encodedAutorizacion);
+            //    factura.autorizacion= autorizacion;
+            //}
             return factura;
         }
 
