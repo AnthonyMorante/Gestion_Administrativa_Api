@@ -6,7 +6,6 @@ using Gestion_Administrativa_Api.Models;
 using Gestion_Administrativa_Api.Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
 using System.Text;
@@ -68,7 +67,6 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             }
         }
 
-
         [HttpPost]
         public async Task<IActionResult> listarProforma([FromBody] Tools.DataTableModel? _params)
         {
@@ -106,9 +104,6 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                 return Problem(ex.Message);
             }
         }
-
-
-
 
         [Authorize]
         [HttpGet]
@@ -168,7 +163,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                                              item.CorreoEnviado,
                                              item.TipoDocumento
                                          }).FirstOrDefaultAsync();
-                    
+
                     var estado = await _IUtilidades.verificarEstadoSRI(claveAcceso);
 
                     string sqlU = $@"UPDATE facturas SET ""idTipoEstadoSri""=@idTipoEstadoSri
@@ -180,7 +175,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                         {
                             try
                             {
-                                var ride = await _IFacturas.generaRide(ControllerContext, claveAcceso,factura.TipoDocumento==0);
+                                var ride = await _IFacturas.generaRide(ControllerContext, claveAcceso, factura.TipoDocumento == 0);
                                 await _IFacturas.enviarCorreo(factura.ReceptorCorreo, ride, claveAcceso);
                                 sqlU += @"UPDATE facturas SET ""correoEnviado""=1,""fechaAutorizacion""=@fechaAutorizacion WHERE ""claveAcceso"" =@claveAcceso;";
                             }
@@ -244,8 +239,8 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
         {
             try
             {
-                var proforma=await _context.Facturas.AsNoTracking().Where(x=>x.ClaveAcceso== claveAcceso).Select(x=>x.TipoDocumento).FirstOrDefaultAsync()==0;
-                var pdfBytes = await _IFacturas.generaRide(ControllerContext, claveAcceso,proforma);
+                var proforma = await _context.Facturas.AsNoTracking().Where(x => x.ClaveAcceso == claveAcceso).Select(x => x.TipoDocumento).FirstOrDefaultAsync() == 0;
+                var pdfBytes = await _IFacturas.generaRide(ControllerContext, claveAcceso, proforma);
                 var archivo = new FileContentResult(pdfBytes, "application/pdf");
                 archivo.FileDownloadName = $"REPORTE_{DateTime.Now.Ticks}.pdf";
                 return archivo;
@@ -255,12 +250,30 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                 return Problem(ex.Message);
             }
         }
-
+        
         private async Task<FacturaDto> procesarFactura(FacturaDto? _facturaDto)
         {
             try
             {
                 _facturaDto.idEmpresa = new Guid(Tools.getIdEmpresa(HttpContext));
+                _facturaDto.detalleFactura= _facturaDto.detalleFactura?.Select(x => new DetalleDto
+                {
+                    cantidad = x.cantidad,
+                    codigo= x.codigo,
+                    idDetallePrecioProducto= x.idDetallePrecioProducto,
+                    idIva = x.idIva,
+                    idProducto = x.idProducto,
+                    nombre = x.nombre,
+                    nombrePorcentaje = x.nombrePorcentaje,
+                    porcentaje = x.valorPorcentaje==0?0:((x.cantidad*x.valorProductoSinIva)-x.descuento??0)*x.valorPorcentaje,
+                    tarifaPorcentaje= x.tarifaPorcentaje,
+                    totalSinIva = (x.cantidad * x.valorProductoSinIva)-x.descuento??0,
+                    valor= x.cantidad * x.valorProductoSinIva,
+                    valorPorcentaje= x.valorPorcentaje,
+                    valorProductoSinIva= x.valorProductoSinIva,
+                    total=x.totalSinIva+x.porcentaje,
+                    descuento=x.descuento
+                }).ToList();
                 var empresa = await _context.Clientes.AsNoTracking().Where(x => x.IdEmpresa == _facturaDto.idEmpresa).FirstOrDefaultAsync();
                 string sql = @"SELECT * FROM ""clientes"" WHERE ""identificacion""=@identificacion AND ""idEmpresa""=CAST(@idEmpresa AS UNIQUEIDENTIFIER)";
                 string ciudadDefecto = "Pelileo";
@@ -298,7 +311,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
 
                 await _context.SaveChangesAsync();
                 _facturaDto.idCliente = cliente.IdCliente;
-                _facturaDto.idDocumentoEmitir = (await _context.DocumentosEmitir.AsNoTracking().Where(x => x.IdTipoDocumento == _facturaDto.idTipoDocumento && x.Activo==true).FirstOrDefaultAsync()).IdDocumentoEmitir;
+                _facturaDto.idDocumentoEmitir = (await _context.DocumentosEmitir.AsNoTracking().Where(x => x.IdTipoDocumento == _facturaDto.idTipoDocumento && x.Activo == true).FirstOrDefaultAsync()).IdDocumentoEmitir;
                 sql = @"SELECT ""nombre""
                         FROM ""establecimientos""
                         WHERE ""idEstablecimiento""=@idEstablecimiento
@@ -336,7 +349,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             try
             {
                 var proforma = await _context.Facturas.AsNoTracking().Where(x => x.ClaveAcceso == claveAcceso).Select(x => x.TipoDocumento).FirstOrDefaultAsync() == 0;
-                var consulta = await _IFacturas.generaRide(ControllerContext, claveAcceso,proforma);
+                var consulta = await _IFacturas.generaRide(ControllerContext, claveAcceso, proforma);
                 return "ok";
             }
             catch (Exception ex)
@@ -505,18 +518,19 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                 return Problem(ex.Message);
             }
         }
+
         [HttpGet]
         public async Task<IActionResult> estadosPendientes()
         {
             try
             {
-                var idEmpresa= Tools.getIdEmpresa(HttpContext);
-                string sql = @"SELECT count(idFactura) 
-                                FROM facturas 
+                var idEmpresa = Tools.getIdEmpresa(HttpContext);
+                string sql = @"SELECT count(idFactura)
+                                FROM facturas
                                 WHERE (correoEnviado = 0 AND idTipoEstadoSri=2)
                                 OR idTipoEstadoSri in(1,6,0)
                                 AND idEstablecimiento in(SELECT idEstablecimiento FROM establecimientos WHERE idEmpresa=@idEmpresa)";
-                return Ok(await _dapper.ExecuteScalarAsync<int>(sql, new { idEmpresa }));   
+                return Ok(await _dapper.ExecuteScalarAsync<int>(sql, new { idEmpresa }));
             }
             catch (Exception ex)
             {
@@ -535,8 +549,6 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                                 INNER JOIN ""usuarioEmpresas"" ue ON ue.""idUsuario"" = f.""idUsuario""
                                 WHERE (""idTipoEstadoSri"" NOT IN(2,3,4,5) OR (""correoEnviado""=0 AND ""idTipoEstadoSri""=2))
                                 AND ""idEmpresa""= CAST(@idEmpresa AS UNIQUEIDENTIFIER)";
-
-
 
                 if (_dapper.ExecuteScalar<int>(sql, new { idEmpresa }) == 0) return Ok("empty");
                 sql = @"SELECT ""claveAcceso""
@@ -610,7 +622,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                                     if (correoEnviado)
                                     {
                                         sqlA = @"UPDATE facturas SET ""correoEnviado""=1 WHERE ""claveAcceso"" =@claveAcceso;";
-                                        _dapper.Execute(sqlA, new { claveAcceso});
+                                        _dapper.Execute(sqlA, new { claveAcceso });
                                     }
                                 }
                                 catch (Exception ex)
@@ -619,7 +631,6 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                                     continue;
                                 }
                             }
-     
                         }
                     }
                     catch (Exception ex)
@@ -631,6 +642,22 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                 return Ok();
             }
             catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> getIvaActivo()
+        {
+            try
+            {
+                var iva = await _context.Ivas.Where(x => x.Activo == true && x.Valor > 0)
+                                                  .FirstOrDefaultAsync();
+                return Ok(iva?.Valor ?? (decimal)0.12);
+            }
+            catch (Exception ex)
+
             {
                 return Problem(ex.Message);
             }
