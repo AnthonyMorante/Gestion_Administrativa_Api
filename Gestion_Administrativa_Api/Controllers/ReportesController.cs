@@ -156,6 +156,32 @@ namespace Gestion_Administrativa_Api.Controllers
 
         [HttpGet]
         [AllowAnonymous]
+        public async Task<IActionResult> ExcelEmpleados()
+        {
+            try
+            {
+                var empelados = await _contexto.Empleados.Select(x => new
+                {
+                    x.Identificacion,
+                    Empleado = x.RazonSocial,
+                    x.Direccion,
+                    x.Telefono,
+                    x.Email
+                }).ToListAsync();
+                var excel = empelados.ToExcel(x =>
+                {
+                    x.SheetName("Empleados");
+                });
+                return File(excel, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"ReporteEmpleados {DateTime.Now}.xlsx");
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> ExcelProveedores()
         {
             try

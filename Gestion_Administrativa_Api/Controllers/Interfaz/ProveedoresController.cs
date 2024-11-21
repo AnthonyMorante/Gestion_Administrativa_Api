@@ -21,23 +21,32 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
             _dapper = context.Database.GetDbConnection();
         }
 
-        //[HttpPost]
-        //public async Task<IActionResult> insertar(ProveedoresDto _clientes)
-        //{
-        //    try
-        //    {
-        //        _clientes.IdEmpresa = new Guid(Tools.getIdEmpresa(HttpContext));
-        //        var consulta = await _IProveedores.insertar(_clientes);
+        [HttpPost]
+        public async Task<IActionResult> insertar(SriPersonas _data)
+        {
+            try
+            {
+                var persona = await _context.SriPersonas.AsNoTracking().FirstOrDefaultAsync(x => x.Identificacion == _data.Identificacion);
+                if (persona!=null && persona.Proveedor == true) throw new Exception("Ya se ha registrado un proveedor con ese ruc, busquelo y modifique sus datos");
 
-        //        if (consulta == "ok") return Ok();
-        //        if (consulta == "repetido") return Problem("El documento de identidad ya existe en el sistema");
-        //        return Problem();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return BadRequest(new { error = "error", exc = ex });
-        //    }
-        //}
+                if(persona!= null && persona.Proveedor == false)
+                {
+                    persona.Proveedor = true;
+                    _context.SriPersonas.Update(persona);
+                    await _context.SaveChangesAsync();
+                    return Ok();
+                }
+                _data.Proveedor=true;
+                _data.FechaRegistro = DateTime.Now;
+                _context.SriPersonas.Add(_data);
+                await _context.SaveChangesAsync();
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = "error", exc = ex });
+            }
+        }
 
         [HttpPost]
         public async Task<IActionResult> listar([FromBody] Tools.DataTableModel? _params)
@@ -49,7 +58,7 @@ namespace Gestion_Administrativa_Api.Controllers.Interfaz
                                FROM ""SriPersonas""
                                WHERE identificacion IN (SELECT ruc FROM ""SriFacturas""
                                WHERE compra=1 AND ""idEmpresa""=CAST(@idEmpresa AS UNIQUEIDENTIFIER)
-                               )";
+                               ) OR proveedor=1";
                 return Ok(await Tools.DataTableSql(new Tools.DataTableParams
                 {
                     parameters = new { idEmpresa },
